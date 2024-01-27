@@ -1,35 +1,59 @@
 stages:
   - lint
+  - test
   - build
   - register
   - release
 
 variables:
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PIP_CACHE_DIR: "/.cache/pip"
+  PRE_COMMIT_HOME: "/.cache/pre-commit"
+  TEST_RESULTS_FILE: "test_results.xml"
+  TEST_COVERAGE_FILE: "coverage.xml"
 
 default:
   image: python:3
   cache:
     paths:
-      - .cache/pip
+      - $PIP_CACHE_DIR
   before_script:
   - python --version ; pip --version
   - pip install --upgrade pip
+  - pip install -r requirements-dev.txt
 
 .doRelease:
-  rules: 
+  rules:
     - if: $CI_COMMIT_TAG
 
 check_formatting:
   stage: lint
+  cache:
+    paths:
+      - $PRE_COMMIT_HOME
   script:
-    - pip install black
-    - python -m black . --check
+    - pre-commit run --all-files
+
+pytest:
+  stage: test
+  script:
+    - coverage run -m pytest --junitxml=$TEST_RESULTS_FILE
+    - coverage report
+    - coverage xml -o $TEST_COVERAGE_FILE
+  coverage: '/TOTAL.*\s+(\d+%)$/'
+  artifacts:
+    when: always
+    paths:
+      - $TEST_RESULTS_FILE
+      - $TEST_COVERAGE_FILE
+    reports:
+      junit: $TEST_RESULTS_FILE
+      coverage_report:
+        coverage_format: cobertura
+        path: $TEST_COVERAGE_FILE
 
 build:
   stage: build
   script:
-    - pip install --upgrade build
     - python -m build
   artifacts:
     paths:
@@ -39,10 +63,10 @@ register_package:
   extends: .doRelease
   stage: register
   script:
-    - pip install twine
-    - TWINE_PASSWORD=${CI_JOB_TOKEN} 
-      TWINE_USERNAME=gitlab-ci-token 
-      python -m twine upload 
+    - pip install --upgrade twine
+    - TWINE_PASSWORD=${CI_JOB_TOKEN}
+      TWINE_USERNAME=gitlab-ci-token
+      python -m twine upload
       --verbose
       --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
 
@@ -59,4 +83,11 @@ release_job:
   release:
     tag_name: '$CI_COMMIT_TAG'
     description: '$CI_COMMIT_TAG'
-    
+
+include:
+  - template: Jobs/Secret-Detection.gitlab-ci.yml
+
+secret_detection:
+  inherit:
+    default: false
+  stage: lint
