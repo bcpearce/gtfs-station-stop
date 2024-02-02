@@ -42,7 +42,3 @@ class StationStopInfoDatabase:
 
     def __getitem__(self, key):
         return self._station_stop_infos[key]
-
-
-if __name__ == "__main__":
-    ssi = StationStopInfo("downloads/google_transit.zip")
