@@ -6,7 +6,7 @@ stages:
   - release
 
 variables:
-  PIP_CACHE_DIR: "/.cache/pip"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   PRE_COMMIT_HOME: "/.cache/pre-commit"
   TEST_RESULTS_FILE: "test_results.xml"
   TEST_COVERAGE_FILE: "coverage.xml"
@@ -15,7 +15,7 @@ default:
   image: python:3
   cache:
     paths:
-      - $PIP_CACHE_DIR
+      - .cache/pip
   before_script:
   - python --version ; pip --version
   - pip install --upgrade pip
@@ -51,6 +51,15 @@ pytest:
         coverage_format: cobertura
         path: $TEST_COVERAGE_FILE
 
+module-test:
+  stage: test
+  image: python:3
+  inherit:
+    default: false
+  script:
+    - pip install .
+    - python -m gtfs_station_stop
+
 build:
   stage: build
   script:
@@ -79,7 +88,8 @@ release_job:
   rules:
     - if: $CI_COMMIT_TAG
   script:
-    - echo "running release job"
+    - pip install gtfs-station-stop --index-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi/simple
+    - python -m gtfs_station_stop # smoke test the released module
   release:
     tag_name: '$CI_COMMIT_TAG'
     description: '$CI_COMMIT_TAG'
