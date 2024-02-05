@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gtfs_station_stop"
-version = "0.2.0"
+version = "0.3.0"
 authors = [
   { name="Benjamin Pearce", email="gtfs@bcpearce.com" },
 ]
@@ -15,4 +15,8 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+]
+dependencies = [
+  'gtfs-realtime-bindings>=1.0.0',
+  'requests==2.31.0'
 ]
