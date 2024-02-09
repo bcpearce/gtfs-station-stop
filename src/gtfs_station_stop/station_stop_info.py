@@ -16,6 +16,9 @@ class StationStopInfo:
         self.lon = station_data_dict.get("stop_lon")
         self.parent = parent
 
+    def __repr__(self):
+        return f"{self.id}: {self.name}, lat: {self.lat}, long: {self.lon}, parent: {self.parent.id}"
+
 
 class StationStopInfoDatabase:
     def __init__(self, filepath: os.PathLike):
@@ -40,5 +43,5 @@ class StationStopInfoDatabase:
                     parent = self._station_stop_infos.get(line["parent_station"])
                     self._station_stop_infos[id] = StationStopInfo(parent, line)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key) -> StationStopInfo:
         return self._station_stop_infos[key]

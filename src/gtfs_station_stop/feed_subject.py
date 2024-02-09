@@ -7,6 +7,8 @@ from weakref import WeakSet
 import requests
 from google.transit import gtfs_realtime_pb2
 
+from gtfs_station_stop.arrival import Arrival
+
 
 class StationStop:
     # implemented in station_stop.py
@@ -57,7 +59,9 @@ class FeedSubject:
                     if stu.stop_id in self.subscribers
                 ):
                     for sub in self.subscribers[stu.stop_id]:
-                        sub.arrivals.append((tu.trip.route_id, stu.arrival.time))
+                        sub.arrivals.append(
+                            Arrival(stu.arrival.time, tu.trip.route_id, tu.trip.trip_id)
+                        )
 
     def _notify_alerts(self, feed):
         for e in feed.entity:
@@ -85,9 +89,7 @@ class FeedSubject:
                 sub.last_updated = timestamp
 
     def update(self):
-        start = time.time()
         feed = self._get_gtfs_feed()
-        print(f"took {time.time() - start} seconds for getting feeds")
         self._reset_subscribers()
         self._notify_stop_updates(feed)
         self._notify_alerts(feed)
