@@ -2,8 +2,9 @@
 build==1.0.3
 black==23.12.1
 coverage==7.4.0
-python-dotenv==1.0.1
 flake8==7.0.0
+hatch==1.9.3
+hatchling==1.21.1
 isort==5.13.2
 pre-commit==3.6.0
 pytest==7.4.4

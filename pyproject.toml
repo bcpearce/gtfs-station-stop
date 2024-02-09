@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gtfs_station_stop"
-version = "0.3.0"
+dynamic = ["version"]
 authors = [
   { name="Benjamin Pearce", email="gtfs@bcpearce.com" },
 ]
@@ -17,6 +17,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  'gtfs-realtime-bindings>=1.0.0',
-  'requests==2.31.0'
+  "python-dotenv==1.0.1",
+  "gtfs-realtime-bindings==1.0.0",
+  "requests==2.31.0"
 ]
+[tool.hatch.version]
+path = "src/gtfs_station_stop/__about__.py"

@@ -1,5 +1,6 @@
 import time
 
+from gtfs_station_stop.arrival import Arrival
 from gtfs_station_stop.feed_subject import FeedSubject
 
 
@@ -17,7 +18,7 @@ class StationStop:
 
     def get_time_to_arrivals(self):
         current_time = time.time()
-        return [(id, (t - current_time)) for id, t in self.arrivals]
+        return [Arrival(a.time - current_time, a.route, a.trip) for a in self.arrivals]
 
     def get_alerts(self):
         return self.alerts

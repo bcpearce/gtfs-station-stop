@@ -66,7 +66,8 @@ module_test:
     default: false
   script:
     - pip install .
-    - python -m gtfs_station_stop
+    - echo "Running module version command to test module loading..."
+    - python -m gtfs_station_stop --version
 
 build:
   stage: build
