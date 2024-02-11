@@ -7,11 +7,17 @@ from weakref import WeakSet
 import requests
 from google.transit import gtfs_realtime_pb2
 
+from gtfs_station_stop.alert import Alert
 from gtfs_station_stop.arrival import Arrival
 
 
 class StationStop:
     # implemented in station_stop.py
+    pass
+
+
+class RouteStatus:
+    # implemented in route_status.py
     pass
 
 
@@ -67,16 +73,17 @@ class FeedSubject:
         for e in feed.entity:
             if e.HasField("alert"):
                 al = e.alert
-                for ie in (
-                    ie for ie in al.informed_entity if ie.stop_id in self.subscribers
-                ):
-                    for sub in self.subscribers[ie.stop_id]:
+                for ie in (ie for ie in al.informed_entity):
+                    for sub in (
+                        self.subscribers[ie.stop_id] | self.subscribers[ie.route_id]
+                    ):
                         hdr = al.header_text.translation
                         dsc = al.description_text.translation
                         sub.alerts.append(
-                            (
-                                hdr[0].text if len(hdr) > 0 else "",
-                                dsc[0].text if len(dsc) > 0 else "",
+                            Alert(
+                                active_period_start=time.time(),
+                                header_text={h.language: h.text for h in hdr},
+                                description_text={d.language: d.text for d in dsc},
                             )
                         )
 
@@ -84,9 +91,7 @@ class FeedSubject:
         timestamp = time.time()
         for subs in self.subscribers.values():
             for sub in subs:
-                sub.alerts.clear()
-                sub.arrivals.clear()
-                sub.last_updated = timestamp
+                sub.begin_update(timestamp)
 
     def update(self):
         feed = self._get_gtfs_feed()
@@ -94,8 +99,8 @@ class FeedSubject:
         self._notify_stop_updates(feed)
         self._notify_alerts(feed)
 
-    def subscribe(self, station_stop: StationStop):
-        self.subscribers[station_stop.stop_id].add(station_stop)
+    def subscribe(self, updatable: StationStop | RouteStatus):
+        self.subscribers[updatable.id].add(updatable)
 
-    def unsubscribe(self, station_stop: StationStop):
-        self.subscribers[station_stop.stop_id].remove(station_stop)
+    def unsubscribe(self, updatable: StationStop | RouteStatus):
+        self.subscribers[updatable.id].remove(updatable)
