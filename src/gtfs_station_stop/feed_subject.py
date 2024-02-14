@@ -7,6 +7,7 @@ from weakref import WeakSet
 import requests
 from google.transit import gtfs_realtime_pb2
 
+from gtfs_station_stop import helpers
 from gtfs_station_stop.alert import Alert
 from gtfs_station_stop.arrival import Arrival
 
@@ -73,19 +74,22 @@ class FeedSubject:
         for e in feed.entity:
             if e.HasField("alert"):
                 al = e.alert
-                for ie in (ie for ie in al.informed_entity):
-                    for sub in (
-                        self.subscribers[ie.stop_id] | self.subscribers[ie.route_id]
-                    ):
-                        hdr = al.header_text.translation
-                        dsc = al.description_text.translation
-                        sub.alerts.append(
-                            Alert(
-                                active_period_start=time.time(),
-                                header_text={h.language: h.text for h in hdr},
-                                description_text={d.language: d.text for d in dsc},
+                ends_at = helpers.is_none_or_ends_at(al)
+                if ends_at is not None:
+                    for ie in (ie for ie in al.informed_entity):
+                        for sub in (
+                            self.subscribers[ie.stop_id] | self.subscribers[ie.route_id]
+                        ):
+                            hdr = al.header_text.translation
+                            dsc = al.description_text.translation
+                            # validate that one of the active periods is current, then add it
+                            sub.alerts.append(
+                                Alert(
+                                    ends_at=ends_at,
+                                    header_text={h.language: h.text for h in hdr},
+                                    description_text={d.language: d.text for d in dsc},
+                                )
                             )
-                        )
 
     def _reset_subscribers(self):
         timestamp = time.time()

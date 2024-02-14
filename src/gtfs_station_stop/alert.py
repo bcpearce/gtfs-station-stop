@@ -6,6 +6,6 @@ from datetime import datetime
 class Alert:
     """Class for keeping arrival data."""
 
-    active_period_start: datetime
+    ends_at: float | None
     header_text: dict[str, str]  # key is language
     description_text: dict[str, str]  # key is language
