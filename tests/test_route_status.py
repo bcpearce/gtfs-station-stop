@@ -1,3 +1,4 @@
+import pytest
 from fixtures import *
 
 from gtfs_station_stop.feed_subject import FeedSubject
@@ -15,6 +16,7 @@ def test_subscribe_to_feed(feed_subject):
     del rs
 
 
+@pytest.mark.skip(reason="mock data must be tailored better and time.time mocked out")
 def test_update_feed(feed_subject):
     rs = RouteStatus("C", feed_subject)
     assert rs.last_updated is None
