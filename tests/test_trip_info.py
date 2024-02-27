@@ -9,20 +9,17 @@ TEST_DIRECTORY = pathlib.Path(__file__).parent.resolve()
 
 def test_invalid_gtfs_zip():
     with pytest.raises(RuntimeError):
-        TripInfoDatabase(TEST_DIRECTORY / "data" / "google_transit_notrips.zip")
+        TripInfoDatabase(TEST_DIRECTORY / "data" / "gtfs_static_notrips.zip")
 
 
 def test_get_trip_info_from_zip():
-    ti = TripInfoDatabase(TEST_DIRECTORY / "data" / "google_transit.zip")
-    assert ti["BFA23GEN-B084-Weekday-00_090500_B..S46R"].service_id == "Weekday"
-    assert ti["BFA23GEN-B084-Weekday-00_096850_B..N45R"].shape_id == "B..N45R"
-    assert (
-        ti["BFA23GEN-N098-Weekday-00_127700_N..N31R"].trip_headsign
-        == "Astoria-Ditmars Blvd"
-    )
+    ti = TripInfoDatabase(TEST_DIRECTORY / "data" / "gtfs_static.zip")
+    assert ti["456_X..N04R"].service_id == "Weekday"
+    assert ti["456_X..N04R"].shape_id == "X..N04R"
+    assert ti["456_Y..N05R"].trip_headsign == "Northbound Y"
 
 
 def test_get_close_match_trip_info_from_zip():
-    ti = TripInfoDatabase(TEST_DIRECTORY / "data" / "google_transit.zip")
-    assert ti.get_close_match("114100_L..N").trip_headsign == "8 Av"
-    assert ti.get_close_match("114100_L..N").route_id == "L"
+    ti = TripInfoDatabase(TEST_DIRECTORY / "data" / "gtfs_static.zip")
+    assert ti.get_close_match("456_X..N").trip_headsign == "Northbound X"
+    assert ti.get_close_match("321_Z..S").route_id == "Z"

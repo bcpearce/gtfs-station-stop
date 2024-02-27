@@ -1,0 +1,13 @@
+route_id,trip_id,service_id,trip_headsign,direction_id,shape_id
+X,123_X..N01R,Weekday,Northbound X,0,X..N01R
+X,321_X..S01R,Weekday,Southbound X,1,X..S01R
+X,456_X..N04R,Weekday,Northbound X,0,X..N04R
+X,654_X..S04R,Weekday,Southbound X,1,X..S04R
+Y,123_Y..N02R,Weekday,Northbound Y,0,Y..N02R
+Y,321_Y..S02R,Weekday,Southbound Y,1,Y..S02R
+Y,456_Y..N05R,Weekday,Northbound Y,0,Y..N05R
+Y,654_Y..S05R,Weekday,Southbound Y,1,Y..S05R
+Z,123_Z..N03R,Weekday,Northbound Z,0,Z..N03R
+Z,321_Z..S03R,Weekday,Southbound Z,1,Z..S03R
+Z,456_Z..N06R,Weekday,Northbound Z,0,Z..N06R
+Z,654_Z..S06R,Weekday,Southbound Z,1,Z..S06R
