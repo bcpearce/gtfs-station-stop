@@ -1,42 +1,47 @@
 import datetime
 
 import pytest
-from google.transit.gtfs_realtime_pb2 import FeedEntity, TimeRange
+from google.transit.gtfs_realtime_pb2 import FeedEntity
 
 from gtfs_station_stop import helpers
 
 
 @pytest.fixture
-def active_period_feed_entity():
+def active_period_alert():
     # TODO update feed entity to insert time range intervals
     fe = FeedEntity()
-    fe.active_period = [
-        TimeRange(start=100, end=120),
-        TimeRange(start=150, end=200),
-        TimeRange(start=400),
-        TimeRange(end=50),
-    ]
+
+    ap = fe.alert.active_period.add()
+    ap.start = 100
+    ap.end = 120
+
+    ap = fe.alert.active_period.add()
+    ap.start = 150
+    ap.end = 200
+
+    ap = fe.alert.active_period.add()
+    ap.start = 400
+
+    ap = fe.alert.active_period.add()
+    ap.end = 50
+    return fe.alert
 
 
-@pytest.mark.skip(reason="fixture must be set up")
-def test_return_none_if_not_active(active_period_feed_entity):
-    assert helpers.is_none_or_ends_at(active_period_feed_entity, 130) is None
-    assert helpers.is_none_or_ends_at(active_period_feed_entity, 60) is None
+def test_return_none_if_not_active(active_period_alert):
+    assert helpers.is_none_or_ends_at(active_period_alert, 130.0) is None
+    assert helpers.is_none_or_ends_at(active_period_alert, 60.0) is None
 
 
-@pytest.mark.skip(reason="fixture mest be set up")
-def test_return_end_if_active(active_period_feed_entity):
+def test_return_end_if_active(active_period_alert):
     assert helpers.is_none_or_ends_at(
-        active_period_feed_entity, 110
+        active_period_alert, 110.0
     ) == datetime.datetime.fromtimestamp(120)
     assert helpers.is_none_or_ends_at(
-        active_period_feed_entity, 160
+        active_period_alert, 160.0
     ) == datetime.datetime.fromtimestamp(200)
     assert (
-        helpers.is_none_or_ends_at(active_period_feed_entity, 500)
-        == datetime.datetime.max
+        helpers.is_none_or_ends_at(active_period_alert, 500.0) == datetime.datetime.max
     )
-    assert (
-        helpers.is_none_or_ends_at(active_period_feed_entity, 20)
-        == datetime.datetime.fromtimestamp
-    )
+    assert helpers.is_none_or_ends_at(
+        active_period_alert, 20.0
+    ) == datetime.datetime.fromtimestamp(50)

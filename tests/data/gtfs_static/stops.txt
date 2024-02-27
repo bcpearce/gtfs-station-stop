@@ -1,0 +1,10 @@
+stop_id,stop_name,stop_lat,stop_lon,location_type,parent_station
+101,Test Station Main St,40.60,-74.5,1,
+101N,Test Station Main St,40.60,-74.5,,101
+101S,Test Station Main St,40.60,-74.5,,101
+102,Test Station 10 St,40.70,-74.6,1,
+102N,Test Station 10 St,40.70,-74.6,,102
+102S,Test Station 10 St,40.70,-74.6,,102
+103,Test Station 20 St,40.70,-74.6,1,
+103N,Test Station 20 St,40.70,-74.6,,103
+103S,Test Station 20 St,40.70,-74.6,,103

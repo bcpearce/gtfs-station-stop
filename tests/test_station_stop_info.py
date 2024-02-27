@@ -9,11 +9,11 @@ TEST_DIRECTORY = pathlib.Path(__file__).parent.resolve()
 
 def test_invalid_gtfs_zip():
     with pytest.raises(RuntimeError):
-        StationStopInfoDatabase(TEST_DIRECTORY / "data" / "google_transit_nostops.zip")
+        StationStopInfoDatabase(TEST_DIRECTORY / "data" / "gtfs_static_nostops.zip")
 
 
 def test_get_station_stop_info_from_zip():
-    ssi = StationStopInfoDatabase(TEST_DIRECTORY / "data" / "google_transit.zip")
-    assert ssi["101"].name == "Van Cortlandt Park-242 St"
-    assert ssi["107"].name == "215 St"
-    assert ssi["107N"].parent == ssi["107"]
+    ssi = StationStopInfoDatabase(TEST_DIRECTORY / "data" / "gtfs_static.zip")
+    assert ssi["101"].name == "Test Station Main St"
+    assert ssi["101N"].name == "Test Station Main St"
+    assert ssi["102S"].parent == ssi["102"]
