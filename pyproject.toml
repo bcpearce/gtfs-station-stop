@@ -10,7 +10,7 @@ authors = [
 ]
 description = "Package for reading and organizing GTFS data for a given station stop."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",

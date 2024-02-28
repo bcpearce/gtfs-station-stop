@@ -10,9 +10,10 @@ variables:
   PRE_COMMIT_HOME: "/.cache/pre-commit"
   TEST_RESULTS_FILE: "test_results.xml"
   TEST_COVERAGE_FILE: "coverage.xml"
+  PYTHON_IMAGE: python:3
 
 default:
-  image: python:3
+  image: $PYTHON_IMAGE
   cache:
     paths:
       - .cache/pip
@@ -61,7 +62,7 @@ pytest:
 
 module_test:
   stage: test
-  image: python:3
+  image: $PYTHON_IMAGE
   inherit:
     default: false
   script:
