@@ -8,8 +8,11 @@ import gtfs_station_stop.__about__
 from gtfs_station_stop.feed_subject import FeedSubject
 from gtfs_station_stop.route_status import RouteStatus
 from gtfs_station_stop.station_stop import StationStop
-from gtfs_station_stop.station_stop_info import StationStopInfo, StationStopInfoDatabase
-from gtfs_station_stop.trip_info import TripInfo, TripInfoDatabase
+from gtfs_station_stop.station_stop_info import (  # noqa: F401
+    StationStopInfo,
+    StationStopInfoDatabase,
+)
+from gtfs_station_stop.trip_info import TripInfo, TripInfoDatabase  # noqa: F401
 
 dotenv.load_dotenv()
 

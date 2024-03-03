@@ -25,7 +25,7 @@ def mock_feed_server():
 
 @pytest.fixture
 def mock_feed_subject(mock_feed_server):
-    return FeedSubject("", mock_feed_server.urls)
+    return FeedSubject("", mock_feed_server.realtime_urls)
 
 
 @pytest.fixture
