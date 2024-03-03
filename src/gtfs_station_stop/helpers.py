@@ -2,9 +2,11 @@ import csv
 import os
 import time
 from datetime import datetime as dt
-from io import StringIO
+from io import BytesIO, StringIO
+from urllib.parse import urlparse
 from zipfile import ZipFile
 
+import requests
 from google.transit import gtfs_realtime_pb2
 
 
@@ -33,9 +35,26 @@ def is_none_or_ends_at(
     return None
 
 
-def gtfs_record_iter(zip_filepath: os.PathLike, target_txt: os.PathLike):
-    """Generates a line from a given GTFS table."""
-    with ZipFile(zip_filepath) as zip:
+def is_url(url):
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+    except (ValueError, AttributeError):
+        return False
+
+
+def gtfs_record_iter(zip_filelike, target_txt: os.PathLike):
+    """Generates a line from a given GTFS table. Can handle local files or URLs"""
+
+    zip_data = zip_filelike
+    # If the data is a url, make the request for the file resource.
+    if is_url(zip_filelike):
+        # Make the request, check for good return code, and convert to IO object.
+        res = requests.get(zip_filelike)
+        if 200 <= res.status_code < 400:
+            zip_data = BytesIO(res.content)
+
+    with ZipFile(zip_data, "r") as zip:
         # Find the stops.txt file
         first_or_none: str = next(
             (name for name in zip.namelist() if name == target_txt), None

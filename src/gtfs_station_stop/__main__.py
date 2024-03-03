@@ -23,14 +23,20 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     "-v", "--version", action="store_true", help="display the module version"
 )
-parser.add_argument("-i", "--info-zip", help="input GTFS zip file path of static data")
+parser.add_argument(
+    "-i", "--info-zip", help="input GTFS zip file path of static data", nargs="*"
+)
 parser.add_argument("-k", "--api-key", help="API key for feed URLs")
 parser.add_argument("-u", "--feed-urls", help="feed URL list", nargs="*")
 parser.add_argument(
-    "-s", "--stops", help="list of stops to check for arrivals and alerts", nargs="*"
+    "-s",
+    "--stops",
+    help="list of stops to check for arrivals and alerts",
+    nargs="*",
+    default=[],
 )
 parser.add_argument(
-    "-r", "--routes", help="list of routes to check for alerts", nargs="*"
+    "-r", "--routes", help="list of routes to check for alerts", nargs="*", default=[]
 )
 parser.add_argument(
     "--lang", type=str, default="en", help="language to read alerts", nargs="?"
@@ -60,7 +66,12 @@ for stop in station_stops:
         print(ssi_db[stop.id])
         print(
             [
-                [arrival.route, arrival.time, ti_db.get_close_match(arrival.trip)]
+                [
+                    arrival.route,
+                    arrival.time,
+                    arrival.trip,
+                    ti_db.get_close_match(arrival.trip),
+                ]
                 for arrival in sorted(stop.get_time_to_arrivals())
             ]
         )
