@@ -1,5 +1,9 @@
+import csv
+import os
 import time
 from datetime import datetime as dt
+from io import StringIO
+from zipfile import ZipFile
 
 from google.transit import gtfs_realtime_pb2
 
@@ -27,3 +31,22 @@ def is_none_or_ends_at(
             return end
 
     return None
+
+
+def gtfs_record_iter(zip_filepath: os.PathLike, target_txt: os.PathLike):
+    """Generates a line from a given GTFS table."""
+    with ZipFile(zip_filepath) as zip:
+        # Find the stops.txt file
+        first_or_none: str = next(
+            (name for name in zip.namelist() if name == target_txt), None
+        )
+        if first_or_none is None:
+            raise RuntimeError(f"Did not find required {target_txt} file")
+        # Create the dictionary of IDs, parents should preceed the children
+        with StringIO(str(zip.read(first_or_none), encoding="ASCII")) as stops_dot_txt:
+            reader = csv.DictReader(
+                stops_dot_txt,
+                delimiter=",",
+            )
+            for line in reader:
+                yield line

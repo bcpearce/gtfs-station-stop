@@ -1,8 +1,7 @@
-import csv
 import os
 from collections.abc import Iterable
-from io import StringIO
-from zipfile import ZipFile
+
+from gtfs_station_stop.helpers import gtfs_record_iter
 
 
 class TripInfo:
@@ -27,24 +26,10 @@ class TripInfoDatabase:
             for file in gtfs_files:
                 self.add_gtfs_data(file)
 
-    def add_gtfs_data(self, filepath: os.PathLike):
-        with ZipFile(filepath) as zip:
-            # Find the trips.txt file
-            first_or_none: str = next(
-                (name for name in zip.namelist() if name == "trips.txt"), None
-            )
-            if first_or_none is None:
-                raise RuntimeError("Did not find required trips.txt file")
-            with StringIO(
-                str(zip.read(first_or_none), encoding="ASCII")
-            ) as stops_dot_txt:
-                reader = csv.DictReader(
-                    stops_dot_txt,
-                    delimiter=",",
-                )
-                for line in reader:
-                    id = line["trip_id"]
-                    self._trip_infos[id] = TripInfo(line)
+    def add_gtfs_data(self, zip_filepath: os.PathLike):
+        for line in gtfs_record_iter(zip_filepath, "trips.txt"):
+            id = line["trip_id"]
+            self._trip_infos[id] = TripInfo(line)
 
     def get_close_match(self, key) -> TripInfo | None:
         """Gets the first close match for a given trip ID, to use with realtime data"""
