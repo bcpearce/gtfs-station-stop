@@ -16,6 +16,13 @@ def create_static_data():
             if gtfs_file.name != "trips.txt":
                 zp.write(gtfs_file, gtfs_file.name)
 
+    with ZipFile(Path("tests/data/gtfs_static_nocalendar.zip"), "w") as zp:
+        for gtfs_file in Path.iterdir(Path("tests/data/gtfs_static")):
+            if gtfs_file.name in ["calendar.txt", "calendar_dates.txt"]:
+                pass
+            else:
+                zp.write(gtfs_file, gtfs_file.name)
+
     with ZipFile(Path("tests/data/gtfs_static.zip"), "w") as zp:
         for gtfs_file in Path.iterdir(Path("tests/data/gtfs_static")):
             zp.write(gtfs_file, gtfs_file.name)

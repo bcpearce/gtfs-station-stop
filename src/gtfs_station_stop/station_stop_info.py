@@ -26,8 +26,6 @@ class StationStopInfoDatabase:
         if gtfs_files is not None:
             if isinstance(gtfs_files, os.PathLike):
                 gtfs_files = [gtfs_files]
-            elif isinstance(gtfs_files, str):
-                gtfs_files = [gtfs_files]
             for file in gtfs_files:
                 self.add_gtfs_data(file)
 
