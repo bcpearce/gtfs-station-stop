@@ -1,5 +1,6 @@
 import csv
 import os
+from collections.abc import Iterable
 from io import StringIO
 from zipfile import ZipFile
 
@@ -21,8 +22,15 @@ class StationStopInfo:
 
 
 class StationStopInfoDatabase:
-    def __init__(self, filepath: os.PathLike):
+    def __init__(self, gtfs_files: Iterable[os.PathLike] | os.PathLike | None = None):
         self._station_stop_infos = {}
+        if gtfs_files is not None:
+            if isinstance(gtfs_files, os.PathLike):
+                gtfs_files = [gtfs_files]
+            for file in gtfs_files:
+                self.add_gtfs_data(file)
+
+    def add_gtfs_data(self, filepath: os.PathLike):
         with ZipFile(filepath) as zip:
             # Find the stops.txt file
             first_or_none: str = next(

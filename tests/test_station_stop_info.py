@@ -17,3 +17,13 @@ def test_get_station_stop_info_from_zip():
     assert ssi["101"].name == "Test Station Main St"
     assert ssi["101N"].name == "Test Station Main St"
     assert ssi["102S"].parent == ssi["102"]
+
+
+def test_conatenated_station_stop_info_from_zip():
+    gtfs_static_zips = [
+        TEST_DIRECTORY / "data" / "gtfs_static.zip",
+        TEST_DIRECTORY / "data" / "gtfs_static_supl.zip",
+    ]
+    ssi = StationStopInfoDatabase(gtfs_static_zips)
+    assert ssi["101"].name == "Test Station Main St"
+    assert ssi["201"].name == "Test Station Last St"

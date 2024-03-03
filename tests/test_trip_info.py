@@ -23,3 +23,13 @@ def test_get_close_match_trip_info_from_zip():
     ti = TripInfoDatabase(TEST_DIRECTORY / "data" / "gtfs_static.zip")
     assert ti.get_close_match("456_X..N").trip_headsign == "Northbound X"
     assert ti.get_close_match("321_Z..S").route_id == "Z"
+
+
+def test_concatenated_trip_info_from_zips():
+    gtfs_static_zips = [
+        TEST_DIRECTORY / "data" / "gtfs_static.zip",
+        TEST_DIRECTORY / "data" / "gtfs_static_supl.zip",
+    ]
+    ti = TripInfoDatabase(gtfs_static_zips)
+    assert ti.get_close_match("456_X..N").trip_headsign == "Northbound X"
+    assert ti.get_close_match("987_X..S21R").trip_headsign == "Southbound Special X"

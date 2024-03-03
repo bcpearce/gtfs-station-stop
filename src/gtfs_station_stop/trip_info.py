@@ -1,5 +1,6 @@
 import csv
 import os
+from collections.abc import Iterable
 from io import StringIO
 from zipfile import ZipFile
 
@@ -18,8 +19,15 @@ class TripInfo:
 
 
 class TripInfoDatabase:
-    def __init__(self, filepath: os.PathLike):
+    def __init__(self, gtfs_files: Iterable[os.PathLike] | os.PathLike | None = None):
         self._trip_infos = {}
+        if gtfs_files is not None:
+            if isinstance(gtfs_files, os.PathLike):
+                gtfs_files = [gtfs_files]
+            for file in gtfs_files:
+                self.add_gtfs_data(file)
+
+    def add_gtfs_data(self, filepath: os.PathLike):
         with ZipFile(filepath) as zip:
             # Find the trips.txt file
             first_or_none: str = next(
@@ -27,7 +35,6 @@ class TripInfoDatabase:
             )
             if first_or_none is None:
                 raise RuntimeError("Did not find required trips.txt file")
-            # Create the dictionary of IDs, parents should preceed the children
             with StringIO(
                 str(zip.read(first_or_none), encoding="ASCII")
             ) as stops_dot_txt:

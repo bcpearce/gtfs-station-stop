@@ -1,0 +1,4 @@
+stop_id,stop_name,stop_lat,stop_lon,location_type,parent_station
+201,Test Station Last St,40.60,-74.5,1,
+201N,Test Station Last St,40.60,-74.5,,20
+201,Test Station Last St,40.60,-74.5,,201
