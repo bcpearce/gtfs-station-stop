@@ -1,8 +1,4 @@
-import pathlib
-
 from gtfs_station_stop.feed_subject import FeedSubject
-
-TEST_DIRECTORY = pathlib.Path(__file__).parent.resolve()
 
 
 def test_init_FeedSubject():
