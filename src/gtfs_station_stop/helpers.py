@@ -61,7 +61,7 @@ def gtfs_record_iter(zip_filelike, target_txt: os.PathLike):
         )
         if first_or_none is None:
             raise RuntimeError(f"Did not find required {target_txt} file")
-        # Create the dictionary of IDs, parents should preceed the children
+        # Create the dictionary of IDs, parents should precede the children
         with StringIO(str(zip.read(first_or_none), encoding="ASCII")) as stops_dot_txt:
             reader = csv.DictReader(
                 stops_dot_txt,
