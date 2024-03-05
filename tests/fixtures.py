@@ -7,11 +7,17 @@ from mock_feed_server import create_mock_feed_server
 
 from gtfs_station_stop.calendar import Calendar
 from gtfs_station_stop.feed_subject import FeedSubject
+from gtfs_station_stop.trip_info import TripInfoDatabase
 
 
 @pytest.fixture(scope="session")
 def test_directory():
     return pathlib.Path(__file__).parent.resolve()
+
+
+@pytest.fixture(scope="session")
+def good_trip_info_database(test_directory):
+    return TripInfoDatabase(test_directory / "data" / "gtfs_static.zip")
 
 
 @pytest.fixture(scope="session")

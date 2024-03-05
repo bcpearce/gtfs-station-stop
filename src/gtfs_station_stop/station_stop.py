@@ -18,11 +18,10 @@ class StationStop:
     def last_updated(self):
         return self._last_updated
 
-    def begin_update(self, timestamp: float | None):
+    def begin_update(self, timestamp: float = time.time()):
         self.alerts.clear()
         self.arrivals.clear()
-        self._last_updated = timestamp if timestamp is not None else time.time()
+        self._last_updated = timestamp
 
-    def get_time_to_arrivals(self):
-        current_time = time.time()
-        return [Arrival(a.time - current_time, a.route, a.trip) for a in self.arrivals]
+    def get_time_to_arrivals(self, the_time: float = time.time()):
+        return [Arrival(a.time - the_time, a.route, a.trip) for a in self.arrivals]

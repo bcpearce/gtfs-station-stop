@@ -1,6 +1,8 @@
 import os
 from collections.abc import Iterable
+from datetime import date, datetime
 
+from gtfs_station_stop.calendar import Calendar
 from gtfs_station_stop.helpers import gtfs_record_iter
 
 
@@ -31,13 +33,32 @@ class TripInfoDatabase:
             id = line["trip_id"]
             self._trip_infos[id] = TripInfo(line)
 
-    def get_close_match(self, key) -> TripInfo | None:
-        """Gets the first close match for a given trip ID, to use with realtime data"""
+    def get_close_match(
+        self,
+        key,
+        service_finder: str | Calendar | Iterable[str] | None = None,
+        the_date: date | datetime = date.today(),
+    ) -> TripInfo | None:
+        """Gets the first close match for a given trip ID using either none, a specific service ID, or a calendar and date. When using Calendar, a date can be provided, defaults to today."""
+        active_services: set[str] = set()
+        if isinstance(service_finder, str):
+            active_services = [service_finder]
+        elif isinstance(service_finder, Calendar):
+            active_services = set(
+                s.service_id for s in service_finder.get_active_services(the_date)
+            )
+
+        if isinstance(the_date, datetime):
+            the_date = the_date.date()
+
         return next(
             (
                 trip_info
                 for trip_id, trip_info in self._trip_infos.items()
                 if key in trip_id
+                and (
+                    len(active_services) == 0 or trip_info.service_id in active_services
+                )
             ),
             None,
         )

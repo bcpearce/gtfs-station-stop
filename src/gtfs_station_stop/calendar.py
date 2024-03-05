@@ -37,12 +37,10 @@ class Service:
         self.added_exceptions = set()
         self.removed_exceptions = set()
 
-    def is_active_on(self, the_date: date | None = None):
+    def is_active_on(self, the_date: date = date.today()):
         """Check if service is active on a given datetime, defaults to now."""
         if isinstance(the_date, datetime):
             the_date = the_date.date()
-        if the_date is None:
-            the_date = date.today()
         normally_active = (self.start <= the_date <= self.end) and self.service_days[
             the_date.weekday()
         ]
@@ -56,7 +54,7 @@ class Service:
 
 class Calendar:
     def __init__(self, gtfs_files: Iterable[os.PathLike] | os.PathLike | None = None):
-        self._services = {}
+        self.services = {}
         if gtfs_files is not None:
             if isinstance(gtfs_files, os.PathLike):
                 gtfs_files = [gtfs_files]
@@ -65,7 +63,7 @@ class Calendar:
 
     def add_gtfs_data(self, zip_filelike):
         for line in gtfs_record_iter(zip_filelike, "calendar.txt"):
-            self._services[line["service_id"]] = Service(
+            self.services[line["service_id"]] = Service(
                 line["service_id"],
                 ServiceDays(
                     line["monday"] == "1",
@@ -82,19 +80,25 @@ class Calendar:
         # Add in special services
         for line in gtfs_record_iter(zip_filelike, "calendar_dates.txt"):
             service_id = line["service_id"]
-            if self._services.get(service_id) is None:
+            if self.services.get(service_id) is None:
                 # Create a blank calendar if it is missing
-                self._services[service_id] = Service.no_regular_service(service_id)
+                self.services[service_id] = Service.no_regular_service(service_id)
             if line["exception_type"] == SERVICE_EXCEPTION_TYPE_ADDED:
-                self._services[service_id].added_exceptions.add(
+                self.services[service_id].added_exceptions.add(
                     datetime.strptime(line["date"], "%Y%m%d").date()
                 )
             elif line["exception_type"] == SERVICE_EXCEPTION_TYPE_REMOVED:
-                self._services[service_id].removed_exceptions.add(
+                self.services[service_id].removed_exceptions.add(
                     datetime.strptime(line["date"], "%Y%m%d").date()
                 )
             else:
                 raise RuntimeError("Unsupported GTFS service exception type.")
 
+    def get_active_services(self, the_date: date = date.today()) -> list[str]:
+        return [s for s in self.services.values() if s.is_active_on(the_date)]
+
+    def get_inactive_services(self, the_date: date = date.today()) -> list[str]:
+        return [s for s in self.services.values() if not s.is_active_on(the_date)]
+
     def __getitem__(self, key) -> Service:
-        return self._services[key]
+        return self.services[key]
