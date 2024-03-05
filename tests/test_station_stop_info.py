@@ -1,5 +1,4 @@
 import pytest
-from fixtures import *  # noqa: F403
 
 from gtfs_station_stop.station_stop_info import StationStopInfoDatabase
 

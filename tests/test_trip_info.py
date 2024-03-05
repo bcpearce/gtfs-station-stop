@@ -1,7 +1,6 @@
 import pathlib
 
 import pytest
-from fixtures import *  # noqa: F403
 
 from gtfs_station_stop.trip_info import TripInfoDatabase
 

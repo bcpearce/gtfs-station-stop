@@ -1,6 +1,7 @@
 from pathlib import Path
 from zipfile import ZipFile
 
+from fixtures import *  # noqa F403
 from google.transit import gtfs_realtime_pb2
 
 

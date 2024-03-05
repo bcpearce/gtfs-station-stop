@@ -1,7 +1,6 @@
 from datetime import date, datetime
 
 import pytest
-from fixtures import *  # noqa: F403
 
 from gtfs_station_stop.calendar import Calendar
 
