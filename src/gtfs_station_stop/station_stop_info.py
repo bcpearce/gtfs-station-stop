@@ -1,7 +1,7 @@
-import csv
 import os
-from io import StringIO
-from zipfile import ZipFile
+from collections.abc import Iterable
+
+from gtfs_station_stop.helpers import gtfs_record_iter
 
 
 class StationStopInfo:
@@ -21,27 +21,19 @@ class StationStopInfo:
 
 
 class StationStopInfoDatabase:
-    def __init__(self, filepath: os.PathLike):
+    def __init__(self, gtfs_files: Iterable[os.PathLike] | os.PathLike | None = None):
         self._station_stop_infos = {}
-        with ZipFile(filepath) as zip:
-            # Find the stops.txt file
-            first_or_none: str = next(
-                (name for name in zip.namelist() if name == "stops.txt"), None
-            )
-            if first_or_none is None:
-                raise RuntimeError("Did not find required stops.txt file")
-            # Create the dictionary of IDs, parents should preceed the children
-            with StringIO(
-                str(zip.read(first_or_none), encoding="ASCII")
-            ) as stops_dot_txt:
-                reader = csv.DictReader(
-                    stops_dot_txt,
-                    delimiter=",",
-                )
-                for line in reader:
-                    id = line["stop_id"]
-                    parent = self._station_stop_infos.get(line["parent_station"])
-                    self._station_stop_infos[id] = StationStopInfo(parent, line)
+        if gtfs_files is not None:
+            if isinstance(gtfs_files, os.PathLike):
+                gtfs_files = [gtfs_files]
+            for file in gtfs_files:
+                self.add_gtfs_data(file)
+
+    def add_gtfs_data(self, zip_filelike):
+        for line in gtfs_record_iter(zip_filelike, "stops.txt"):
+            id = line["stop_id"]
+            parent = self._station_stop_infos.get(line["parent_station"])
+            self._station_stop_infos[id] = StationStopInfo(parent, line)
 
     def __getitem__(self, key) -> StationStopInfo:
         return self._station_stop_infos[key]

@@ -1,0 +1,5 @@
+route_id,trip_id,service_id,trip_headsign,direction_id,shape_id
+X,987_X..N21R,Weekday,Northbound Special X,0,X..N21R
+X,987_X..S21R,Weekday,Southbound Special X,1,X..S21R
+X,789_X..N24R,Weekday,Northbound Special X,0,X..N24R
+X,789_X..S24R,Weekday,Southbound Special X,1,X..S24R

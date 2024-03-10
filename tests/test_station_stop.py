@@ -1,5 +1,3 @@
-from fixtures import *
-
 from gtfs_station_stop.feed_subject import FeedSubject
 from gtfs_station_stop.station_stop import StationStop
 

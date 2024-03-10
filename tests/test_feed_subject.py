@@ -1,8 +1,4 @@
-import pathlib
-
 from gtfs_station_stop.feed_subject import FeedSubject
-
-TEST_DIRECTORY = pathlib.Path(__file__).parent.resolve()
 
 
 def test_init_FeedSubject():
@@ -12,3 +8,8 @@ def test_init_FeedSubject():
         "", ["http://feed_1", "http://feed_2", "http://feed_2", "http://feed_3"]
     )
     assert len(fs.realtime_feed_uris) == 3
+
+
+def test_FeedSubject_update_does_not_throw_with_zero_uris():
+    fs = FeedSubject("", [])
+    fs.update()

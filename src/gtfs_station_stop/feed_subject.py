@@ -45,7 +45,7 @@ class FeedSubject:
         # This is horrifically slow sequentially
         feed = gtfs_realtime_pb2.FeedMessage()
         with concurrent.futures.ThreadPoolExecutor(
-            max_workers=len(self.realtime_feed_uris)
+            max_workers=len(self.realtime_feed_uris) | 1
         ) as executor:
             futs = [
                 executor.submit(load_feed_data, self, uri)

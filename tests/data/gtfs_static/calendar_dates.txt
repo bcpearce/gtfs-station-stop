@@ -1,0 +1,4 @@
+service_id,date,exception_type
+PiDaySpecial,20240314,1
+NoFridayService,20240301,2
+Regular,20241225,2
