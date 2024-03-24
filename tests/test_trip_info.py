@@ -48,3 +48,8 @@ def test_get_trip_info_from_url(mock_feed_server):
     assert ti["456_X..N04R"].service_id == "Weekday"
     assert ti["456_X..N04R"].shape_id == "X..N04R"
     assert ti["456_Y..N05R"].trip_headsign == "Northbound Y"
+
+
+def test_get_route_ids(good_trip_info_database):
+    ti = good_trip_info_database
+    assert set(ti.get_route_ids()) == set(["X", "Y", "Z"])

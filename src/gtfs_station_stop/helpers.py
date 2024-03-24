@@ -1,13 +1,17 @@
 import csv
 import os
 import time
+from collections.abc import Iterable
 from datetime import datetime as dt
 from io import BytesIO, StringIO
 from urllib.parse import urlparse
 from zipfile import ZipFile
 
-import requests
+import requests_cache
+from aiohttp_client_cache import CachedSession, SQLiteBackend
 from google.transit import gtfs_realtime_pb2
+
+from gtfs_station_stop.const import GTFS_STATIC_CACHE, GTFS_STATIC_CACHE_EXPIRY
 
 
 def is_none_or_ends_at(
@@ -44,13 +48,18 @@ def is_url(url):
 
 
 def gtfs_record_iter(zip_filelike, target_txt: os.PathLike):
-    """Generates a line from a given GTFS table. Can handle local files or URLs"""
+    """Generates a line from a given GTFS table. Can handle local files or URLs."""
 
     zip_data = zip_filelike
     # If the data is a url, make the request for the file resource.
     if is_url(zip_filelike):
         # Make the request, check for good return code, and convert to IO object.
-        res = requests.get(zip_filelike)
+        # As GTFS Static Data updates rarely, (most providers recommend pulling this once per day),
+        # we will use a cache to minimize unnecessary checks.
+        session = requests_cache.CachedSession(
+            GTFS_STATIC_CACHE, expire_after=GTFS_STATIC_CACHE_EXPIRY
+        )
+        res = session.get(zip_filelike)
         if 200 <= res.status_code < 400:
             zip_data = BytesIO(res.content)
 
@@ -69,3 +78,21 @@ def gtfs_record_iter(zip_filelike, target_txt: os.PathLike):
             )
             for line in reader:
                 yield line
+
+
+async def async_get_gtfs_database(
+    gtfs_class, gtfs_urls: Iterable[os.PathLike] | os.PathLike
+):
+    gtfs_db = gtfs_class()
+    if isinstance(gtfs_urls, os.PathLike):
+        gtfs_urls = [gtfs_urls]
+    for url in gtfs_urls:
+        async with CachedSession(
+            cache=SQLiteBackend(
+                GTFS_STATIC_CACHE, expire_after=GTFS_STATIC_CACHE_EXPIRY
+            )
+        ) as session:
+            async with session.get(url) as response:
+                zip_data = BytesIO(await response.read())
+                gtfs_db.add_gtfs_data(zip_data)
+    return gtfs_db
