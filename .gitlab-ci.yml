@@ -18,9 +18,9 @@ default:
     paths:
       - .cache/pip
   before_script:
-  - python --version ; pip --version
-  - pip install --upgrade pip
-  - pip install -r requirements-dev.txt
+    - python --version ; pip --version
+    - pip install --upgrade pip
+    - pip install -r requirements-dev.txt
 
 .doRelease:
   rules:
@@ -45,7 +45,7 @@ check_formatting:
 pytest:
   stage: test
   script:
-    - coverage run -m pytest --junitxml=$TEST_RESULTS_FILE
+    - python -m pytest --junitxml=$TEST_RESULTS_FILE
     - coverage report
     - coverage xml -o $TEST_COVERAGE_FILE
   coverage: '/TOTAL.*\s+(\d+%)$/'
@@ -68,7 +68,8 @@ module_test:
   script:
     - pip install .
     - echo "Running module version command to test module loading..."
-    - python -m gtfs_station_stop --version
+    - python -m gtfs_station_stop --version # output version
+    - python -m gtfs_station_stop # smoke test no input
 
 build:
   stage: build
@@ -100,6 +101,5 @@ release_job:
   script:
     - echo "Making Release $CI_COMMIT_TAG"
   release:
-    tag_name: '$CI_COMMIT_TAG'
-    description: '$CI_COMMIT_TAG'
-
+    tag_name: "$CI_COMMIT_TAG"
+    description: "$CI_COMMIT_TAG"

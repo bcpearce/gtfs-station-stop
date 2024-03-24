@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import argparse
+import asyncio
 import os
+import time
 from pprint import pprint
 
 import dotenv
@@ -8,6 +10,7 @@ import dotenv
 import gtfs_station_stop.__about__
 from gtfs_station_stop.calendar import Calendar
 from gtfs_station_stop.feed_subject import FeedSubject
+from gtfs_station_stop.helpers import async_get_gtfs_database
 from gtfs_station_stop.route_status import RouteStatus
 from gtfs_station_stop.station_stop import StationStop
 from gtfs_station_stop.station_stop_info import (  # noqa: F401
@@ -26,7 +29,11 @@ parser.add_argument(
     "-v", "--version", action="store_true", help="display the module version"
 )
 parser.add_argument(
-    "-i", "--info-zip", help="input GTFS zip file path of static data", nargs="*"
+    "-i",
+    "--info-zip",
+    help="input GTFS zip file path of static data",
+    nargs="*",
+    default=[],
 )
 parser.add_argument("-k", "--api-key", help="API key for feed URLs")
 parser.add_argument("-u", "--feed-urls", help="feed URL list", nargs="*", default=[])
@@ -43,6 +50,9 @@ parser.add_argument(
 parser.add_argument(
     "--lang", type=str, default="en", help="language to read alerts", nargs="?"
 )
+parser.add_argument(
+    "--do-async", action="store_true", help="update using asynchronous functions"
+)
 
 args = parser.parse_args()
 
@@ -50,12 +60,35 @@ if args.version:
     print(gtfs_station_stop.__about__.__version__)
     exit(0)
 
+start_time = time.time()
+
 # Get the API Key, argument takes precedent of environment variable
 api_key = args.api_key or os.environ.get("API_KEY")
 
-ssi_db = StationStopInfoDatabase(args.info_zip) if args.info_zip is not None else None
-ti_db = TripInfoDatabase(args.info_zip) if args.info_zip is not None else None
-calendar = Calendar(args.info_zip) if args.info_zip is not None else None
+ssi_db = None
+ti_db = None
+calendar = None
+
+if args.do_async and args.info_zip:
+
+    async def async_get_static_info():
+        async with asyncio.TaskGroup() as tg:
+            ssi_db_task = tg.create_task(
+                async_get_gtfs_database(StationStopInfoDatabase, args.info_zip)
+            )
+            ti_db_task = tg.create_task(
+                async_get_gtfs_database(TripInfoDatabase, args.info_zip)
+            )
+            calendar_task = tg.create_task(
+                async_get_gtfs_database(Calendar, args.info_zip)
+            )
+        return (ssi_db_task.result(), ti_db_task.result(), calendar_task.result())
+
+    ssi_db, ti_db, calendar = asyncio.run(async_get_static_info())
+elif args.info_zip:
+    ssi_db = StationStopInfoDatabase(args.info_zip)
+    ti_db = TripInfoDatabase(args.info_zip)
+    calendar = Calendar(args.info_zip)
 
 if calendar is not None:
     # Print out the current active service IDs
@@ -68,10 +101,16 @@ if calendar is not None:
     for s in calendar.get_inactive_services():
         print(f"{s.service_id}:\t\033[91m inactive \033[00m".expandtabs(exptabs))
 
-feed_subject = FeedSubject(api_key, args.feed_urls)
+feed_subject = FeedSubject(args.feed_urls, api_key)
 station_stops = [StationStop(id, feed_subject) for id in args.stops]
 route_statuses = [RouteStatus(id, feed_subject) for id in args.routes]
-feed_subject.update()
+
+if args.do_async:
+    asyncio.run(feed_subject.async_update())
+else:
+    station_stops = [StationStop(id, feed_subject) for id in args.stops]
+    route_statuses = [RouteStatus(id, feed_subject) for id in args.routes]
+    feed_subject.update()
 
 print()
 print("Arrival Status:")
@@ -106,3 +145,7 @@ for route in route_statuses:
         print(alert.description_text.get(args.lang))
         print()
         print()
+
+print(
+    f"Processed {len(args.feed_urls)} feeds and {len(args.info_zip)} static info zipfiles in {time.time() - start_time:.3f} seconds"
+)

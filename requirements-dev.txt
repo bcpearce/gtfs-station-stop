@@ -3,10 +3,13 @@ build==1.0.3
 black==23.12.1
 coverage==7.4.0
 flake8==7.0.0
+freezegun==1.4.0
 hatch==1.9.3
 hatchling==1.21.1
 isort==5.13.2
 pre-commit==3.6.0
 pytest==7.4.4
+pytest-cov==4.1.0
 pytest-httpserver==1.0.8
+pytest-asyncio==0.23.6
 -e .

@@ -19,7 +19,7 @@ from gtfs_station_stop.station_stop import StationStop
 # Obtain the API keep from your GTFS provider if needed, otherwise leave blank.
 api_key = "YOUR_API_KEY_HERE"
 urls = ["https://gtfs.example.com/feed1", "https://gtfs.example.com/feed2"]
-feed_subject = FeedSubject(api_key, urls)
+feed_subject = FeedSubject(urls, api_key)
 
 # Obtain the Stop ID from GTFS static data from your provider.
 # This must match those provided by the realtime feed.
@@ -53,7 +53,7 @@ for alert in station_stop_nb.alerts:
 
 ### GTFS Static Info
 
-Static data can be loaded into a database for convenient lookup to use alongside GTFS Realtime data.
+Static data can be loaded into a database for convenient lookup to use alongside GTFS Realtime data. GTFS data can be read from a file or a URL from your service provider. The GTFS file must be provided as a .zip containing the requisite .txt files as defined by [GTFS Static Reference](https://developers.google.com/transit/gtfs/reference).
 
 ```
 from gtfs_station_stop.station_stop_info import StationStopInfoDatabase

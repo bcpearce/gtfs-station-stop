@@ -11,3 +11,4 @@ Z,123_Z..N03R,Weekday,Northbound Z,0,Z..N03R
 Z,321_Z..S03R,Weekday,Southbound Z,1,Z..S03R
 Z,456_Z..N06R,Weekday,Northbound Z,0,Z..N06R
 Z,654_Z..S06R,Weekday,Southbound Z,1,Z..S06R
+,bad,unknown,Eastbound ?,2,u..EXXR
