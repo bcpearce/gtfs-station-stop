@@ -1,9 +1,9 @@
 import os
-from collections.abc import Iterable
 from datetime import date, datetime
 from typing import NamedTuple
 
 from gtfs_station_stop.helpers import gtfs_record_iter
+from gtfs_station_stop.static_database import GtfsStaticDatabase
 
 SERVICE_EXCEPTION_TYPE_ADDED = "1"
 SERVICE_EXCEPTION_TYPE_REMOVED = "2"
@@ -52,14 +52,10 @@ class Service:
         return Service(service_id, ServiceDays.no_service(), date.min, date.min)
 
 
-class Calendar:
-    def __init__(self, gtfs_files: Iterable[os.PathLike] | os.PathLike | None = None):
+class Calendar(GtfsStaticDatabase):
+    def __init__(self, *gtfs_files: os.PathLike):
         self.services = {}
-        if gtfs_files is not None:
-            if isinstance(gtfs_files, os.PathLike):
-                gtfs_files = [gtfs_files]
-            for file in gtfs_files:
-                self.add_gtfs_data(file)
+        super().__init__(*gtfs_files)
 
     def add_gtfs_data(self, zip_filelike):
         for line in gtfs_record_iter(zip_filelike, "calendar.txt"):
