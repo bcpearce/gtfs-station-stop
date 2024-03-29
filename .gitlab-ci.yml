@@ -89,7 +89,6 @@ register_package:
       python -m twine upload
       --verbose
       --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
-    - python -m twine upload dist/*
 
 release_job:
   extends: .doRelease
