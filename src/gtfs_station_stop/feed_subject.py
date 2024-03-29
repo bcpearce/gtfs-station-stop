@@ -1,9 +1,11 @@
+import asyncio
 import concurrent.futures
 import time
 from collections import defaultdict
 from collections.abc import Sequence
 from weakref import WeakSet
 
+import aiohttp
 import requests
 from google.transit import gtfs_realtime_pb2
 
@@ -23,9 +25,9 @@ class RouteStatus:
 
 
 class FeedSubject:
-    def __init__(self, api_key: str, realtime_feed_uris: Sequence[str]):
-        self.api_key = api_key
+    def __init__(self, realtime_feed_uris: Sequence[str], api_key: str = ""):
         self.realtime_feed_uris = set(realtime_feed_uris)
+        self.api_key = api_key
         self.subscribers = defaultdict(WeakSet)
 
     def _request_gtfs_feed(self, uri: str) -> bytes:
@@ -54,6 +56,35 @@ class FeedSubject:
             for fut in concurrent.futures.as_completed(futs):
                 feed.MergeFrom(fut.result())
 
+        return feed
+
+    async def _async_request_gtfs_feed(self, uri: str) -> bytes:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(uri) as req:
+                if req.status <= 200 and req.status < 300:
+                    return await req.read()
+
+    async def _async_get_gtfs_feed(self) -> gtfs_realtime_pb2.FeedMessage:
+        async def async_merge_feed(
+            merge_into_feed: gtfs_realtime_pb2.FeedMessage,
+            merge_from_feed: gtfs_realtime_pb2.FeedMessage,
+        ):
+            merge_into_feed.MergeFrom(merge_from_feed)
+
+        async def async_load_feed_data(
+            _subject,
+            _uri,
+            main_feed: gtfs_realtime_pb2.FeedMessage,
+            task_group: asyncio.TaskGroup,
+        ):
+            uri_feed = gtfs_realtime_pb2.FeedMessage()
+            uri_feed.ParseFromString(await _subject._async_request_gtfs_feed(_uri))
+            task_group.create_task(async_merge_feed(main_feed, uri_feed))
+
+        feed = gtfs_realtime_pb2.FeedMessage()
+        async with asyncio.TaskGroup() as tg:
+            for uri in self.realtime_feed_uris:
+                tg.create_task(async_load_feed_data(self, uri, feed, tg))
         return feed
 
     def _notify_stop_updates(self, feed):
@@ -97,11 +128,16 @@ class FeedSubject:
             for sub in subs:
                 sub.begin_update(timestamp)
 
-    def update(self):
-        feed = self._get_gtfs_feed()
+    def _reset_and_notify(self, feed: gtfs_realtime_pb2.FeedMessage):
         self._reset_subscribers()
         self._notify_stop_updates(feed)
         self._notify_alerts(feed)
+
+    def update(self):
+        self._reset_and_notify(self._get_gtfs_feed())
+
+    async def async_update(self):
+        self._reset_and_notify(await self._async_get_gtfs_feed())
 
     def subscribe(self, updatable: StationStop | RouteStatus):
         self.subscribers[updatable.id].add(updatable)

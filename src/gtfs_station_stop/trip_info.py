@@ -1,9 +1,11 @@
 import os
 from collections.abc import Iterable
 from datetime import date, datetime
+from typing import Any
 
 from gtfs_station_stop.calendar import Calendar
 from gtfs_station_stop.helpers import gtfs_record_iter
+from gtfs_station_stop.static_database import GtfsStaticDatabase
 
 
 class TripInfo:
@@ -19,19 +21,18 @@ class TripInfo:
         return f"{self.trip_id}: {self.route_id} to {self.trip_headsign}"
 
 
-class TripInfoDatabase:
-    def __init__(self, gtfs_files: Iterable[os.PathLike] | os.PathLike | None = None):
-        self._trip_infos = {}
-        if gtfs_files is not None:
-            if isinstance(gtfs_files, os.PathLike):
-                gtfs_files = [gtfs_files]
-            for file in gtfs_files:
-                self.add_gtfs_data(file)
+class TripInfoDatabase(GtfsStaticDatabase):
+    def __init__(self, *gtfs_files: os.PathLike):
+        self.trip_infos = {}
+        self.__cached_route_ids = None
+        super().__init__(*gtfs_files)
 
     def add_gtfs_data(self, zip_filepath: os.PathLike):
         for line in gtfs_record_iter(zip_filepath, "trips.txt"):
             id = line["trip_id"]
-            self._trip_infos[id] = TripInfo(line)
+            self.trip_infos[id] = TripInfo(line)
+        # invalidate the cache
+        self.__cached_route_ids = None
 
     def get_close_match(
         self,
@@ -54,7 +55,7 @@ class TripInfoDatabase:
         return next(
             (
                 trip_info
-                for trip_id, trip_info in self._trip_infos.items()
+                for trip_id, trip_info in self.trip_infos.items()
                 if key in trip_id
                 and (
                     len(active_services) == 0 or trip_info.service_id in active_services
@@ -63,5 +64,16 @@ class TripInfoDatabase:
             None,
         )
 
+    def get_route_ids(self) -> list[str]:
+        # cache this as it may be expensive to rerun the querey
+        if self.__cached_route_ids is None:
+            self.__cached_route_ids = list(
+                set(ti.route_id for ti in self.trip_infos.values() if ti.route_id)
+            )
+        return self.__cached_route_ids
+
     def __getitem__(self, key) -> TripInfo:
-        return self._trip_infos[key]
+        return self.trip_infos[key]
+
+    def get(self, key: Any, default: Any | None = None):
+        return self.trip_infos.get(key, default)

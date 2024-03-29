@@ -1,7 +1,8 @@
 import os
-from collections.abc import Iterable
+from typing import Any
 
 from gtfs_station_stop.helpers import gtfs_record_iter
+from gtfs_station_stop.static_database import GtfsStaticDatabase
 
 
 class StationStopInfo:
@@ -20,20 +21,22 @@ class StationStopInfo:
         return f"{self.id}: {self.name}, lat: {self.lat}, long: {self.lon}, parent: {self.parent.id}"
 
 
-class StationStopInfoDatabase:
-    def __init__(self, gtfs_files: Iterable[os.PathLike] | os.PathLike | None = None):
-        self._station_stop_infos = {}
-        if gtfs_files is not None:
-            if isinstance(gtfs_files, os.PathLike):
-                gtfs_files = [gtfs_files]
-            for file in gtfs_files:
-                self.add_gtfs_data(file)
+class StationStopInfoDatabase(GtfsStaticDatabase):
+    def __init__(self, *gtfs_files: os.PathLike):
+        self.station_stop_infos = {}
+        super().__init__(*gtfs_files)
 
     def add_gtfs_data(self, zip_filelike):
         for line in gtfs_record_iter(zip_filelike, "stops.txt"):
             id = line["stop_id"]
-            parent = self._station_stop_infos.get(line["parent_station"])
-            self._station_stop_infos[id] = StationStopInfo(parent, line)
+            parent = self.station_stop_infos.get(line["parent_station"])
+            self.station_stop_infos[id] = StationStopInfo(parent, line)
+
+    def get_stop_ids(self) -> list[str]:
+        return self.station_stop_infos.keys()
 
     def __getitem__(self, key) -> StationStopInfo:
-        return self._station_stop_infos[key]
+        return self.station_stop_infos[key]
+
+    def get(self, key: Any, default: Any | None = None):
+        return self.station_stop_infos.get(key, default)
