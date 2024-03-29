@@ -24,6 +24,11 @@ def create_static_data():
             else:
                 zp.write(gtfs_file, gtfs_file.name)
 
+    with ZipFile(Path("tests/data/gtfs_static_noroutes.zip"), "w") as zp:
+        for gtfs_file in Path.iterdir(Path("tests/data/gtfs_static")):
+            if gtfs_file.name != "routes.txt":
+                zp.write(gtfs_file, gtfs_file.name)
+
     with ZipFile(Path("tests/data/gtfs_static.zip"), "w") as zp:
         for gtfs_file in Path.iterdir(Path("tests/data/gtfs_static")):
             zp.write(gtfs_file, gtfs_file.name)

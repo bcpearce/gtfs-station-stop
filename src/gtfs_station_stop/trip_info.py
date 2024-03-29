@@ -5,6 +5,7 @@ from typing import Any
 
 from gtfs_station_stop.calendar import Calendar
 from gtfs_station_stop.helpers import gtfs_record_iter
+from gtfs_station_stop.static_database import GtfsStaticDatabase
 
 
 class TripInfo:
@@ -20,15 +21,11 @@ class TripInfo:
         return f"{self.trip_id}: {self.route_id} to {self.trip_headsign}"
 
 
-class TripInfoDatabase:
-    def __init__(self, gtfs_files: Iterable[os.PathLike] | os.PathLike | None = None):
+class TripInfoDatabase(GtfsStaticDatabase):
+    def __init__(self, *gtfs_files: os.PathLike):
         self.trip_infos = {}
         self.__cached_route_ids = None
-        if gtfs_files is not None:
-            if isinstance(gtfs_files, os.PathLike):
-                gtfs_files = [gtfs_files]
-            for file in gtfs_files:
-                self.add_gtfs_data(file)
+        super().__init__(*gtfs_files)
 
     def add_gtfs_data(self, zip_filepath: os.PathLike):
         for line in gtfs_record_iter(zip_filepath, "trips.txt"):
