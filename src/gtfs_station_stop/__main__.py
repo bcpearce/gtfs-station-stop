@@ -10,8 +10,11 @@ import dotenv
 import gtfs_station_stop.__about__
 from gtfs_station_stop.calendar import Calendar
 from gtfs_station_stop.feed_subject import FeedSubject
-from gtfs_station_stop.helpers import async_get_gtfs_database
 from gtfs_station_stop.route_status import RouteStatus
+from gtfs_station_stop.static_database import (  # noqa: F401
+    GtfsStaticDatabase,
+    async_factory,
+)
 from gtfs_station_stop.station_stop import StationStop
 from gtfs_station_stop.station_stop_info import (  # noqa: F401
     StationStopInfo,
@@ -74,14 +77,10 @@ if args.do_async and args.info_zip:
     async def async_get_static_info():
         async with asyncio.TaskGroup() as tg:
             ssi_db_task = tg.create_task(
-                async_get_gtfs_database(StationStopInfoDatabase, args.info_zip)
+                async_factory(StationStopInfoDatabase, args.info_zip)
             )
-            ti_db_task = tg.create_task(
-                async_get_gtfs_database(TripInfoDatabase, args.info_zip)
-            )
-            calendar_task = tg.create_task(
-                async_get_gtfs_database(Calendar, args.info_zip)
-            )
+            ti_db_task = tg.create_task(async_factory(TripInfoDatabase, args.info_zip))
+            calendar_task = tg.create_task(async_factory(Calendar, args.info_zip))
         return (ssi_db_task.result(), ti_db_task.result(), calendar_task.result())
 
     ssi_db, ti_db, calendar = asyncio.run(async_get_static_info())
