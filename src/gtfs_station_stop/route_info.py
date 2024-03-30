@@ -13,7 +13,7 @@ class RouteInfo:
         self.long_name = route_data_dict["route_long_name"]
         self.type = route_data_dict["route_type"]
         self.desc = route_data_dict["route_desc"]
-        self.url = route_data_dict["route_url"]
+        self.url = route_data_dict.get("route_url")
         self.color = route_data_dict["route_color"]
         self.text_color = route_data_dict["route_text_color"]
 
