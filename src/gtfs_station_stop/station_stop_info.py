@@ -18,7 +18,7 @@ class StationStopInfo:
         self.parent = parent
 
     def __repr__(self):
-        return f"{self.id}: {self.name}, lat: {self.lat}, long: {self.lon}, parent: {self.parent.id}"
+        return f"{self.id}: {self.name}, lat: {self.lat}, long: {self.lon}{f', parent: {self.parent.id}' if self.parent else ''}"
 
 
 class StationStopInfoDatabase(GtfsStaticDatabase):
