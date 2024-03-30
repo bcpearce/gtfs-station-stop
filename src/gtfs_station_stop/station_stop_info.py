@@ -29,7 +29,8 @@ class StationStopInfoDatabase(GtfsStaticDatabase):
     def add_gtfs_data(self, zip_filelike):
         for line in gtfs_record_iter(zip_filelike, "stops.txt"):
             id = line["stop_id"]
-            parent = self.station_stop_infos.get(line["parent_station"])
+            if line.get("parent_station"):
+                parent = self.station_stop_infos.get(line["parent_station"])
             self.station_stop_infos[id] = StationStopInfo(parent, line)
 
     def get_stop_ids(self) -> list[str]:
