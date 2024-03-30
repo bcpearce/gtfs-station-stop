@@ -79,15 +79,18 @@ build:
     paths:
       - dist/
 
-register_package:
+register_package_gitlab_pypi:
   extends: .doRelease
   stage: register
-  script:
+  variables:
+    TWINE_USERNAME: gitlab-ci-token
+    TWINE_PASSWORD: ${CI_JOB_TOKEN}
+  before_script:
     - pip install --upgrade twine
-    - TWINE_PASSWORD=${CI_JOB_TOKEN}
-      TWINE_USERNAME=gitlab-ci-token
-      python -m twine upload
-      --verbose
+  script:
+    - |
+      python -m twine upload \
+      --verbose \
       --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
 
 release_job:
