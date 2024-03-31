@@ -34,5 +34,5 @@ class RouteInfoDatabase(GtfsStaticDatabase):
     def __getitem__(self, key):
         return self.route_infos[key]
 
-    def get(self, key: str | None, default: Any | None):
+    def get(self, key: str | None, default: Any | None = None):
         return self.route_infos.get(key, default)
