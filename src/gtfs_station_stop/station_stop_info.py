@@ -10,7 +10,7 @@ class StationStopInfo:
 
 
 class StationStopInfo:
-    def __init__(self, parent: StationStopInfo, station_data_dict: dict):
+    def __init__(self, station_data_dict: dict, parent: StationStopInfo | None = None):
         self.id = station_data_dict["stop_id"]
         self.name = station_data_dict["stop_name"]
         self.lat = station_data_dict.get("stop_lat")
@@ -29,9 +29,10 @@ class StationStopInfoDatabase(GtfsStaticDatabase):
     def add_gtfs_data(self, zip_filelike):
         for line in gtfs_record_iter(zip_filelike, "stops.txt"):
             id = line["stop_id"]
+            parent = None
             if line.get("parent_station"):
                 parent = self.station_stop_infos.get(line["parent_station"])
-            self.station_stop_infos[id] = StationStopInfo(parent, line)
+            self.station_stop_infos[id] = StationStopInfo(line, parent)
 
     def get_stop_ids(self) -> list[str]:
         return self.station_stop_infos.keys()
