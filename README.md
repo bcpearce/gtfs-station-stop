@@ -4,7 +4,9 @@ A project for organizing GTFS Real-Time data for use as a homeassistant sensor.
 
 ## Usage
 
-This is designed for use with Home Assistant GTFS Realtime Custom Component.
+This is designed for use with [Home Assistant GTFS Realtime Custom Component](https://github.com/bcpearce/homeassistant-gtfs-realtime).
+
+It can also be used for general GTFS update purposes.
 
 ### Feed Subjects and Station Stops
 
@@ -64,6 +66,10 @@ station_stop_info_db = StationStopInfoDatabase("gtfs_static.zip")
 print(f"{station_stop_info_db['STOP_ID']}")
 ```
 
+Static info can be queried through the `station_stop_info`, `route_info`, `calendar`, and `trip_info` submodules.
+
+GTFS providers will regularly update their static feeds.  In order to account for this, the library will attempt to cache zip file downloads for static info.
+
 ### Async Updates
 
 Asynchronous updates are also supported through the `async_update()` method.
@@ -72,11 +78,19 @@ Asynchronous updates are also supported through the `async_update()` method.
 await feed_subject.async_update()
 ```
 
-Static data can also be obtained similarly with `gtfs_station_stop.helpers.async_get_gtfs_database`.
+Static data can also be obtained similarly with `gtfs_station_stop.static_database.async_factory`.
 
 ```python
 station_stop_info_database = await async_get_gtfs_database(StationStopInfoDatabase, "https://gtfsprovider.example.com/static.zip")
 ```
+
+### Command Line Interface
+
+This can be run as a Python module on the command line using
+
+`python -m gtfs_station_stop`
+
+Use `python -m gtfs_station_stop --help` for details.
 
 ## Development Setup
 
