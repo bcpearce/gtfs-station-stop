@@ -25,18 +25,18 @@ class RouteStatus:
 
 
 class FeedSubject:
-    def __init__(self, realtime_feed_uris: Sequence[str], api_key: str = ""):
+    def __init__(self, realtime_feed_uris: Sequence[str], **kwargs):
         self.realtime_feed_uris = set(realtime_feed_uris)
-        self.api_key = api_key
+        self.kwargs = kwargs
         self.subscribers = defaultdict(WeakSet)
 
     def _request_gtfs_feed(self, uri: str) -> bytes:
         req: requests.Response = requests.get(
-            url=uri, headers={"x-api-key": self.api_key}
+            url=uri, headers=self.kwargs.get("headers")
         )
         if req.status_code <= 200 and req.status_code < 300:
             return req.content
-        raise RuntimeError(f"HTTP error code {req.status_code}")
+        raise RuntimeError(f"HTTP error code {req.status_code}, {req.text}")
 
     def _get_gtfs_feed(self) -> gtfs_realtime_pb2.FeedMessage:
         def load_feed_data(_subject, _uri):
@@ -59,10 +59,14 @@ class FeedSubject:
         return feed
 
     async def _async_request_gtfs_feed(self, uri: str) -> bytes:
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(headers=self.kwargs.get("headers")) as session:
             async with session.get(uri) as req:
                 if req.status <= 200 and req.status < 300:
                     return await req.read()
+                else:
+                    raise RuntimeError(
+                        f"HTTP error code {req.status}, {await req.text()}"
+                    )
 
     async def _async_get_gtfs_feed(self) -> gtfs_realtime_pb2.FeedMessage:
         async def async_merge_feed(
