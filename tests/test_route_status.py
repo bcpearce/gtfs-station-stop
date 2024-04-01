@@ -3,7 +3,7 @@ from gtfs_station_stop.route_status import RouteStatus
 
 
 def test_create_route_status():
-    rs = RouteStatus("Z", FeedSubject("", []))
+    rs = RouteStatus("Z", FeedSubject([]))
     assert hasattr(rs, "alerts")
 
 
