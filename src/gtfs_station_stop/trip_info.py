@@ -4,7 +4,6 @@ from datetime import date, datetime
 from typing import Any
 
 from gtfs_station_stop.calendar import Calendar
-from gtfs_station_stop.helpers import gtfs_record_iter
 from gtfs_station_stop.static_database import GtfsStaticDatabase
 
 
@@ -13,22 +12,23 @@ class TripInfo:
         self.route_id = trip_data_dict["route_id"]
         self.trip_id = trip_data_dict["trip_id"]
         self.service_id = trip_data_dict["service_id"]
-        self.trip_headsign = trip_data_dict["trip_headsign"]
-        self.direction_id = trip_data_dict["direction_id"]
-        self.shape_id = trip_data_dict["shape_id"]
+        self.trip_headsign = trip_data_dict.get("trip_headsign", "")
+        self.trip_short_name = trip_data_dict.get("trip_short_name", "")
+        self.direction_id = trip_data_dict.get("direction_id")
+        self.shape_id = trip_data_dict.get("shape_id")
 
     def __repr__(self):
         return f"{self.trip_id}: {self.route_id} to {self.trip_headsign}"
 
 
 class TripInfoDatabase(GtfsStaticDatabase):
-    def __init__(self, *gtfs_files: os.PathLike):
+    def __init__(self, *gtfs_files: os.PathLike, **kwargs):
         self.trip_infos = {}
         self.__cached_route_ids = None
-        super().__init__(*gtfs_files)
+        super().__init__(*gtfs_files, **kwargs)
 
     def add_gtfs_data(self, zip_filepath: os.PathLike):
-        for line in gtfs_record_iter(zip_filepath, "trips.txt"):
+        for line in self._get_gtfs_record_iter(zip_filepath, "trips.txt"):
             id = line["trip_id"]
             self.trip_infos[id] = TripInfo(line)
         # invalidate the cache
