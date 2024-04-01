@@ -50,7 +50,6 @@ async def test_async_get_station_stop_info_from_url(mock_feed_server):
             for url in mock_feed_server.static_urls
             if url.endswith("gtfs_static.zip")
         ],
-        headers={"api-key": "TEST_KEY"},
     )
     assert ssi["101"].name == "Test Station Main St"
     assert ssi["101N"].name == "Test Station Main St"

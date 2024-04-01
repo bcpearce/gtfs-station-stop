@@ -9,7 +9,7 @@ from gtfs_station_stop.station_stop import StationStop
 
 
 def test_create_station_stop():
-    ss = StationStop("L20N", FeedSubject([]))
+    ss = StationStop("L20N", FeedSubject("", []))
     assert hasattr(ss, "alerts")
     assert hasattr(ss, "arrivals")
 
