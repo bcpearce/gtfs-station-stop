@@ -45,7 +45,7 @@ def is_url(url):
         return False
 
 
-def gtfs_record_iter(zip_filelike, target_txt: os.PathLike):
+def gtfs_record_iter(zip_filelike, target_txt: os.PathLike, **kwargs):
     """Generates a line from a given GTFS table. Can handle local files or URLs."""
 
     zip_data = zip_filelike
@@ -55,11 +55,14 @@ def gtfs_record_iter(zip_filelike, target_txt: os.PathLike):
         # As GTFS Static Data updates rarely, (most providers recommend pulling this once per day),
         # we will use a cache to minimize unnecessary checks.
         session = requests_cache.CachedSession(
-            GTFS_STATIC_CACHE, expire_after=GTFS_STATIC_CACHE_EXPIRY
+            GTFS_STATIC_CACHE,
+            expire_after=GTFS_STATIC_CACHE_EXPIRY,
         )
-        res = session.get(zip_filelike)
+        res = session.get(zip_filelike, headers=kwargs.get("headers"))
         if 200 <= res.status_code < 400:
             zip_data = BytesIO(res.content)
+        else:
+            raise ConnectionRefusedError
 
     with ZipFile(zip_data, "r") as zip:
         # Find the stops.txt file
@@ -69,7 +72,9 @@ def gtfs_record_iter(zip_filelike, target_txt: os.PathLike):
         if first_or_none is None:
             raise RuntimeError(f"Did not find required {target_txt} file")
         # Create the dictionary of IDs, parents should precede the children
-        with StringIO(str(zip.read(first_or_none), encoding="ASCII")) as stops_dot_txt:
+        with StringIO(
+            str(zip.read(first_or_none), encoding="utf-8-sig")
+        ) as stops_dot_txt:
             reader = csv.DictReader(
                 stops_dot_txt,
                 delimiter=",",

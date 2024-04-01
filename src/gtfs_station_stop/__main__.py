@@ -67,6 +67,7 @@ start_time = time.time()
 
 # Get the API Key, argument takes precedent of environment variable
 api_key = args.api_key or os.environ.get("API_KEY")
+headers = {"api-key": api_key, "x-api-key": api_key, "api_key": api_key}
 
 ssi_db = None
 ti_db = None
@@ -77,17 +78,33 @@ if args.do_async and args.info_zip:
     async def async_get_static_info():
         async with asyncio.TaskGroup() as tg:
             ssi_db_task = tg.create_task(
-                async_factory(StationStopInfoDatabase, *args.info_zip)
+                async_factory(
+                    StationStopInfoDatabase,
+                    *args.info_zip,
+                    headers=headers,
+                )
             )
-            ti_db_task = tg.create_task(async_factory(TripInfoDatabase, *args.info_zip))
-            calendar_task = tg.create_task(async_factory(Calendar, *args.info_zip))
+            ti_db_task = tg.create_task(
+                async_factory(
+                    TripInfoDatabase,
+                    *args.info_zip,
+                    headers=headers,
+                )
+            )
+            calendar_task = tg.create_task(
+                async_factory(
+                    Calendar,
+                    *args.info_zip,
+                    headers=headers,
+                )
+            )
         return (ssi_db_task.result(), ti_db_task.result(), calendar_task.result())
 
     ssi_db, ti_db, calendar = asyncio.run(async_get_static_info())
 elif args.info_zip:
-    ssi_db = StationStopInfoDatabase(*args.info_zip)
-    ti_db = TripInfoDatabase(*args.info_zip)
-    calendar = Calendar(*args.info_zip)
+    ssi_db = StationStopInfoDatabase(*args.info_zip, headers=headers)
+    ti_db = TripInfoDatabase(*args.info_zip, headers=headers)
+    calendar = Calendar(*args.info_zip, headers=headers)
 
 if calendar is not None:
     # Print out the current active service IDs
@@ -100,7 +117,7 @@ if calendar is not None:
     for s in calendar.get_inactive_services():
         print(f"{s.service_id}:\t\033[91m inactive \033[00m".expandtabs(exptabs))
 
-feed_subject = FeedSubject(args.feed_urls, api_key)
+feed_subject = FeedSubject(args.feed_urls, headers=headers)
 station_stops = [StationStop(id, feed_subject) for id in args.stops]
 route_statuses = [RouteStatus(id, feed_subject) for id in args.routes]
 

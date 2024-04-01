@@ -59,7 +59,7 @@ def nyct_feed_subject():
     dotenv.load_dotenv()
     return FeedSubject(
         feed_urls,
-        os.environ.get("API_KEY"),
+        headers={"x-api-key": os.environ.get("API_KEY")},
     )
 
 
