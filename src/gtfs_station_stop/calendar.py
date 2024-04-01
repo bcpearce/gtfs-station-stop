@@ -2,7 +2,6 @@ import os
 from datetime import date, datetime
 from typing import NamedTuple
 
-from gtfs_station_stop.helpers import gtfs_record_iter
 from gtfs_station_stop.static_database import GtfsStaticDatabase
 
 SERVICE_EXCEPTION_TYPE_ADDED = "1"
@@ -53,12 +52,12 @@ class Service:
 
 
 class Calendar(GtfsStaticDatabase):
-    def __init__(self, *gtfs_files: os.PathLike):
+    def __init__(self, *gtfs_files: os.PathLike, **kwargs):
         self.services = {}
-        super().__init__(*gtfs_files)
+        super().__init__(*gtfs_files, **kwargs)
 
     def add_gtfs_data(self, zip_filelike):
-        for line in gtfs_record_iter(zip_filelike, "calendar.txt"):
+        for line in self._get_gtfs_record_iter(zip_filelike, "calendar.txt"):
             self.services[line["service_id"]] = Service(
                 line["service_id"],
                 ServiceDays(
@@ -74,7 +73,7 @@ class Calendar(GtfsStaticDatabase):
                 datetime.strptime(line["end_date"], "%Y%m%d").date(),
             )
         # Add in special services
-        for line in gtfs_record_iter(zip_filelike, "calendar_dates.txt"):
+        for line in self._get_gtfs_record_iter(zip_filelike, "calendar_dates.txt"):
             service_id = line["service_id"]
             if self.services.get(service_id) is None:
                 # Create a blank calendar if it is missing
