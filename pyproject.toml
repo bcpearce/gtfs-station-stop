@@ -17,12 +17,12 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "python-dotenv==1.0.1",
-  "gtfs-realtime-bindings==1.0.0",
-  "requests==2.31.0",
-  "requests-cache==1.2.0",
-  "aiohttp[speedups]==3.9.3",
-  "aiohttp-client-cache[sqlite]==0.11.0",
+  "python-dotenv>=1.0.1",
+  "gtfs-realtime-bindings>=1.0.0",
+  "requests>=2.31.0",
+  "requests-cache>=1.2.0",
+  "aiohttp[speedups]>=3.9.3",
+  "aiohttp-client-cache[sqlite]>=0.11.0",
 ]
 [tool.hatch.version]
 path = "src/gtfs_station_stop/__about__.py"
