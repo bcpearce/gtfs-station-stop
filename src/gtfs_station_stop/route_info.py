@@ -1,8 +1,9 @@
 import os
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from gtfs_station_stop.static_database import GtfsStaticDatabase
+from gtfs_station_stop.static_dataset import GtfsStaticDataset
 
 
 class RouteType(Enum):
@@ -92,7 +93,10 @@ class RouteInfo:
         self.text_color = route_data_dict.get("route_text_color")
 
 
-class RouteInfoDatabase(GtfsStaticDatabase):
+@dataclass
+class RouteInfoDataset(GtfsStaticDataset):
+    route_infos: dict[str, RouteInfo]
+
     def __init__(self, *gtfs_files: os.PathLike, **kwargs):
         self.route_infos = {}
         super().__init__(*gtfs_files, **kwargs)

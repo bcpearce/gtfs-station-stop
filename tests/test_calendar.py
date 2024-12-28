@@ -1,13 +1,12 @@
 from datetime import date, datetime
 
-import pytest
-
 from gtfs_station_stop.calendar import Calendar
 
 
 def test_invalid_gtfs_zip(test_directory):
-    with pytest.raises(RuntimeError):
-        Calendar(test_directory / "data" / "gtfs_static_nocalendar.zip")
+    assert Calendar() == Calendar(
+        test_directory / "data" / "gtfs_static_nocalendar.zip"
+    )
 
 
 def test_get_station_stop_info_from_zip_calendar_txt(gtfs_calendar):

@@ -1,10 +1,11 @@
 import os
 from collections.abc import Iterable
+from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any
 
 from gtfs_station_stop.calendar import Calendar
-from gtfs_station_stop.static_database import GtfsStaticDatabase
+from gtfs_station_stop.static_dataset import GtfsStaticDataset
 
 
 class TripInfo:
@@ -21,7 +22,10 @@ class TripInfo:
         return f"{self.trip_id}: {self.route_id} to {self.trip_headsign}"
 
 
-class TripInfoDatabase(GtfsStaticDatabase):
+@dataclass
+class TripInfoDataset(GtfsStaticDataset):
+    trip_infos: dict[str, TripInfo]
+
     def __init__(self, *gtfs_files: os.PathLike, **kwargs):
         self.trip_infos = {}
         self.__cached_route_ids = None

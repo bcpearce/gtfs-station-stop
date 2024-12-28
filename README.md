@@ -57,18 +57,18 @@ As the update will make one or more http requests, this may improve performance 
 
 ### GTFS Static Info
 
-Static data can be loaded into a database for convenient lookup to use alongside GTFS Realtime data. GTFS data can be read from a file or a URL from your service provider. The GTFS file must be provided as a .zip containing the requisite .txt files as defined by [GTFS Static Reference](https://developers.google.com/transit/gtfs/reference).
+Static data can be loaded into a Dataset for convenient lookup to use alongside GTFS Realtime data. GTFS data can be read from a file or a URL from your service provider. The GTFS file must be provided as a .zip containing the requisite .txt files as defined by [GTFS Static Reference](https://developers.google.com/transit/gtfs/reference).
 
 ```python
-from gtfs_station_stop.station_stop_info import StationStopInfoDatabase
+from gtfs_station_stop.station_stop_info import StationStopInfoDataset
 
-station_stop_info_db = StationStopInfoDatabase("gtfs_static.zip")
-print(f"{station_stop_info_db['STOP_ID']}")
+station_stop_infods = StationStopInfoDataset("gtfs_static.zip")
+print(f"{station_stop_infods['STOP_ID']}")
 ```
 
 Static info can be queried through the `station_stop_info`, `route_info`, `calendar`, and `trip_info` submodules.
 
-GTFS providers will regularly update their static feeds.  In order to account for this, the library will attempt to cache zip file downloads for static info.
+GTFS providers will regularly update their static feeds. In order to account for this, the library will attempt to cache zip file downloads for static info.
 
 ### Async Updates
 
@@ -78,10 +78,10 @@ Asynchronous updates are also supported through the `async_update()` method.
 await feed_subject.async_update()
 ```
 
-Static data can also be obtained similarly with `gtfs_station_stop.static_database.async_factory`.
+Static data can also be obtained similarly with `gtfs_station_stop.static_Dataset.async_factory`.
 
 ```python
-station_stop_info_database = await async_get_gtfs_database(StationStopInfoDatabase, "https://gtfsprovider.example.com/static.zip")
+station_stop_info_Dataset = await async_get_gtfs_Dataset(StationStopInfoDataset, "https://gtfsprovider.example.com/static.zip")
 ```
 
 ### Command Line Interface
