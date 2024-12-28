@@ -1,0 +1,343 @@
+# serializer version: 1
+# name: test_async_build_schedule
+  dict({
+    'calendar': dict({
+      'services': dict({
+        'NoFridayService': Service(
+          added_exceptions=set({
+          }),
+          end=datetime.date(1, 1, 1),
+          removed_exceptions=set({
+            datetime.date(2024, 3, 1),
+          }),
+          service_days=ServiceDays(
+            friday=False,
+            monday=False,
+            saturday=False,
+            sunday=False,
+            thursday=False,
+            tuesday=False,
+            wednesday=False,
+          ),
+          service_id='NoFridayService',
+          start=datetime.date(1, 1, 1),
+        ),
+        'PiDaySpecial': Service(
+          added_exceptions=set({
+            datetime.date(2024, 3, 14),
+          }),
+          end=datetime.date(1, 1, 1),
+          removed_exceptions=set({
+          }),
+          service_days=ServiceDays(
+            friday=False,
+            monday=False,
+            saturday=False,
+            sunday=False,
+            thursday=False,
+            tuesday=False,
+            wednesday=False,
+          ),
+          service_id='PiDaySpecial',
+          start=datetime.date(1, 1, 1),
+        ),
+        'Regular': Service(
+          added_exceptions=set({
+          }),
+          end=datetime.date(2024, 12, 31),
+          removed_exceptions=set({
+            datetime.date(2024, 12, 25),
+          }),
+          service_days=ServiceDays(
+            friday=True,
+            monday=True,
+            saturday=False,
+            sunday=False,
+            thursday=True,
+            tuesday=True,
+            wednesday=True,
+          ),
+          service_id='Regular',
+          start=datetime.date(2024, 1, 1),
+        ),
+        'Weekday': Service(
+          added_exceptions=set({
+          }),
+          end=datetime.date(2024, 12, 31),
+          removed_exceptions=set({
+          }),
+          service_days=ServiceDays(
+            friday=True,
+            monday=True,
+            saturday=False,
+            sunday=False,
+            thursday=True,
+            tuesday=True,
+            wednesday=True,
+          ),
+          service_id='Weekday',
+          start=datetime.date(2024, 1, 1),
+        ),
+        'Weekend': Service(
+          added_exceptions=set({
+          }),
+          end=datetime.date(2024, 12, 31),
+          removed_exceptions=set({
+          }),
+          service_days=ServiceDays(
+            friday=False,
+            monday=False,
+            saturday=True,
+            sunday=True,
+            thursday=False,
+            tuesday=False,
+            wednesday=False,
+          ),
+          service_id='Weekend',
+          start=datetime.date(2024, 1, 1),
+        ),
+      }),
+    }),
+    'route_info_ds': dict({
+      'route_infos': dict({
+        'X': RouteInfo(
+          agency_id='TEST AGENCY',
+          color='EE352E',
+          desc='Runs a test route X, all times',
+          id='X',
+          long_name='X Test Route',
+          short_name='X',
+          text_color='FFFFFF',
+          type=<RouteType.SUBWAY: 1>,
+          url='https://gtfs.example.com/x',
+        ),
+        'Y': RouteInfo(
+          agency_id='TEST AGENCY',
+          color='00933C',
+          desc='Runs a test route Y, all times',
+          id='Y',
+          long_name='Y Test Route',
+          short_name='Y',
+          text_color='FFFFFF',
+          type=<RouteType.SUBWAY: 1>,
+          url='https://gtfs.example.com/y',
+        ),
+        'Z': RouteInfo(
+          agency_id='TEST AGENCY',
+          color='B933AD',
+          desc='Runs a test route Z, sometimes',
+          id='Z',
+          long_name='Z Test Route',
+          short_name='Z',
+          text_color='',
+          type=<RouteType.SUBWAY: 1>,
+          url='https://gtfs.example.com/z',
+        ),
+      }),
+    }),
+    'station_stop_info_ds': dict({
+      'station_stop_infos': dict({
+        '101': 101: Test Station Main St, lat: 40.60, long: -74.5,
+        '101N': 101N: Test Station Main St, lat: 40.60, long: -74.5, parent: 101,
+        '101S': 101S: Test Station Main St, lat: 40.60, long: -74.5, parent: 101,
+        '102': 102: Test Station 10 St, lat: 40.70, long: -74.6,
+        '102N': 102N: Test Station 10 St, lat: 40.70, long: -74.6, parent: 102,
+        '102S': 102S: Test Station 10 St, lat: 40.70, long: -74.6, parent: 102,
+        '103': 103: Test Station 20 St, lat: 40.70, long: -74.6,
+        '103N': 103N: Test Station 20 St, lat: 40.70, long: -74.6, parent: 103,
+        '103S': 103S: Test Station 20 St, lat: 40.70, long: -74.6, parent: 103,
+      }),
+    }),
+    'trip_info_ds': dict({
+      'trip_infos': dict({
+        '123_X..N01R': 123_X..N01R: X to Northbound X,
+        '123_Y..N02R': 123_Y..N02R: Y to Northbound Y,
+        '123_Z..N03R': 123_Z..N03R: Z to Northbound Z,
+        '321_X..S01R': 321_X..S01R: X to Southbound X,
+        '321_Y..S02R': 321_Y..S02R: Y to Southbound Y,
+        '321_Z..S03R': 321_Z..S03R: Z to Southbound Z,
+        '456_X..N04R': 456_X..N04R: X to Northbound X,
+        '456_Y..N05R': 456_Y..N05R: Y to Northbound Y,
+        '456_Z..N06R': 456_Z..N06R: Z to Northbound Z,
+        '654_X..S04R': 654_X..S04R: X to Southbound X,
+        '654_Y..S05R': 654_Y..S05R: Y to Southbound Y,
+        '654_Z..S06R': 654_Z..S06R: Z to Southbound Z,
+        'bad': bad:  to Eastbound ?,
+      }),
+    }),
+  })
+# ---
+# name: test_async_build_schedule_add_data_later
+  dict({
+    'calendar': dict({
+      'services': dict({
+        'NoFridayService': Service(
+          added_exceptions=set({
+          }),
+          end=datetime.date(1, 1, 1),
+          removed_exceptions=set({
+            datetime.date(2024, 3, 1),
+          }),
+          service_days=ServiceDays(
+            friday=False,
+            monday=False,
+            saturday=False,
+            sunday=False,
+            thursday=False,
+            tuesday=False,
+            wednesday=False,
+          ),
+          service_id='NoFridayService',
+          start=datetime.date(1, 1, 1),
+        ),
+        'PiDaySpecial': Service(
+          added_exceptions=set({
+            datetime.date(2024, 3, 14),
+          }),
+          end=datetime.date(1, 1, 1),
+          removed_exceptions=set({
+          }),
+          service_days=ServiceDays(
+            friday=False,
+            monday=False,
+            saturday=False,
+            sunday=False,
+            thursday=False,
+            tuesday=False,
+            wednesday=False,
+          ),
+          service_id='PiDaySpecial',
+          start=datetime.date(1, 1, 1),
+        ),
+        'Regular': Service(
+          added_exceptions=set({
+          }),
+          end=datetime.date(2024, 12, 31),
+          removed_exceptions=set({
+            datetime.date(2024, 12, 25),
+          }),
+          service_days=ServiceDays(
+            friday=True,
+            monday=True,
+            saturday=False,
+            sunday=False,
+            thursday=True,
+            tuesday=True,
+            wednesday=True,
+          ),
+          service_id='Regular',
+          start=datetime.date(2024, 1, 1),
+        ),
+        'Weekday': Service(
+          added_exceptions=set({
+          }),
+          end=datetime.date(2024, 12, 31),
+          removed_exceptions=set({
+          }),
+          service_days=ServiceDays(
+            friday=True,
+            monday=True,
+            saturday=False,
+            sunday=False,
+            thursday=True,
+            tuesday=True,
+            wednesday=True,
+          ),
+          service_id='Weekday',
+          start=datetime.date(2024, 1, 1),
+        ),
+        'Weekend': Service(
+          added_exceptions=set({
+          }),
+          end=datetime.date(2024, 12, 31),
+          removed_exceptions=set({
+          }),
+          service_days=ServiceDays(
+            friday=False,
+            monday=False,
+            saturday=True,
+            sunday=True,
+            thursday=False,
+            tuesday=False,
+            wednesday=False,
+          ),
+          service_id='Weekend',
+          start=datetime.date(2024, 1, 1),
+        ),
+      }),
+    }),
+    'route_info_ds': dict({
+      'route_infos': dict({
+        'X': RouteInfo(
+          agency_id='TEST AGENCY',
+          color='EE352E',
+          desc='Runs a test route X, all times',
+          id='X',
+          long_name='X Test Route',
+          short_name='X',
+          text_color='FFFFFF',
+          type=<RouteType.SUBWAY: 1>,
+          url='https://gtfs.example.com/x',
+        ),
+        'Y': RouteInfo(
+          agency_id='TEST AGENCY',
+          color='00933C',
+          desc='Runs a test route Y, all times',
+          id='Y',
+          long_name='Y Test Route',
+          short_name='Y',
+          text_color='FFFFFF',
+          type=<RouteType.SUBWAY: 1>,
+          url='https://gtfs.example.com/y',
+        ),
+        'Z': RouteInfo(
+          agency_id='TEST AGENCY',
+          color='B933AD',
+          desc='Runs a test route Z, sometimes',
+          id='Z',
+          long_name='Z Test Route',
+          short_name='Z',
+          text_color='',
+          type=<RouteType.SUBWAY: 1>,
+          url='https://gtfs.example.com/z',
+        ),
+      }),
+    }),
+    'station_stop_info_ds': dict({
+      'station_stop_infos': dict({
+        '101': 101: Test Station Main St, lat: 40.60, long: -74.5,
+        '101N': 101N: Test Station Main St, lat: 40.60, long: -74.5, parent: 101,
+        '101S': 101S: Test Station Main St, lat: 40.60, long: -74.5, parent: 101,
+        '102': 102: Test Station 10 St, lat: 40.70, long: -74.6,
+        '102N': 102N: Test Station 10 St, lat: 40.70, long: -74.6, parent: 102,
+        '102S': 102S: Test Station 10 St, lat: 40.70, long: -74.6, parent: 102,
+        '103': 103: Test Station 20 St, lat: 40.70, long: -74.6,
+        '103N': 103N: Test Station 20 St, lat: 40.70, long: -74.6, parent: 103,
+        '103S': 103S: Test Station 20 St, lat: 40.70, long: -74.6, parent: 103,
+        '201': 201: Test Station Last St, lat: 40.60, long: -74.5, parent: 201,
+        '201N': 201N: Test Station Last St, lat: 40.60, long: -74.5,
+      }),
+    }),
+    'trip_info_ds': dict({
+      'trip_infos': dict({
+        '123_X..N01R': 123_X..N01R: X to Northbound X,
+        '123_Y..N02R': 123_Y..N02R: Y to Northbound Y,
+        '123_Z..N03R': 123_Z..N03R: Z to Northbound Z,
+        '321_X..S01R': 321_X..S01R: X to Southbound X,
+        '321_Y..S02R': 321_Y..S02R: Y to Southbound Y,
+        '321_Z..S03R': 321_Z..S03R: Z to Southbound Z,
+        '456_X..N04R': 456_X..N04R: X to Northbound X,
+        '456_Y..N05R': 456_Y..N05R: Y to Northbound Y,
+        '456_Z..N06R': 456_Z..N06R: Z to Northbound Z,
+        '654_X..S04R': 654_X..S04R: X to Southbound X,
+        '654_Y..S05R': 654_Y..S05R: Y to Southbound Y,
+        '654_Z..S06R': 654_Z..S06R: Z to Southbound Z,
+        '789_X..N24R': 789_X..N24R: X to Northbound Special X,
+        '789_X..S24R': 789_X..S24R: X to Southbound Special X,
+        '987_X..N21R': 987_X..N21R: X to Northbound Special X,
+        '987_X..S21R': 987_X..S21R: X to Southbound Special X,
+        'bad': bad:  to Eastbound ?,
+      }),
+    }),
+  })
+# ---

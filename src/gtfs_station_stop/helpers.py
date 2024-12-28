@@ -70,7 +70,7 @@ def gtfs_record_iter(zip_filelike, target_txt: os.PathLike, **kwargs):
             (name for name in zip.namelist() if name == target_txt), None
         )
         if first_or_none is None:
-            raise RuntimeError(f"Did not find required {target_txt} file")
+            return
         # Create the dictionary of IDs, parents should precede the children
         with StringIO(
             str(zip.read(first_or_none), encoding="utf-8-sig")

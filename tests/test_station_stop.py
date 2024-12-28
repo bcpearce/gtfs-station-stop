@@ -1,7 +1,6 @@
 import datetime
 import time
 
-import pytest
 from freezegun import freeze_time
 
 from gtfs_station_stop.feed_subject import FeedSubject
@@ -32,7 +31,6 @@ def test_update_feed(feed_subject):
     assert "Y" in arrival_routes
 
 
-@pytest.mark.asyncio
 @freeze_time(datetime.datetime.now())
 async def test_async_update_feed(feed_subject):
     """Asynchronous version of update."""

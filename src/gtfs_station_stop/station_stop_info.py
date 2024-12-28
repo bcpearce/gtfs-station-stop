@@ -1,8 +1,9 @@
 import os
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from gtfs_station_stop.static_database import GtfsStaticDatabase
+from gtfs_station_stop.static_dataset import GtfsStaticDataset
 
 
 class LocationType(Enum):
@@ -46,7 +47,10 @@ class StationStopInfo:
         return f"{self.id}: {self.name}, lat: {self.lat}, long: {self.lon}{f', parent: {self.parent.id}' if self.parent else ''}"
 
 
-class StationStopInfoDatabase(GtfsStaticDatabase):
+@dataclass
+class StationStopInfoDataset(GtfsStaticDataset):
+    station_stop_infos: dict[str, StationStopInfo]
+
     def __init__(self, *gtfs_files: os.PathLike, **kwargs):
         self.station_stop_infos = {}
         super().__init__(*gtfs_files, **kwargs)

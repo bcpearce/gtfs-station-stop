@@ -1,8 +1,9 @@
 import os
+from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import NamedTuple
 
-from gtfs_station_stop.static_database import GtfsStaticDatabase
+from gtfs_station_stop.static_dataset import GtfsStaticDataset
 
 SERVICE_EXCEPTION_TYPE_ADDED = "1"
 SERVICE_EXCEPTION_TYPE_REMOVED = "2"
@@ -51,7 +52,10 @@ class Service:
         return Service(service_id, ServiceDays.no_service(), date.min, date.min)
 
 
-class Calendar(GtfsStaticDatabase):
+@dataclass
+class Calendar(GtfsStaticDataset):
+    services: dict[str, Service] = field(default_factory=dict)
+
     def __init__(self, *gtfs_files: os.PathLike, **kwargs):
         self.services = {}
         super().__init__(*gtfs_files, **kwargs)
