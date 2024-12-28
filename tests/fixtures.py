@@ -7,8 +7,8 @@ from mock_feed_server import create_mock_feed_server
 
 from gtfs_station_stop.calendar import Calendar
 from gtfs_station_stop.feed_subject import FeedSubject
-from gtfs_station_stop.station_stop_info import StationStopInfoDatabase
-from gtfs_station_stop.trip_info import TripInfoDatabase
+from gtfs_station_stop.station_stop_info import StationStopInfoDataset
+from gtfs_station_stop.trip_info import TripInfoDataset
 
 
 @pytest.fixture(scope="session")
@@ -17,13 +17,13 @@ def test_directory():
 
 
 @pytest.fixture(scope="session")
-def good_trip_info_database(test_directory):
-    return TripInfoDatabase(test_directory / "data" / "gtfs_static.zip")
+def good_trip_info_dataset(test_directory):
+    return TripInfoDataset(test_directory / "data" / "gtfs_static.zip")
 
 
 @pytest.fixture
-def good_station_stop_info_db(test_directory):
-    return StationStopInfoDatabase(test_directory / "data" / "gtfs_static.zip")
+def good_station_stop_info_dataset(test_directory):
+    return StationStopInfoDataset(test_directory / "data" / "gtfs_static.zip")
 
 
 @pytest.fixture(scope="session")

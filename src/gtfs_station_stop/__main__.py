@@ -1,26 +1,26 @@
 #!/usr/bin/python
 import argparse
 import asyncio
+import importlib.metadata
 import os
 import time
 from pprint import pprint
 
 import dotenv
 
-import gtfs_station_stop.__about__
 from gtfs_station_stop.calendar import Calendar
 from gtfs_station_stop.feed_subject import FeedSubject
 from gtfs_station_stop.route_status import RouteStatus
-from gtfs_station_stop.static_database import (  # noqa: F401
-    GtfsStaticDatabase,
+from gtfs_station_stop.static_dataset import (  # noqa: F401
+    GtfsStaticDataset,
     async_factory,
 )
 from gtfs_station_stop.station_stop import StationStop
 from gtfs_station_stop.station_stop_info import (  # noqa: F401
     StationStopInfo,
-    StationStopInfoDatabase,
+    StationStopInfoDataset,
 )
-from gtfs_station_stop.trip_info import TripInfo, TripInfoDatabase  # noqa: F401
+from gtfs_station_stop.trip_info import TripInfo, TripInfoDataset  # noqa: F401
 
 dotenv.load_dotenv()
 
@@ -60,7 +60,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 if args.version:
-    print(gtfs_station_stop.__about__.__version__)
+    print(importlib.metadata.version("gtfs_station_stop"))
     exit(0)
 
 start_time = time.time()
@@ -69,24 +69,24 @@ start_time = time.time()
 api_key = args.api_key or os.environ.get("API_KEY")
 headers = {"api-key": api_key, "x-api-key": api_key, "api_key": api_key}
 
-ssi_db = None
-ti_db = None
+ssids = None
+tids = None
 calendar = None
 
 if args.do_async and args.info_zip:
 
     async def async_get_static_info():
         async with asyncio.TaskGroup() as tg:
-            ssi_db_task = tg.create_task(
+            ssids_task = tg.create_task(
                 async_factory(
-                    StationStopInfoDatabase,
+                    StationStopInfoDataset,
                     *args.info_zip,
                     headers=headers,
                 )
             )
-            ti_db_task = tg.create_task(
+            tids_task = tg.create_task(
                 async_factory(
-                    TripInfoDatabase,
+                    TripInfoDataset,
                     *args.info_zip,
                     headers=headers,
                 )
@@ -98,12 +98,12 @@ if args.do_async and args.info_zip:
                     headers=headers,
                 )
             )
-        return (ssi_db_task.result(), ti_db_task.result(), calendar_task.result())
+        return (ssids_task.result(), tids_task.result(), calendar_task.result())
 
-    ssi_db, ti_db, calendar = asyncio.run(async_get_static_info())
+    ssids, tids, calendar = asyncio.run(async_get_static_info())
 elif args.info_zip:
-    ssi_db = StationStopInfoDatabase(*args.info_zip, headers=headers)
-    ti_db = TripInfoDatabase(*args.info_zip, headers=headers)
+    ssids = StationStopInfoDataset(*args.info_zip, headers=headers)
+    tids = TripInfoDataset(*args.info_zip, headers=headers)
     calendar = Calendar(*args.info_zip, headers=headers)
 
 if calendar is not None:
@@ -134,15 +134,15 @@ print("===============")
 if not len(station_stops):
     print("none")
 for stop in station_stops:
-    if ssi_db is not None:
-        print(ssi_db[stop.id])
+    if ssids is not None:
+        print(ssids[stop.id])
         pprint(
             [
                 [
                     arrival.route,
                     arrival.time,
                     arrival.trip,
-                    ti_db.get_close_match(arrival.trip, calendar),
+                    tids.get_close_match(arrival.trip, calendar),
                 ]
                 for arrival in sorted(stop.get_time_to_arrivals())
             ]

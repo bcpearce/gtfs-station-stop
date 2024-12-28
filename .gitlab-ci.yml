@@ -7,7 +7,8 @@ stages:
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  PRE_COMMIT_HOME: "/.cache/pre-commit"
+  POETRY_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pypoetry"
+  PRE_COMMIT_HOME: "$CI_PROJECT_DIR/.cache/pre-commit"
   TEST_RESULTS_FILE: "test_results.xml"
   TEST_COVERAGE_FILE: "coverage.xml"
   PYTHON_IMAGE: python:3
@@ -16,11 +17,13 @@ default:
   image: $PYTHON_IMAGE
   cache:
     paths:
-      - .cache/pip
+      - $PIP_CACHE_DIR
+      - $POETRY_CACHE_DIR
   before_script:
     - python --version ; pip --version
-    - pip install --upgrade pip
-    - pip install -r requirements-dev.txt
+    - pip install poetry --upgrade
+    - poetry install
+    - source `poetry env info --path`/bin/activate
 
 .doRelease:
   rules:
@@ -62,11 +65,7 @@ pytest:
 
 module_test:
   stage: test
-  image: $PYTHON_IMAGE
-  inherit:
-    default: false
   script:
-    - pip install .
     - echo "Running module version command to test module loading..."
     - python -m gtfs_station_stop --version # output version
     - python -m gtfs_station_stop # smoke test no input
@@ -74,7 +73,7 @@ module_test:
 build:
   stage: build
   script:
-    - python -m build
+    - poetry build
   artifacts:
     paths:
       - dist/
@@ -83,15 +82,11 @@ register_package_gitlab_pypi:
   extends: .doRelease
   stage: register
   variables:
-    TWINE_USERNAME: gitlab-ci-token
-    TWINE_PASSWORD: ${CI_JOB_TOKEN}
-  before_script:
-    - pip install --upgrade twine
+    PUBLISH_USERNAME: gitlab-ci-token
+    PUBLISH_PASSWORD: ${CI_JOB_TOKEN}
   script:
-    - |
-      python -m twine upload \
-      --verbose \
-      --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
+    - poetry config repositories.gitlab ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi
+    - poetry publish --repository gitlab -u $PUBLISH_USERNAME -p $PUBLISH_PASSWORD
 
 release_job:
   extends: .doRelease

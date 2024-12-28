@@ -1,28 +1,36 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[project]
+[tool.poetry]
 name = "gtfs_station_stop"
-dynamic = ["version"]
-authors = [
-  { name="Benjamin Pearce", email="gtfs@bcpearce.com" },
-]
+version = "0.9.0"
+authors = ["Benjamin Pearce <gtfs@bcpearce.com>"]
 description = "Package for reading and organizing GTFS data for a given station stop."
 readme = "README.md"
-requires-python = ">=3.10"
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
 ]
-dependencies = [
-  "python-dotenv>=1.0.1",
-  "gtfs-realtime-bindings>=1.0.0",
-  "requests>=2.31.0",
-  "requests-cache>=1.2.0",
-  "aiohttp[speedups]>=3.9.3",
-  "aiohttp-client-cache[sqlite]>=0.11.0",
-]
-[tool.hatch.version]
-path = "src/gtfs_station_stop/__about__.py"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+gtfs-realtime-bindings = "^1.0.0"
+requests = "^2.32.3"
+requests-cache = "^1.2.1"
+aiohttp = "^3.11.11"
+aiohttp-client-cache = { extras = ["sqlite"], version = "^0.12.4" }
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+pytest-httpserver = "^1.1.0"
+pytest-cov = "^6.0.0"
+pytest-asyncio = "^0.25.0"
+freezegun = "^1.5.1"
+ruff = "^0.8.4"
+pre-commit = "^4.0.1"
+syrupy = "^4.8.0"
+
+[tool.poetry.group.cli.dependencies]
+python-dotenv = "^1.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
