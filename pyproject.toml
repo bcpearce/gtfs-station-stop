@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gtfs_station_stop"
-version = "0.9.0"
+version = "0.9.1"
 authors = ["Benjamin Pearce <gtfs@bcpearce.com>"]
 description = "Package for reading and organizing GTFS data for a given station stop."
 readme = "README.md"
@@ -11,7 +11,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.12.0,<3.14"
 gtfs-realtime-bindings = "^1.0.0"
 requests = "^2.32.3"
 requests-cache = "^1.2.1"
