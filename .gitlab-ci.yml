@@ -70,6 +70,14 @@ module_test:
     - python -m gtfs_station_stop --version # output version
     - python -m gtfs_station_stop # smoke test no input
 
+homeassistant_compatibility:
+  stage: test
+  variables:
+    PINNED_HASS_VERSION: "2024.12.5"
+  script:
+    - echo "Checking for compatibility with recent homeassistant version."
+    - sh hooks/hass_compat.sh $PINNED_HASS_VERSION
+
 build:
   stage: build
   script:
