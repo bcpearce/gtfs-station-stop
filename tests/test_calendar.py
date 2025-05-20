@@ -12,19 +12,19 @@ def test_invalid_gtfs_zip(test_directory):
 def test_get_station_stop_info_from_zip_calendar_txt(gtfs_calendar):
     service = gtfs_calendar["Regular"]
     # GTFS Data for test has Regular Service active on all weekdays, but not weekends
-    assert (
-        service.is_active_on(datetime(year=2024, month=3, day=4)) is True
-    ), "Regular Service active on a weekday."
-    assert (
-        service.is_active_on(datetime(year=2024, month=3, day=9)) is False
-    ), "Regular Service not active on a weekend."
+    assert service.is_active_on(datetime(year=2024, month=3, day=4)) is True, (
+        "Regular Service active on a weekday."
+    )
+    assert service.is_active_on(datetime(year=2024, month=3, day=9)) is False, (
+        "Regular Service not active on a weekend."
+    )
     # Test with date too
-    assert (
-        service.is_active_on(date(year=2024, month=3, day=4)) is True
-    ), "Regular Service active on a weekday."
-    assert (
-        service.is_active_on(date(year=2024, month=3, day=9)) is False
-    ), "Regular Service not active on a weekend."
+    assert service.is_active_on(date(year=2024, month=3, day=4)) is True, (
+        "Regular Service active on a weekday."
+    )
+    assert service.is_active_on(date(year=2024, month=3, day=9)) is False, (
+        "Regular Service not active on a weekend."
+    )
 
 
 def test_get_station_stop_info_from_zip_calendar_dates_txt(gtfs_calendar):
