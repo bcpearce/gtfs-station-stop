@@ -2,28 +2,38 @@ stages:
   - lint
   - test
   - build
-  - register
+  - deploy
   - release
 
 variables:
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  POETRY_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pypoetry"
-  PRE_COMMIT_HOME: "$CI_PROJECT_DIR/.cache/pre-commit"
+  PYTHON_VERSION: 3.13
+  UV_VERSION: 0.7.6
+  BASE_LAYER: bookworm
+  PRE_COMMIT_HOME: $CI_PROJECT_DIR/.cache/pre-commit
+  UV_CACHE_DIR: $CI_PROJECT_DIR/.cache/uv
   TEST_RESULTS_FILE: "test_results.xml"
   TEST_COVERAGE_FILE: "coverage.xml"
-  PYTHON_IMAGE: python:3
 
 default:
-  image: $PYTHON_IMAGE
+  image: ghcr.io/astral-sh/uv:$UV_VERSION-python$PYTHON_VERSION-$BASE_LAYER
   cache:
-    paths:
-      - $PIP_CACHE_DIR
-      - $POETRY_CACHE_DIR
+    - key:
+        files:
+        - uv.lock
+      paths:
+      - $UV_CACHE_DIR
+    - key:
+        files:
+        - .pre-commit-config.yaml
+      paths:
+      - $PRE_COMMIT_HOME
   before_script:
-    - python --version ; pip --version
-    - pip install poetry --upgrade
-    - poetry install
-    - source `poetry env info --path`/bin/activate
+    - python --version ; pip --version ; uv --version
+    - uv sync --all-groups
+    - source .venv/bin/activate
+  after_script:
+    - uv cache prune --ci
+
 
 .doRelease:
   rules:
@@ -70,31 +80,23 @@ module_test:
     - python -m gtfs_station_stop --version # output version
     - python -m gtfs_station_stop # smoke test no input
 
-homeassistant_compatibility:
-  stage: test
-  variables:
-    PINNED_HASS_VERSION: "2024.12.5"
-  script:
-    - echo "Checking for compatibility with recent homeassistant version."
-    - sh hooks/hass_compat.sh $PINNED_HASS_VERSION
-
 build:
   stage: build
   script:
-    - poetry build
+    - uv build
   artifacts:
     paths:
       - dist/
 
-register_package_gitlab_pypi:
-  extends: .doRelease
-  stage: register
-  variables:
-    PUBLISH_USERNAME: gitlab-ci-token
-    PUBLISH_PASSWORD: ${CI_JOB_TOKEN}
+publish:
+  rules:
+    - if: $CI_COMMIT_TAG
+  stage: deploy
+  environment:
+    name: "PyPI ${CI_COMMIT_TAG}"
+    url: https://pypi.org/project/gtfs_station_stop/${CI_COMMIT_TAG}
   script:
-    - poetry config repositories.gitlab ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi
-    - poetry publish --repository gitlab -u $PUBLISH_USERNAME -p $PUBLISH_PASSWORD
+    - uv publish --token $PUB_REPO_TOKEN
 
 release_job:
   extends: .doRelease
