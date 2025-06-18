@@ -941,15 +941,17 @@ propcache==0.3.1 ; python_full_version >= '3.13.2' \
     #   annotatedyaml
     #   homeassistant
     #   yarl
-protobuf==6.31.0 \
-    --hash=sha256:10bd62802dfa0588649740a59354090eaf54b8322f772fbdcca19bc78d27f0d6 \
-    --hash=sha256:2c812f0f96ceb6b514448cefeb1df54ec06dde456783f5099c0e2f8a0f2caa89 \
-    --hash=sha256:314fab1a6a316469dc2dd46f993cbbe95c861ea6807da910becfe7475bc26ffe \
-    --hash=sha256:3e987c99fd634be8347246a02123250f394ba20573c953de133dc8b2c107dd71 \
-    --hash=sha256:5353e38844168a327acd2b2aa440044411cd8d1b6774d5701008bd1dba067c79 \
-    --hash=sha256:67ce50195e4e584275623b8e6bc6d3d3dfd93924bf6116b86b3b8975ab9e4571 \
-    --hash=sha256:6ac2e82556e822c17a8d23aa1190bbc1d06efb9c261981da95c71c9da09e9e23
-    # via gtfs-realtime-bindings
+protobuf==6.31.1 \
+    --hash=sha256:426f59d2964864a1a366254fa703b8632dcec0790d8862d30034d8245e1cd447 \
+    --hash=sha256:4ee898bf66f7a8b0bd21bce523814e6fbd8c6add948045ce958b73af7e8878c6 \
+    --hash=sha256:6f1227473dc43d44ed644425268eb7c2e488ae245d51c6866d19fe158e207402 \
+    --hash=sha256:720a6c7e6b77288b85063569baae8536671b39f15cc22037ec7045658d80489e \
+    --hash=sha256:7fa17d5a29c2e04b7d90e5e32388b8bfd0e7107cd8e616feef7ed3fa6bdab5c9 \
+    --hash=sha256:a40fc12b84c154884d7d4c4ebd675d5b3b5283e155f324049ae396b95ddebc39 \
+    --hash=sha256:d8cac4c982f0b957a4dc73a80e2ea24fab08e679c0de9deb835f4a12d69aca9a
+    # via
+    #   gtfs-realtime-bindings
+    #   gtfs-station-stop
 psutil==7.0.0 \
     --hash=sha256:101d71dc322e3cffd7cea0650b09b3d08b8e7c4109dd6809fe452dfd00e58b25 \
     --hash=sha256:1fcee592b4c6f146991ca55919ea3d1f8926497a713ed7faaf8225e174581e91 \
