@@ -6,16 +6,16 @@ repos:
       - id: debug-statements
       - id: trailing-whitespace
   - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
+    rev: 6.0.1
     hooks:
       - id: isort
         args: ["--profile", "black"]
   - repo: https://github.com/PyCQA/flake8
-    rev: 7.1.1
+    rev: 7.3.0
     hooks:
       - id: flake8
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.10
+    rev: v0.12.1
     hooks:
       - id: ruff
       - id: ruff-format
@@ -25,7 +25,7 @@ repos:
       - id: codespell
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.7.5
+    rev: 0.7.17
     hooks:
       - id: uv-lock
       - id: uv-export
