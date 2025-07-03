@@ -24,8 +24,9 @@ repos:
     hooks:
       - id: codespell
   - repo: https://github.com/astral-sh/uv-pre-commit
-    # uv version.
     rev: 0.7.19
     hooks:
       - id: uv-lock
       - id: uv-export
+
+ci: {}
