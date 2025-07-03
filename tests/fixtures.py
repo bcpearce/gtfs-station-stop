@@ -65,8 +65,10 @@ def nyct_feed_subject():
 
 @pytest.fixture
 def feed_subject(mock_feed_subject, nyct_feed_subject):
-    # Set the feed server to use either mock data read from the tests/data directory, or to use real data
-    # By default, use mock data
+    """
+    Set the feed server to use either mock data read from the tests/data directory,
+    or to use real data. By default, use mock data
+    """
     feed_dict = {"MOCK": mock_feed_subject, "NYCT": nyct_feed_subject}
     feed_key = os.environ.get("GTFS_SOURCE", "MOCK")
     print(f"Using feed subject {feed_key}")
