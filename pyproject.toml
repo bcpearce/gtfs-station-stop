@@ -44,3 +44,29 @@ homeassistant = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "UP",
+  "B",
+  "SIM",
+  "I",
+  "TC",
+]
+
+[tool.ruff.format]
+docstring-code-format = true
+quote-style = "double"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+addopts = "--cov=gtfs_station_stop --cov-report=xml --junitxml test_results.xml"
+asyncio_default_fixture_loop_scope = "session"
+
+[tool.coverage.run]
+omit = ["gtfs_station_stop/__main__.py"]
+
+[tool.codespell]
+skip = './tests/fixtures/mock_responses,./htmlcov'
