@@ -163,5 +163,5 @@ for route in route_statuses:
         print()
 
 print(
-    f"Processed {len(args.feed_urls)} feeds and {len(args.info_zip)} static info zipfiles in {time.time() - start_time:.3f} seconds"
+    f"Processed {len(args.feed_urls)} feeds and {len(args.info_zip)} static info zipfiles in {time.time() - start_time:.3f} seconds"  # noqa E501
 )

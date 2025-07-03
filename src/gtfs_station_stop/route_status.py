@@ -1,7 +1,10 @@
 import time
+from typing import TYPE_CHECKING
 
-from gtfs_station_stop.alert import Alert
 from gtfs_station_stop.feed_subject import FeedSubject
+
+if TYPE_CHECKING:
+    from gtfs_station_stop.alert import Alert
 
 
 class RouteStatus:

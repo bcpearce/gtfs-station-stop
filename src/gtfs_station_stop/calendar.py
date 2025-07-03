@@ -37,8 +37,10 @@ class Service:
         self.added_exceptions = set()
         self.removed_exceptions = set()
 
-    def is_active_on(self, the_date: date = date.today()):
+    def is_active_on(self, the_date: date | None = None):
         """Check if service is active on a given datetime, defaults to now."""
+        if the_date is None:
+            the_date = date.today()
         if isinstance(the_date, datetime):
             the_date = the_date.date()
         normally_active = (self.start <= the_date <= self.end) and self.service_days[
@@ -48,7 +50,9 @@ class Service:
             not normally_active and the_date in self.added_exceptions
         )
 
+    @staticmethod
     def no_regular_service(service_id: str):
+        """Provides a service with no regular service days."""
         return Service(service_id, ServiceDays.no_service(), date.min, date.min)
 
 
@@ -93,10 +97,16 @@ class Calendar(GtfsStaticDataset):
             else:
                 raise RuntimeError("Unsupported GTFS service exception type.")
 
-    def get_active_services(self, the_date: date = date.today()) -> list[str]:
+    def get_active_services(self, the_date: date | None = None) -> list[str]:
+        """Filtered list of all active services."""
+        if the_date is None:
+            the_date = date.today()
         return [s for s in self.services.values() if s.is_active_on(the_date)]
 
-    def get_inactive_services(self, the_date: date = date.today()) -> list[str]:
+    def get_inactive_services(self, the_date: date | None = None) -> list[str]:
+        """Filtered list of all inactive services."""
+        if the_date is None:
+            the_date = date.today()
         return [s for s in self.services.values() if not s.is_active_on(the_date)]
 
     def __getitem__(self, key) -> Service:
