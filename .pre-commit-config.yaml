@@ -5,17 +5,8 @@ repos:
       - id: check-yaml
       - id: debug-statements
       - id: trailing-whitespace
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: ["--profile", "black"]
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.1.1
-    hooks:
-      - id: flake8
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.10
+    rev: v0.12.1
     hooks:
       - id: ruff
       - id: ruff-format
@@ -24,8 +15,17 @@ repos:
     hooks:
       - id: codespell
   - repo: https://github.com/astral-sh/uv-pre-commit
-    # uv version.
-    rev: 0.7.5
+    rev: 0.7.19
     hooks:
       - id: uv-lock
       - id: uv-export
+  - repo: local
+    hooks:
+    - id: pytest
+      name: pytest
+      language: system
+      entry: sh hooks/runtests.sh
+      files: ^(custom_components/.*\.py|tests/.*\.py)$
+
+ci:
+  skip: [ pytest ]

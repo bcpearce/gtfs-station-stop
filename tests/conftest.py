@@ -6,7 +6,10 @@ from google.transit import gtfs_realtime_pb2
 
 
 def create_static_data():
-    """Create data for tests, it is provided as .txt files and zipped to make for easier inspection."""
+    """
+    Create data for tests, it is provided as .txt files and zipped to make for easier
+    inspection.
+    """
     with ZipFile(Path("tests/data/gtfs_static_nostops.zip"), "w") as zp:
         for gtfs_file in Path.iterdir(Path("tests/data/gtfs_static")):
             if gtfs_file.name != "stops.txt":
@@ -48,7 +51,7 @@ def create_realtime_data():
     elem = entities[0]
     elem.id = "1"
     elem.trip_update.trip.route_id = "X"
-    for t, s in zip([30, 45], ["102N", "103N"]):
+    for t, s in zip([30, 45], ["102N", "103N"], strict=False):
         stu = elem.trip_update.stop_time_update.add()
         stu.arrival.time = t
         stu.stop_id = s
@@ -56,7 +59,7 @@ def create_realtime_data():
     elem = entities[1]
     elem.id = "2"
     elem.trip_update.trip.route_id = "Y"
-    for t, s in zip([35, 51, 68], ["101N", "102N", "103N"]):
+    for t, s in zip([35, 51, 68], ["101N", "102N", "103N"], strict=False):
         stu = elem.trip_update.stop_time_update.add()
         stu.arrival.time = t
         stu.stop_id = s
@@ -64,7 +67,7 @@ def create_realtime_data():
     elem = entities[2]
     elem.id = "3"
     elem.trip_update.trip.route_id = "Z"
-    for t, s in zip([10, 0, 8], ["103S", "102S", "101S"]):
+    for t, s in zip([10, 0, 8], ["103S", "102S", "101S"], strict=False):
         stu = elem.trip_update.stop_time_update.add()
         stu.arrival.time = t
         stu.stop_id = s
@@ -72,7 +75,7 @@ def create_realtime_data():
     elem = entities[3]
     elem.id = "4"
     elem.trip_update.trip.route_id = "X"
-    for t, s in zip([31, 50, 60], ["101N", "102N", "103N"]):
+    for t, s in zip([31, 50, 60], ["101N", "102N", "103N"], strict=False):
         stu = elem.trip_update.stop_time_update.add()
         stu.arrival.time = t
         stu.stop_id = s

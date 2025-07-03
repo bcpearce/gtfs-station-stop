@@ -44,7 +44,7 @@ class StationStopInfo:
         return LocationType(int(raw))
 
     def __repr__(self):
-        return f"{self.id}: {self.name}, lat: {self.lat}, long: {self.lon}{f', parent: {self.parent.id}' if self.parent else ''}"
+        return f"{self.id}: {self.name}, lat: {self.lat}, long: {self.lon}{f', parent: {self.parent.id}' if self.parent else ''}"  # noqa E501
 
 
 @dataclass

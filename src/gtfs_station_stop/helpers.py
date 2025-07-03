@@ -52,8 +52,8 @@ def gtfs_record_iter(zip_filelike, target_txt: os.PathLike, **kwargs):
     # If the data is a url, make the request for the file resource.
     if is_url(zip_filelike):
         # Make the request, check for good return code, and convert to IO object.
-        # As GTFS Static Data updates rarely, (most providers recommend pulling this once per day),
-        # we will use a cache to minimize unnecessary checks.
+        # As GTFS Static Data updates rarely, (most providers recommend pulling this
+        # once per day), we will use a cache to minimize unnecessary checks.
         session = requests_cache.CachedSession(
             GTFS_STATIC_CACHE,
             expire_after=GTFS_STATIC_CACHE_EXPIRY,
@@ -79,5 +79,4 @@ def gtfs_record_iter(zip_filelike, target_txt: os.PathLike, **kwargs):
                 stops_dot_txt,
                 delimiter=",",
             )
-            for line in reader:
-                yield line
+            yield from reader

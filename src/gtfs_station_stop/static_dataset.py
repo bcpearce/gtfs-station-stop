@@ -1,7 +1,6 @@
 import inspect
 import os
 from io import BytesIO
-from typing import Type
 
 from aiohttp_client_cache import CachedSession, SQLiteBackend
 
@@ -23,7 +22,7 @@ class GtfsStaticDataset:
 
 
 async def async_factory(
-    gtfs_ds_or_class: Type[GtfsStaticDataset] | GtfsStaticDataset,
+    gtfs_ds_or_class: type[GtfsStaticDataset] | GtfsStaticDataset,
     *gtfs_urls: os.PathLike,
     **kwargs,
 ):

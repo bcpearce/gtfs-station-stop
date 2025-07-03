@@ -2,6 +2,8 @@
 
 A project for organizing GTFS Real-Time data for use as a homeassistant sensor.
 
+![test coverage](./coverage.svg)'
+
 ## Usage
 
 This is designed for use with [Home Assistant GTFS Realtime Custom Component](https://github.com/bcpearce/homeassistant-gtfs-realtime).

@@ -42,9 +42,15 @@ class TripInfoDataset(GtfsStaticDataset):
         self,
         key,
         service_finder: str | Calendar | Iterable[str] | None = None,
-        the_date: date | datetime = date.today(),
+        the_date: date | datetime | None = None,
     ) -> TripInfo | None:
-        """Gets the first close match for a given trip ID using either none, a specific service ID, or a calendar and date. When using Calendar, a date can be provided, defaults to today."""
+        """
+        Gets the first close match for a given trip ID using either none, a specific
+        service ID, or a calendar and date. When using Calendar, a date can be provided,
+        defaults to today.
+        """
+        if the_date is None:
+            the_date = date.today()
         active_services: set[str] = set()
         if isinstance(service_finder, str):
             active_services = [service_finder]

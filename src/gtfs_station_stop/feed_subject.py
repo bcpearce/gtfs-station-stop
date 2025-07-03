@@ -59,14 +59,14 @@ class FeedSubject:
         return feed
 
     async def _async_request_gtfs_feed(self, uri: str) -> bytes:
-        async with aiohttp.ClientSession(headers=self.kwargs.get("headers")) as session:
-            async with session.get(uri) as req:
-                if req.status <= 200 and req.status < 300:
-                    return await req.read()
-                else:
-                    raise RuntimeError(
-                        f"HTTP error code {req.status}, {await req.text()}"
-                    )
+        async with (
+            aiohttp.ClientSession(headers=self.kwargs.get("headers")) as session,
+            session.get(uri) as req,
+        ):
+            if req.status <= 200 and req.status < 300:
+                return await req.read()
+            else:
+                raise RuntimeError(f"HTTP error code {req.status}, {await req.text()}")
 
     async def _async_get_gtfs_feed(self) -> gtfs_realtime_pb2.FeedMessage:
         async def async_merge_feed(
@@ -117,7 +117,8 @@ class FeedSubject:
                         ):
                             hdr = al.header_text.translation
                             dsc = al.description_text.translation
-                            # validate that one of the active periods is current, then add it
+                            # validate that one of the active periods is current,
+                            # then add it
                             sub.alerts.append(
                                 Alert(
                                     ends_at=ends_at,
