@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 from zipfile import ZipFile
 
 import aiofiles
+from aiohttp_client_cache import CachedSession as AsyncCachedSession
 from aiohttp_client_cache import SQLiteBackend
 from google.transit import gtfs_realtime_pb2
 from requests_cache import CachedSession
@@ -90,36 +91,34 @@ async def unpack_nested_zips(
 ) -> list[BytesIO]:
     """Dives into a zip file looking for nested .zip."""
     res = []
-    for resource in gtfs_resources:
-        zip_data = resource
-        if isinstance(resource, os.PathLike) and is_url(resource):
-            async with CachedSession(
-                cache=SQLiteBackend(
-                    kwargs.get("gtfs_static_cache", GTFS_STATIC_CACHE),
-                    expire_after=kwargs.get("expire_after", GTFS_STATIC_CACHE_EXPIRY),
-                ),
-                headers=kwargs.get("headers"),
-            ) as session:
-                for resource in gtfs_resources:
-                    async with session.get(resource) as response:
-                        if 200 <= response.status < 400:
-                            zip_data = BytesIO(await response.read())
-                        else:
-                            raise RuntimeError(
-                                f"HTTP error code {response.status}, {await response.text()}"  # noqa E501
-                            )
-        elif isinstance(resource, os.PathLike) and is_url(resource):  # assume file
-            async with aiofiles.open(resource, mode="rb") as f:
-                zip_data = BytesIO(await f.read())
+    async with AsyncCachedSession(
+        cache=SQLiteBackend(
+            kwargs.get("gtfs_static_cache", GTFS_STATIC_CACHE),
+            expire_after=kwargs.get("expire_after", GTFS_STATIC_CACHE_EXPIRY),
+        ),
+        headers=kwargs.get("headers"),
+    ) as session:
+        for resource in gtfs_resources:
+            zip_data = resource
+            if is_url(resource):
+                async with session.get(resource) as response:
+                    if 200 <= response.status < 400:
+                        zip_data = BytesIO(await response.read())
+                    else:
+                        raise RuntimeError(
+                            f"HTTP error code {response.status}, {await response.text()}"  # noqa E501
+                        )
+            elif isinstance(resource, os.PathLike):  # assume file
+                async with aiofiles.open(resource, mode="rb") as f:
+                    zip_data = BytesIO(await f.read())
 
-        with ZipFile(zip_data, "r") as z:
-            print(z.namelist())
-            nested_zips = [
-                BytesIO(z.read(x))
-                for x in z.namelist()
-                if Path(x).suffix.lower() == ".zip"
-            ]
-            res += nested_zips
-            res += await unpack_nested_zips(*nested_zips)
+            with ZipFile(zip_data, "r") as z:
+                nested_zips = [
+                    BytesIO(z.read(x))
+                    for x in z.namelist()
+                    if Path(x).suffix.lower() == ".zip"
+                ]
+                res += nested_zips
+                res += await unpack_nested_zips(*nested_zips)
 
     return res

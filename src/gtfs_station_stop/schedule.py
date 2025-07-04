@@ -3,6 +3,7 @@ import os
 from dataclasses import dataclass, field
 
 from gtfs_station_stop.calendar import Calendar
+from gtfs_station_stop.helpers import unpack_nested_zips
 from gtfs_station_stop.route_info import RouteInfo, RouteInfoDataset
 from gtfs_station_stop.static_dataset import async_factory
 from gtfs_station_stop.station_stop_info import StationStopInfo, StationStopInfoDataset
@@ -18,21 +19,25 @@ class GtfsSchedule:
     trip_info_ds: TripInfoDataset = field(default_factory=TripInfoDataset)
     route_info_ds: RouteInfoDataset = field(default_factory=RouteInfoDataset)
 
-    async def async_update_schedule(self, *gtfs_urls: os.PathLike, **kwargs):
+    async def async_update_schedule(self, *gtfs_resources: os.PathLike, **kwargs):
         """Build a schedule dataclass."""
+
+        # Check for nested file resources
+        nested_resources = await unpack_nested_zips(*gtfs_resources)
+        gtfs_resources = list(gtfs_resources) + nested_resources
 
         async with asyncio.TaskGroup() as tg:
             cal_ds_task = tg.create_task(
-                async_factory(self.calendar, *gtfs_urls, **kwargs)
+                async_factory(self.calendar, *gtfs_resources, **kwargs)
             )
             ssi_ds_task = tg.create_task(
-                async_factory(self.station_stop_info_ds, *gtfs_urls, **kwargs)
+                async_factory(self.station_stop_info_ds, *gtfs_resources, **kwargs)
             )
             ti_ds_task = tg.create_task(
-                async_factory(self.trip_info_ds, *gtfs_urls, **kwargs)
+                async_factory(self.trip_info_ds, *gtfs_resources, **kwargs)
             )
             rti_ds_task = tg.create_task(
-                async_factory(self.route_info_ds, *gtfs_urls, **kwargs)
+                async_factory(self.route_info_ds, *gtfs_resources, **kwargs)
             )
         self.calendar = cal_ds_task.result()
         self.station_stop_info_ds = ssi_ds_task.result()

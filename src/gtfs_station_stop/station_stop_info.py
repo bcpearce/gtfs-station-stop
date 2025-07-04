@@ -29,9 +29,7 @@ class StationStopInfo:
     def __init__(
         self, station_data_dict: dict, parent: StationStopInfo | None = None
     ) -> None:
-        parent_station = station_data_dict.get("parent_station")
-        if parent_station and not parent:
-            raise ValueError("Parent station reference not provided.")
+        self.parent_station = station_data_dict.get("parent_station")
         self.location_type = StationStopInfo._get_location_type(
             station_data_dict.get("location_type", "")
         )
