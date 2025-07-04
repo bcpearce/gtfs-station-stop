@@ -315,7 +315,7 @@
         '103N': 103N: Test Station 20 St, lat: 40.70, long: -74.6, parent: 103,
         '103S': 103S: Test Station 20 St, lat: 40.70, long: -74.6, parent: 103,
         '201': 201: Test Station Last St, lat: 40.60, long: -74.5, parent: 201,
-        '201N': 201N: Test Station Last St, lat: 40.60, long: -74.5,
+        '201N': 201N: Test Station Last St, lat: 40.60, long: -74.5, parent: 201,
       }),
     }),
     'trip_info_ds': dict({

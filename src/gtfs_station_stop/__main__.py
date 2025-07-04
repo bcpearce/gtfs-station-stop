@@ -11,16 +11,12 @@ import dotenv
 from gtfs_station_stop.calendar import Calendar
 from gtfs_station_stop.feed_subject import FeedSubject
 from gtfs_station_stop.route_status import RouteStatus
-from gtfs_station_stop.static_dataset import (  # noqa: F401
-    GtfsStaticDataset,
-    async_factory,
-)
+from gtfs_station_stop.schedule import GtfsSchedule
 from gtfs_station_stop.station_stop import StationStop
 from gtfs_station_stop.station_stop_info import (  # noqa: F401
-    StationStopInfo,
     StationStopInfoDataset,
 )
-from gtfs_station_stop.trip_info import TripInfo, TripInfoDataset  # noqa: F401
+from gtfs_station_stop.trip_info import TripInfoDataset  # noqa: F401
 
 dotenv.load_dotenv()
 
@@ -74,33 +70,14 @@ tids = None
 calendar = None
 
 if args.do_async and args.info_zip:
+    schedule = GtfsSchedule()
+    asyncio.run(schedule.async_update_schedule(*args.info_zip))
+    ssids, tids, calendar = (
+        schedule.station_stop_info_ds,
+        schedule.trip_info_ds,
+        schedule.calendar,
+    )
 
-    async def async_get_static_info():
-        async with asyncio.TaskGroup() as tg:
-            ssids_task = tg.create_task(
-                async_factory(
-                    StationStopInfoDataset,
-                    *args.info_zip,
-                    headers=headers,
-                )
-            )
-            tids_task = tg.create_task(
-                async_factory(
-                    TripInfoDataset,
-                    *args.info_zip,
-                    headers=headers,
-                )
-            )
-            calendar_task = tg.create_task(
-                async_factory(
-                    Calendar,
-                    *args.info_zip,
-                    headers=headers,
-                )
-            )
-        return (ssids_task.result(), tids_task.result(), calendar_task.result())
-
-    ssids, tids, calendar = asyncio.run(async_get_static_info())
 elif args.info_zip:
     ssids = StationStopInfoDataset(*args.info_zip, headers=headers)
     tids = TripInfoDataset(*args.info_zip, headers=headers)
