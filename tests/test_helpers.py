@@ -45,3 +45,10 @@ def test_return_end_if_active(active_period_alert):
     assert helpers.is_none_or_ends_at(
         active_period_alert, 20.0
     ) == datetime.datetime.fromtimestamp(50)
+
+
+async def test_nested_gtfs_zip(test_directory):
+    nested = await helpers.unpack_nested_zips(
+        test_directory / "data" / "gtfs_nested.zip"
+    )
+    assert len(nested) == 2

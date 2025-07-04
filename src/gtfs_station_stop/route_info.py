@@ -7,6 +7,12 @@ from gtfs_station_stop.static_dataset import GtfsStaticDataset
 
 
 class RouteType(Enum):
+    """
+    Route types from GTFS
+    see https://gtfs.org/documentation/schedule/reference/#routestxt
+    and https://developers.google.com/transit/gtfs/reference/extended-route-types
+    """
+
     UNKNOWN = -1
 
     TRAM = 0
@@ -61,6 +67,7 @@ class RouteType(Enum):
         return cls.UNKNOWN
 
     def pretty_name(self):
+        """Provides a nice name for various enums."""
         PRETTY_NAMES = {
             RouteType.TRAM: "Tram",
             RouteType.SUBWAY: "Subway",
@@ -77,6 +84,8 @@ class RouteType(Enum):
 
 
 class RouteInfo:
+    """Route Info."""
+
     def __init__(self, route_data_dict: dict):
         self.agency_id = route_data_dict.get("agency_id")
         self.id = route_data_dict["route_id"]
@@ -95,6 +104,8 @@ class RouteInfo:
 
 @dataclass
 class RouteInfoDataset(GtfsStaticDataset):
+    """Wrapper for map of Route Info."""
+
     route_infos: dict[str, RouteInfo]
 
     def __init__(self, *gtfs_files: os.PathLike, **kwargs):
@@ -103,14 +114,16 @@ class RouteInfoDataset(GtfsStaticDataset):
 
     def add_gtfs_data(self, zip_filelike: os.PathLike):
         for line in self._get_gtfs_record_iter(zip_filelike, "routes.txt"):
-            id = line["route_id"]
-            self.route_infos[id] = RouteInfo(line)
+            route_id = line["route_id"]
+            self.route_infos[route_id] = RouteInfo(line)
 
     def get_routes(self):
+        """Return all routes."""
         return self.route_infos.keys()
 
     def __getitem__(self, key):
         return self.route_infos[key]
 
     def get(self, key: str | None, default: Any | None = None):
+        """Get a RouteInfo or a default."""
         return self.route_infos.get(key, default)

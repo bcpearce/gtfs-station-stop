@@ -9,6 +9,11 @@ from gtfs_station_stop.helpers import gtfs_record_iter
 
 
 class GtfsStaticDataset:
+    """
+    Base class for GTFS Datasets.
+    https://gtfs.org/documentation/schedule/reference/#dataset-files
+    """
+
     def __init__(self, *gtfs_files: os.PathLike, **kwargs):
         self.kwargs = kwargs
         for file in gtfs_files:
@@ -17,7 +22,7 @@ class GtfsStaticDataset:
     def _get_gtfs_record_iter(self, zip_filelike, target_txt: os.PathLike):
         return gtfs_record_iter(zip_filelike, target_txt, **self.kwargs)
 
-    def add_gtfs_data(self, gtfs_pathlike: os.PathLike):
+    def add_gtfs_data(self, zip_filelike: os.PathLike):
         raise NotImplementedError
 
 

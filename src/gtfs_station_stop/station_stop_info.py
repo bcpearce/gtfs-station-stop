@@ -7,6 +7,11 @@ from gtfs_station_stop.static_dataset import GtfsStaticDataset
 
 
 class LocationType(Enum):
+    """
+    Location Type.
+    see https://gtfs.org/documentation/schedule/reference/#stopstxt
+    """
+
     STOP = 0
     STATION = 1
     ENTRANCE = 2
@@ -19,12 +24,14 @@ class StationStopInfo:
 
 
 class StationStopInfo:
+    """Class for a Station/Stop Dataset Record"""
+
     def __init__(
         self, station_data_dict: dict, parent: StationStopInfo | None = None
     ) -> None:
         parent_station = station_data_dict.get("parent_station")
         if parent_station and not parent:
-            ValueError("Parent station reference not provided.")
+            raise ValueError("Parent station reference not provided.")
         self.location_type = StationStopInfo._get_location_type(
             station_data_dict.get("location_type", "")
         )
@@ -38,6 +45,7 @@ class StationStopInfo:
 
         self.parent = parent
 
+    @staticmethod
     def _get_location_type(raw: str) -> LocationType:
         if raw == "":
             return LocationType.STOP
@@ -49,6 +57,8 @@ class StationStopInfo:
 
 @dataclass
 class StationStopInfoDataset(GtfsStaticDataset):
+    """Dataset class for Station/Stop Info."""
+
     station_stop_infos: dict[str, StationStopInfo]
 
     def __init__(self, *gtfs_files: os.PathLike, **kwargs):
@@ -64,10 +74,12 @@ class StationStopInfoDataset(GtfsStaticDataset):
             self.station_stop_infos[id] = StationStopInfo(line, parent)
 
     def get_stop_ids(self) -> list[str]:
+        """Get all stop IDs."""
         return self.station_stop_infos.keys()
 
     def __getitem__(self, key) -> StationStopInfo:
         return self.station_stop_infos[key]
 
     def get(self, key: Any, default: Any | None = None):
+        """Get a stop by ID or a default."""
         return self.station_stop_infos.get(key, default)

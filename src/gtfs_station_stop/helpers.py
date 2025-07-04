@@ -3,11 +3,14 @@ import os
 import time
 from datetime import datetime as dt
 from io import BytesIO, StringIO
+from pathlib import Path
 from urllib.parse import urlparse
 from zipfile import ZipFile
 
-import requests_cache
+import aiofiles
+from aiohttp_client_cache import SQLiteBackend
 from google.transit import gtfs_realtime_pb2
+from requests_cache import CachedSession
 
 from gtfs_station_stop.const import GTFS_STATIC_CACHE, GTFS_STATIC_CACHE_EXPIRY
 
@@ -54,7 +57,7 @@ def gtfs_record_iter(zip_filelike, target_txt: os.PathLike, **kwargs):
         # Make the request, check for good return code, and convert to IO object.
         # As GTFS Static Data updates rarely, (most providers recommend pulling this
         # once per day), we will use a cache to minimize unnecessary checks.
-        session = requests_cache.CachedSession(
+        session = CachedSession(
             GTFS_STATIC_CACHE,
             expire_after=GTFS_STATIC_CACHE_EXPIRY,
         )
@@ -64,19 +67,59 @@ def gtfs_record_iter(zip_filelike, target_txt: os.PathLike, **kwargs):
         else:
             raise ConnectionRefusedError
 
-    with ZipFile(zip_data, "r") as zip:
-        # Find the stops.txt file
+    with ZipFile(zip_data, "r") as z:
+        # Find the *.txt file
         first_or_none: str = next(
-            (name for name in zip.namelist() if name == target_txt), None
+            (name for name in z.namelist() if name == target_txt), None
         )
         if first_or_none is None:
             return
         # Create the dictionary of IDs, parents should precede the children
         with StringIO(
-            str(zip.read(first_or_none), encoding="utf-8-sig")
-        ) as stops_dot_txt:
+            str(z.read(first_or_none), encoding="utf-8-sig")
+        ) as dataset_dot_txt:
             reader = csv.DictReader(
-                stops_dot_txt,
+                dataset_dot_txt,
                 delimiter=",",
             )
             yield from reader
+
+
+async def unpack_nested_zips(
+    *gtfs_resources: os.PathLike | BytesIO, **kwargs
+) -> list[BytesIO]:
+    """Dives into a zip file looking for nested .zip."""
+    res = []
+    for resource in gtfs_resources:
+        zip_data = resource
+        if isinstance(resource, os.PathLike) and is_url(resource):
+            async with CachedSession(
+                cache=SQLiteBackend(
+                    kwargs.get("gtfs_static_cache", GTFS_STATIC_CACHE),
+                    expire_after=kwargs.get("expire_after", GTFS_STATIC_CACHE_EXPIRY),
+                ),
+                headers=kwargs.get("headers"),
+            ) as session:
+                for resource in gtfs_resources:
+                    async with session.get(resource) as response:
+                        if 200 <= response.status < 400:
+                            zip_data = BytesIO(await response.read())
+                        else:
+                            raise RuntimeError(
+                                f"HTTP error code {response.status}, {await response.text()}"  # noqa E501
+                            )
+        elif isinstance(resource, os.PathLike) and is_url(resource):  # assume file
+            async with aiofiles.open(resource, mode="rb") as f:
+                zip_data = BytesIO(await f.read())
+
+        with ZipFile(zip_data, "r") as z:
+            print(z.namelist())
+            nested_zips = [
+                BytesIO(z.read(x))
+                for x in z.namelist()
+                if Path(x).suffix.lower() == ".zip"
+            ]
+            res += nested_zips
+            res += await unpack_nested_zips(*nested_zips)
+
+    return res

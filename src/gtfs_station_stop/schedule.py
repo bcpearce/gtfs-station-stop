@@ -20,6 +20,7 @@ class GtfsSchedule:
 
     async def async_update_schedule(self, *gtfs_urls: os.PathLike, **kwargs):
         """Build a schedule dataclass."""
+
         async with asyncio.TaskGroup() as tg:
             cal_ds_task = tg.create_task(
                 async_factory(self.calendar, *gtfs_urls, **kwargs)

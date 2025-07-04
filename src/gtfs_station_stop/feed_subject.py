@@ -32,7 +32,7 @@ class FeedSubject:
 
     def _request_gtfs_feed(self, uri: str) -> bytes:
         req: requests.Response = requests.get(
-            url=uri, headers=self.kwargs.get("headers")
+            url=uri, headers=self.kwargs.get("headers"), timeout=30
         )
         if req.status_code <= 200 and req.status_code < 300:
             return req.content
