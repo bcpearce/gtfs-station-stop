@@ -23,6 +23,10 @@ dependencies = [
     "requests-cache>=1.2.1",
 ]
 
+[project.urls]
+Homepage = "https://github.com/bcpearce/gtfs-station-stop"
+Issues = "https://github.com/bcpearce/gtfs-station-stop/issues"
+
 [dependency-groups]
 dev = [
     "freezegun>=1.5.1",
