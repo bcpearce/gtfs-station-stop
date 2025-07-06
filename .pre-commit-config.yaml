@@ -28,4 +28,4 @@ repos:
       files: ^(custom_components/.*\.py|tests/.*\.py)$
 
 ci:
-  skip: [ pytest ]
+  skip: [ pytest, uv-lock, uv-export ]

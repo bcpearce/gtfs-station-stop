@@ -90,20 +90,28 @@ station_stop_info_Dataset = await async_get_gtfs_Dataset(StationStopInfoDataset,
 
 This can be run as a Python module on the command line using
 
-`python -m gtfs_station_stop`
+```bash
+$ python -m gtfs_station_stop
+```
+
+This must be installed with the optional group `[cli]`.
+
+```bash
+$ pip install gtfs_station_stop[cli]
+```
 
 Use `python -m gtfs_station_stop --help` for details.
 
 ## Development Setup
 
-Install all development dependencies with:
+It is recommended to use [uv](https://docs.astral.sh/uv/) to develop in this project.
 
 ```bash
-$ pip install -r requirements-dev.txt
+$ uv pip install --group dev
 ```
 
 Run tests with:
 
 ```bash
-$ pytest
+$ uv run pytest
 ```

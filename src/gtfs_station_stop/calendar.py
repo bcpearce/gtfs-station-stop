@@ -58,6 +58,8 @@ class Service:
 
 @dataclass
 class Calendar(GtfsStaticDataset):
+    """Provides the Calendar data."""
+
     services: dict[str, Service] = field(default_factory=dict)
 
     def __init__(self, *gtfs_files: os.PathLike, **kwargs):
@@ -65,6 +67,7 @@ class Calendar(GtfsStaticDataset):
         super().__init__(*gtfs_files, **kwargs)
 
     def add_gtfs_data(self, zip_filelike):
+        """Adds data from a GTFS Dataset to the Calendar."""
         for line in self._get_gtfs_record_iter(zip_filelike, "calendar.txt"):
             self.services[line["service_id"]] = Service(
                 line["service_id"],
