@@ -19,7 +19,9 @@ class GtfsSchedule:
     trip_info_ds: TripInfoDataset = field(default_factory=TripInfoDataset)
     route_info_ds: RouteInfoDataset = field(default_factory=RouteInfoDataset)
 
-    async def async_update_schedule(self, *gtfs_resources: os.PathLike, **kwargs):
+    async def async_update_schedule(
+        self, *gtfs_resources: os.PathLike, **kwargs
+    ) -> None:
         """Build a schedule dataclass."""
 
         # Check for nested file resources
@@ -73,7 +75,7 @@ class GtfsSchedule:
         return ""
 
 
-async def async_build_schedule(*gtfs_urls: os.PathLike, **kwargs):
+async def async_build_schedule(*gtfs_urls: os.PathLike, **kwargs) -> GtfsSchedule:
     """Build a schedule dataclass."""
     async with asyncio.TaskGroup() as tg:
         cal_ds_task = tg.create_task(async_factory(Calendar, *gtfs_urls, **kwargs))
