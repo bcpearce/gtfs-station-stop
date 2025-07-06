@@ -41,3 +41,8 @@ def test_get_station_stop_info_from_zip_calendar_dates_txt(gtfs_calendar):
         gtfs_calendar["PiDaySpecial"].is_active_on(date(year=2024, month=3, day=13))
         is False
     ), "Service PiDaySpecial should not be active for 2024-03-13."
+
+
+def test_reading_calendar_with_leading_spaces(test_directory):
+    gtfs_calendar = Calendar(test_directory / "data" / "gtfs_calendar_with_spaces.zip")
+    assert len(gtfs_calendar.services) == 3

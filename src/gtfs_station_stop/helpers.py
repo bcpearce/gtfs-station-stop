@@ -16,6 +16,12 @@ from requests_cache import CachedSession
 from gtfs_station_stop.const import GTFS_STATIC_CACHE, GTFS_STATIC_CACHE_EXPIRY
 
 
+class GtfsDialect(csv.excel):
+    """Dialect for GTFS files."""
+
+    skipinitialspace = True
+
+
 def is_none_or_ends_at(
     alert: gtfs_realtime_pb2.FeedEntity, at_time: float | dt | None = None
 ):
@@ -79,10 +85,7 @@ def gtfs_record_iter(zip_filelike, target_txt: os.PathLike, **kwargs):
         with StringIO(
             str(z.read(first_or_none), encoding="utf-8-sig")
         ) as dataset_dot_txt:
-            reader = csv.DictReader(
-                dataset_dot_txt,
-                delimiter=",",
-            )
+            reader = csv.DictReader(dataset_dot_txt, delimiter=",", dialect=GtfsDialect)
             yield from reader
 
 

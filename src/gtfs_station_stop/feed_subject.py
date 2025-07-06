@@ -66,7 +66,9 @@ class FeedSubject:
             if req.status <= 200 and req.status < 300:
                 return await req.read()
             else:
-                raise RuntimeError(f"HTTP error code {req.status}, {await req.text()}")
+                raise RuntimeError(
+                    f"HTTP error code {req.status}, requesting resource at {uri}, {await req.text()}"  # noqa E501
+                )
 
     async def _async_get_gtfs_feed(self) -> gtfs_realtime_pb2.FeedMessage:
         async def async_merge_feed(

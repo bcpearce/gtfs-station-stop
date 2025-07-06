@@ -47,6 +47,9 @@ def create_static_data():
         ]:
             zp.write(gtfs_file, gtfs_file.name)
 
+    with ZipFile(Path("tests/data/gtfs_calendar_with_spaces.zip"), "w") as zp:
+        zp.write("tests/data/gtfs_some_lead_spaces/calendar.txt", "calendar.txt")
+
 
 def create_realtime_data():
     feed = gtfs_realtime_pb2.FeedMessage()

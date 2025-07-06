@@ -65,11 +65,11 @@ class StationStopInfoDataset(GtfsStaticDataset):
 
     def add_gtfs_data(self, zip_filelike):
         for line in self._get_gtfs_record_iter(zip_filelike, "stops.txt"):
-            id = line["stop_id"]
+            stop_id = line["stop_id"]
             parent = None
             if line.get("parent_station"):
                 parent = self.station_stop_infos.get(line["parent_station"])
-            self.station_stop_infos[id] = StationStopInfo(line, parent)
+            self.station_stop_infos[stop_id] = StationStopInfo(line, parent)
 
     def get_stop_ids(self) -> list[str]:
         """Get all stop IDs."""
