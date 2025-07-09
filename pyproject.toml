@@ -51,6 +51,9 @@ homeassistant = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.ruff]
+line-length = 88
+
 [tool.ruff.lint]
 select = [
   "E",
