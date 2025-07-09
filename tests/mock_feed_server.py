@@ -15,7 +15,7 @@ def create_mock_feed_server(data_directory: os.PathLike):
         (f"/{path.name}", path.read_bytes())
         for path in (
             pathlib.Path(x)
-            for x in glob.glob(str(pathlib.Path(data_directory) / "*.dat"))
+            for x in glob.glob(str(pathlib.Path(data_directory) / "*.pb"))
         )
     )
     server.realtime_urls = []

@@ -103,7 +103,7 @@ def create_realtime_data():
     print("Using Realtime Feed Stop Time Updates:")
     print(feed)
 
-    with open("tests/data/realtime.dat", "wb") as fd:
+    with open("tests/data/realtime.pb", "wb") as fd:
         fd.write(feed.SerializeToString())
 
 
