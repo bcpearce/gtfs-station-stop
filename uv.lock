@@ -856,7 +856,7 @@ sdist = { url = "https://files.pythonhosted.org/packages/3d/55/ed46db9267d261585
 
 [[package]]
 name = "gtfs-station-stop"
-version = "0.9.5"
+version = "0.9.6"
 source = { editable = "." }
 dependencies = [
     { name = "aiofiles" },
@@ -895,7 +895,7 @@ requires-dist = [
     { name = "aiohttp-client-cache", extras = ["sqlite"], specifier = ">=0.13" },
     { name = "coverage-badge", specifier = ">=1.1.2" },
     { name = "gtfs-realtime-bindings", specifier = ">=1.0.0" },
-    { name = "protobuf", specifier = ">=6.31.1" },
+    { name = "protobuf", specifier = "!=6.31.0" },
     { name = "requests", specifier = ">=2.32.3" },
     { name = "requests-cache", specifier = ">=1.2.1" },
 ]
