@@ -52,6 +52,7 @@ def create_static_data():
 
 
 def create_realtime_data():
+    """Create Realtime Data."""
     feed = gtfs_realtime_pb2.FeedMessage()
 
     feed.header.gtfs_realtime_version = "2.0"

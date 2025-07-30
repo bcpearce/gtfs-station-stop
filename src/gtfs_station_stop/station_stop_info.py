@@ -1,7 +1,9 @@
+"""Station Stop Info"""
+
 import os
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any
+from typing import Any, Self
 
 from gtfs_station_stop.static_dataset import GtfsStaticDataset
 
@@ -20,15 +22,9 @@ class LocationType(Enum):
 
 
 class StationStopInfo:
-    pass
-
-
-class StationStopInfo:
     """Class for a Station/Stop Dataset Record"""
 
-    def __init__(
-        self, station_data_dict: dict, parent: StationStopInfo | None = None
-    ) -> None:
+    def __init__(self, station_data_dict: dict, parent: Self | None = None) -> None:
         self.parent_station = station_data_dict.get("parent_station")
         self.location_type = StationStopInfo._get_location_type(
             station_data_dict.get("location_type", "")

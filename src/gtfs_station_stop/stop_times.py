@@ -1,0 +1,105 @@
+"""Stop Times Dataset."""
+
+import os
+from dataclasses import dataclass
+from enum import Enum
+
+from .static_dataset import GtfsStaticDataset
+
+
+class PickupType(Enum):
+    """
+    Pickup Type.
+    see https://gtfs.org/documentation/schedule/reference/#stop_timestxt
+    """
+
+    REGULARLY_SCHEDULED = 0
+    NO_PICKUP_AVAILABLE = 1
+    PHONE_AGENCY_FOR_PICKUP = 2
+    COORDINATE_WITH_DRIVER_FOR_PICKUP = 3
+
+
+class DropOffType(Enum):
+    """
+    Drop-Off Type.
+    see https://gtfs.org/documentation/schedule/reference/#stop_timestxt
+    """
+
+    REGULARLY_SCHEDULED = 0
+    NO_DROP_OFF_AVAILABLE = 1
+    PHONE_AGENCY_FOR_DROP_OFF = 2
+    COORDINATE_WITH_DRIVER_FOR_DROP_OFF = 3
+
+
+class TimePoint(Enum):
+    """
+    Timepoint
+    see https://gtfs.org/documentation/schedule/reference/#stop_timestxt
+    """
+
+    APPROXIMATE = 0
+    EXACT = 1
+
+
+@dataclass
+class StopTime:
+    """Stop Time."""
+
+    def __init__(self, stop_times_data_dict: dict) -> None:
+        self.trip_id = stop_times_data_dict["trip_id"]
+        self.arrival_time = stop_times_data_dict.get("arrival_time")
+        self.departure_time = stop_times_data_dict.get("departure_time")
+
+        self.stop_id = stop_times_data_dict.get("stop_id")
+        self.location_group_id = stop_times_data_dict.get("location_group_id")
+        self.location_id = stop_times_data_dict.get("location_id")
+
+        self.stop_sequence = int(stop_times_data_dict["stop_sequence"])
+        self.stop_headsign = stop_times_data_dict.get("stop_headsign", "")
+        self.start_pickup_drop_off_window = stop_times_data_dict.get(
+            "start_pickup_drop_off_window"
+        )
+        self.end_pickup_drop_off_window = stop_times_data_dict.get(
+            "end_pickup_drop_off_window"
+        )
+        self.pickup_type = PickupType(int(stop_times_data_dict.get("pickup_type", 0)))
+        self.drop_off_type = DropOffType(
+            int(stop_times_data_dict.get("drop_off_type"), 0)
+        )
+
+        self.continuous_pickup = PickupType(
+            int(stop_times_data_dict.get("continuous_pickup", 0))
+        )
+        self.continuous_drop_off = DropOffType(
+            int(stop_times_data_dict.get("continuous_drop_off", 0))
+        )
+
+        self.shape_dist_traveled = float(
+            stop_times_data_dict.get("shape_dist_traveled", 0.0)
+        )
+        self.timepoint = TimePoint(int(stop_times_data_dict.get("timepoint", 1)))
+
+
+@dataclass
+class StopTimesDataset(GtfsStaticDataset):
+    """Dataset for Stop Times."""
+
+    stop_times: dict[str, dict[int, StopTime]]
+
+    def __init__(self, *gtfs_files: os.PathLike, **kwargs):
+        self.stop_times = {}
+        super().__init__(*gtfs_files, **kwargs)
+
+    def add_gtfs_data(self, zip_filelike) -> None:
+        for line in self._get_gtfs_record_iter(zip_filelike, "stop_times.txt"):
+            stop_time = StopTime(line)
+            self.stop_times.setdefault(stop_time.trip_id, {})[
+                stop_time.stop_sequence
+            ] = stop_time
+
+    def get(self, trip_id, stop_sequence, *, default: StopTime | None = None):
+        """Get Stop Time from Dataset."""
+        by_trip_id = self.stop_times.get(trip_id)
+        if by_trip_id is not None:
+            return by_trip_id.get(stop_sequence, default)
+        return default

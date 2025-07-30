@@ -2,3 +2,4 @@ agency_id,route_id,route_short_name,route_long_name,route_type,route_desc,route_
 TEST AGENCY,X,X,X Test Route,1,"Runs a test route X, all times","https://gtfs.example.com/x",EE352E,FFFFFF
 TEST AGENCY,Y,Y,Y Test Route,1,"Runs a test route Y, all times","https://gtfs.example.com/y",00933C,FFFFFF
 TEST AGENCY,Z,Z,Z Test Route,1,"Runs a test route Z, sometimes","https://gtfs.example.com/z",B933AD,
+TEST AGENCY,A,A,A Stop Time Test Route,1,"Runs a test route A, all times","https://gtfs.example.com/a",111111,

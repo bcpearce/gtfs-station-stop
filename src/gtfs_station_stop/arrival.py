@@ -1,3 +1,5 @@
+"""Dataclass for Arrivals"""
+
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -9,3 +11,4 @@ class Arrival:
     time: datetime
     route: str
     trip: str
+    departure_time: datetime | None = None

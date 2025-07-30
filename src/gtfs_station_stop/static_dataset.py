@@ -1,3 +1,5 @@
+"""GTFS Static Dataset Base Class."""
+
 import inspect
 import os
 from io import BytesIO
@@ -15,7 +17,7 @@ class GtfsStaticDataset:
     https://gtfs.org/documentation/schedule/reference/#dataset-files
     """
 
-    def __init__(self, *gtfs_files: os.PathLike, **kwargs):
+    def __init__(self, *gtfs_files: os.PathLike, **kwargs) -> None:
         self.kwargs = kwargs
         for file in gtfs_files:
             self.add_gtfs_data(file)
@@ -23,7 +25,8 @@ class GtfsStaticDataset:
     def _get_gtfs_record_iter(self, zip_filelike, target_txt: os.PathLike):
         return gtfs_record_iter(zip_filelike, target_txt, **self.kwargs)
 
-    def add_gtfs_data(self, zip_filelike: os.PathLike):
+    def add_gtfs_data(self, zip_filelike: os.PathLike) -> None:
+        """Add GTFS Data."""
         raise NotImplementedError
 
 
@@ -31,8 +34,8 @@ async def async_factory(
     gtfs_ds_or_class: type[GtfsStaticDataset] | GtfsStaticDataset,
     *gtfs_resource: os.PathLike | BytesIO,
     **kwargs,
-):
-    # Create an empty dataset if a type is given
+) -> GtfsStaticDataset:
+    """Create an empty dataset if a type is given"""
     gtfsds = (
         gtfs_ds_or_class()
         if inspect.isclass(gtfs_ds_or_class)

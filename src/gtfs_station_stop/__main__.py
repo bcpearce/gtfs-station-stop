@@ -2,7 +2,6 @@
 import argparse
 import asyncio
 import importlib.metadata
-import os
 import time
 from pprint import pprint
 
@@ -34,7 +33,13 @@ parser.add_argument(
     nargs="*",
     default=[],
 )
-parser.add_argument("-k", "--api-key", help="API key for feed URLs")
+parser.add_argument(
+    "-k",
+    "--headers",
+    nargs="*",
+    help="Headers to add to requests, typically used for for API authentication, example: 'Api-Key: xyz123'",  # noqa: E501
+    default=[],
+)
 parser.add_argument("-u", "--feed-urls", help="feed URL list", nargs="*", default=[])
 parser.add_argument(
     "-s",
@@ -62,8 +67,10 @@ if args.version:
 start_time = time.time()
 
 # Get the API Key, argument takes precedent of environment variable
-api_key = args.api_key or os.environ.get("API_KEY")
-headers = {"api-key": api_key, "x-api-key": api_key, "api_key": api_key}
+headers: dict[str, str] = {}
+for h in args.headers:
+    key, val = (x.strip() for x in h.split(":"))
+    headers[key] = val
 
 ssids = None
 tids = None
@@ -108,7 +115,7 @@ else:
 print()
 print("Arrival Status:")
 print("===============")
-if not len(station_stops):
+if len(station_stops) == 0:
     print("none")
 for stop in station_stops:
     if ssids is not None:
@@ -129,7 +136,7 @@ for stop in station_stops:
 print()
 print("Route Status:")
 print("===============")
-if not len(route_statuses):
+if len(route_statuses) == 0:
     print("none")
 for route in route_statuses:
     for alert in route.alerts:

@@ -1,3 +1,5 @@
+"""Test Trip Info"""
+
 import pathlib
 
 from gtfs_station_stop.static_dataset import async_factory
@@ -56,7 +58,7 @@ def test_get_trip_info_from_url(mock_feed_server):
 
 def test_get_route_ids(good_trip_info_dataset):
     ti = good_trip_info_dataset
-    assert set(ti.get_route_ids()) == set(["X", "Y", "Z"])
+    assert set(ti.get_route_ids()) == {"A", "X", "Y", "Z"}
 
 
 async def test_async_trip_info_merge_existing(mock_feed_server):

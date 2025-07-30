@@ -1,7 +1,9 @@
+"""Calendar Data."""
+
 import os
 from dataclasses import dataclass, field
 from datetime import date, datetime
-from typing import NamedTuple
+from typing import NamedTuple, Self
 
 from gtfs_station_stop.static_dataset import GtfsStaticDataset
 
@@ -20,7 +22,9 @@ class ServiceDays(NamedTuple):
     saturday: bool
     sunday: bool
 
-    def no_service():
+    @staticmethod
+    def no_service() -> Self:
+        """Create a No-Service Service Days Set"""
         return ServiceDays(*[False] * len(ServiceDays._fields))
 
 

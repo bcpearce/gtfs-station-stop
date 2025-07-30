@@ -1,9 +1,13 @@
+"""Helpers"""
+
 import csv
 import os
 import time
+from collections.abc import Generator
 from datetime import datetime as dt
 from io import BytesIO, StringIO
 from pathlib import Path
+from typing import Any
 from urllib.parse import urlparse
 from zipfile import ZipFile
 
@@ -55,7 +59,9 @@ def is_url(url):
         return False
 
 
-def gtfs_record_iter(zip_filelike, target_txt: os.PathLike, **kwargs):
+def gtfs_record_iter(
+    zip_filelike, target_txt: os.PathLike, **kwargs
+) -> Generator[dict[Any, Any] | None]:
     """Generates a line from a given GTFS table. Can handle local files or URLs."""
 
     zip_data = zip_filelike

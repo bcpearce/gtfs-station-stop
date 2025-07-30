@@ -9,6 +9,8 @@ if TYPE_CHECKING:
 
 
 class StationStop:
+    """Station Stop."""
+
     def __init__(self, stop_id: str, updater: FeedSubject):
         self.id = stop_id
         self.updater = updater
@@ -19,9 +21,11 @@ class StationStop:
 
     @property
     def last_updated(self):
+        """Time Last Updated."""
         return self._last_updated
 
     def begin_update(self, timestamp: float | None = None):
+        """Prepare for update from Feed Subject."""
         if timestamp is None:
             timestamp = time.time()
         self.alerts.clear()
@@ -29,6 +33,7 @@ class StationStop:
         self._last_updated = timestamp
 
     def get_time_to_arrivals(self, the_time: float | None = None):
+        """Get Time To Arrivals."""
         if the_time is None:
             the_time = time.time()
         return [Arrival(a.time - the_time, a.route, a.trip) for a in self.arrivals]
