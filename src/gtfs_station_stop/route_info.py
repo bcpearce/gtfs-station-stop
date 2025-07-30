@@ -86,7 +86,7 @@ class RouteType(Enum):
 class RouteInfo:
     """Route Info."""
 
-    def __init__(self, route_data_dict: dict):
+    def __init__(self, route_data_dict: dict) -> None:
         self.agency_id = route_data_dict.get("agency_id")
         self.id = route_data_dict["route_id"]
         self.short_name = route_data_dict.get("route_short_name")

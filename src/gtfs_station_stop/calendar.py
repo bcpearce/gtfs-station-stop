@@ -33,7 +33,7 @@ class Service:
 
     def __init__(
         self, service_id: str, service_days: ServiceDays, start: date, end: date
-    ):
+    ) -> None:
         self.service_id = service_id
         self.service_days = service_days
         self.start = start
@@ -41,7 +41,7 @@ class Service:
         self.added_exceptions = set()
         self.removed_exceptions = set()
 
-    def is_active_on(self, the_date: date | None = None):
+    def is_active_on(self, the_date: date | None = None) -> bool:
         """Check if service is active on a given datetime, defaults to now."""
         if the_date is None:
             the_date = date.today()
@@ -55,7 +55,7 @@ class Service:
         )
 
     @staticmethod
-    def no_regular_service(service_id: str):
+    def no_regular_service(service_id: str) -> Self:
         """Provides a service with no regular service days."""
         return Service(service_id, ServiceDays.no_service(), date.min, date.min)
 
@@ -66,11 +66,11 @@ class Calendar(GtfsStaticDataset):
 
     services: dict[str, Service] = field(default_factory=dict)
 
-    def __init__(self, *gtfs_files: os.PathLike, **kwargs):
+    def __init__(self, *gtfs_files: os.PathLike, **kwargs) -> None:
         self.services = {}
         super().__init__(*gtfs_files, **kwargs)
 
-    def add_gtfs_data(self, zip_filelike):
+    def add_gtfs_data(self, zip_filelike) -> None:
         """Adds data from a GTFS Dataset to the Calendar."""
         for line in self._get_gtfs_record_iter(zip_filelike, "calendar.txt"):
             self.services[line["service_id"]] = Service(
@@ -104,13 +104,13 @@ class Calendar(GtfsStaticDataset):
             else:
                 raise RuntimeError("Unsupported GTFS service exception type.")
 
-    def get_active_services(self, the_date: date | None = None) -> list[str]:
+    def get_active_services(self, the_date: date | None = None) -> list[Service]:
         """Filtered list of all active services."""
         if the_date is None:
             the_date = date.today()
         return [s for s in self.services.values() if s.is_active_on(the_date)]
 
-    def get_inactive_services(self, the_date: date | None = None) -> list[str]:
+    def get_inactive_services(self, the_date: date | None = None) -> list[Service]:
         """Filtered list of all inactive services."""
         if the_date is None:
             the_date = date.today()

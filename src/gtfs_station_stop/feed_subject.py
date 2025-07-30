@@ -1,8 +1,10 @@
+"""Feed Subject"""
+
 import asyncio
 import concurrent.futures
 import time
 from collections import defaultdict
-from collections.abc import Sequence
+from collections.abc import Collection
 from typing import Any
 from weakref import WeakSet
 
@@ -13,16 +15,7 @@ from google.transit import gtfs_realtime_pb2
 from gtfs_station_stop import helpers
 from gtfs_station_stop.alert import Alert
 from gtfs_station_stop.arrival import Arrival
-
-
-class StationStop:
-    # implemented in station_stop.py
-    pass
-
-
-class RouteStatus:
-    # implemented in route_status.py
-    pass
+from gtfs_station_stop.updatable import Updatable
 
 
 class FeedSubject:
@@ -33,12 +26,12 @@ class FeedSubject:
 
     def __init__(
         self,
-        realtime_feed_uris: Sequence[str],
+        realtime_feed_uris: Collection[str],
         *,
         headers: dict[str, Any] | None = None,
         max_api_calls_per_second: float | None = None,
         http_timeout: float = 30,
-    ):
+    ) -> None:
         self.realtime_feed_uris = set(realtime_feed_uris)
         self._headers: dict[str, Any] | None = headers
         self._max_api_calls_per_second: float | None = max_api_calls_per_second
@@ -96,7 +89,7 @@ class FeedSubject:
         return self._http_timeout
 
     @http_timeout.setter
-    def http_timeout(self, new_timeout: float | None) -> float:
+    def http_timeout(self, new_timeout: float | None) -> float | None:
         """Timeout for a given HTTP request"""
         self._http_timeout = new_timeout
 
@@ -174,10 +167,23 @@ class FeedSubject:
                     for stu in tu.stop_time_update
                     if stu.stop_id in self.subscribers
                 ):
+                    arrival = Arrival(
+                        route=tu.trip.route_id,
+                        trip=tu.trip.trip_id,
+                        time=stu.arrival.time if "time" in stu.arrival else None,
+                        delay=stu.arrival.delay if "delay" in stu.arrival else None,
+                        departure_time=stu.departure.time
+                        if "time" in stu.departure
+                        else None,
+                        departure_delay=stu.departure.delay
+                        if "delay" in stu.departure
+                        else None,
+                        stop_sequence=stu.stop_sequence
+                        if "stop_sequence" in stu
+                        else None,
+                    )
                     for sub in self.subscribers[stu.stop_id]:
-                        sub.arrivals.append(
-                            Arrival(stu.arrival.time, tu.trip.route_id, tu.trip.trip_id)
-                        )
+                        sub.arrivals.append(arrival)
 
     def _notify_alerts(self, feed) -> None:
         for e in feed.entity:
@@ -220,10 +226,10 @@ class FeedSubject:
         """Asyncrhonous update of all feeds and subscribers."""
         self._reset_and_notify(await self._async_get_gtfs_feed())
 
-    def subscribe(self, updatable: StationStop | RouteStatus) -> None:
+    def subscribe(self, updatable: Updatable) -> None:
         """Add an informed entity as a subscriber."""
         self.subscribers[updatable.id].add(updatable)
 
-    def unsubscribe(self, updatable: StationStop | RouteStatus) -> None:
+    def unsubscribe(self, updatable: Updatable) -> None:
         """Remove an informed entity as a subscriber."""
         self.subscribers[updatable.id].remove(updatable)

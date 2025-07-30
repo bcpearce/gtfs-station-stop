@@ -1,4 +1,4 @@
 trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type,shape_dist_traveled,timepoint,platform_track
 STOP_TIME_TRIP,05:28:00,05:28:00,101N,1,0,0,0.000,1,
-STOP_TIME_TRIP,05:28:00,05:28:00,102N,2,0,0,1.000,1,
-STOP_TIME_TRIP,05:28:00,05:28:00,103N,3,0,0,2.000,1,
+STOP_TIME_TRIP,05:30:00,05:30:00,102N,2,0,0,1.000,1,
+STOP_TIME_TRIP,05:35:00,05:35:00,103N,3,0,0,2.000,1,

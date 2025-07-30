@@ -3,6 +3,7 @@
 import os
 from dataclasses import dataclass
 from enum import Enum
+from typing import Self
 
 from .static_dataset import GtfsStaticDataset
 
@@ -41,14 +42,42 @@ class TimePoint(Enum):
     EXACT = 1
 
 
+@dataclass(order=True)
+class GtfsArrivalDepartureTime:
+    """GTFS Specific Arrival or Departure Times from stoptimes.txt"""
+
+    hour: int
+    minute: int
+    second: int
+
+    @staticmethod
+    def strptime(time_str: str) -> Self:
+        """
+        Generate the dataclass from a string in a dataset row.
+        Times are permitted to exceed 24 hours for datasets after midnight, so the
+        built-in method datetime.strptime cannot be used.
+        see https://gtfs.org/documentation/schedule/reference/#stop_timestxt
+        arrival_time and departure_time
+        """
+        return GtfsArrivalDepartureTime(*[int(x) for x in time_str.split(":")])
+
+
 @dataclass
 class StopTime:
     """Stop Time."""
 
     def __init__(self, stop_times_data_dict: dict) -> None:
         self.trip_id = stop_times_data_dict["trip_id"]
-        self.arrival_time = stop_times_data_dict.get("arrival_time")
-        self.departure_time = stop_times_data_dict.get("departure_time")
+
+        self.arrival_time: GtfsArrivalDepartureTime | None = None
+        if (arrival_time_str := stop_times_data_dict.get("arrival_time")) is not None:
+            self.arrival_time = GtfsArrivalDepartureTime.strptime(arrival_time_str)
+
+        self.departure_time: GtfsArrivalDepartureTime | None = None
+        if (
+            departure_time_str := stop_times_data_dict.get("departure_time")
+        ) is not None:
+            self.departure_time = GtfsArrivalDepartureTime.strptime(departure_time_str)
 
         self.stop_id = stop_times_data_dict.get("stop_id")
         self.location_group_id = stop_times_data_dict.get("location_group_id")

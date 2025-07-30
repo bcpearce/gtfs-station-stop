@@ -57,7 +57,7 @@ def create_realtime_data():
 
     feed.header.gtfs_realtime_version = "2.0"
 
-    entities = [feed.entity.add() for _ in range(5)]
+    entities = [feed.entity.add() for _ in range(6)]
 
     elem = entities[0]
     elem.id = "1"
@@ -100,6 +100,16 @@ def create_realtime_data():
     hd0 = elem.alert.header_text.translation.add()
     hd0.text = "Southbound Z is not ok."
     hd0.language = "en"
+
+    elem = entities[5]
+    elem.id = "5"
+    elem.trip_update.trip.route_id = "A"
+    for i, d, s in zip([1, 2, 3], [8, -8, 10], ["101N", "102N", "103N"], strict=False):
+        stu = elem.trip_update.stop_time_update.add()
+        stu.arrival.delay = d
+        stu.departure.delay = d
+        stu.stop_id = s
+        stu.stop_sequence = i
 
     print("Using Realtime Feed Stop Time Updates:")
     print(feed)
