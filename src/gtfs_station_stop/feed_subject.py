@@ -182,7 +182,11 @@ class FeedSubject:
                         if "stop_sequence" in stu
                         else None,
                     )
-                    for sub in self.subscribers[stu.stop_id]:
+                    for sub in (
+                        sub
+                        for sub in self.subscribers[stu.stop_id]
+                        if hasattr(sub, "arrivals")
+                    ):
                         sub.arrivals.append(arrival)
 
     def _notify_alerts(self, feed) -> None:
@@ -192,20 +196,22 @@ class FeedSubject:
                 ends_at = helpers.is_none_or_ends_at(al)
                 if ends_at is not None:
                     for ie in (ie for ie in al.informed_entity):
+                        hdr = al.header_text.translation
+                        dsc = al.description_text.translation
+                        alert = Alert(
+                            ends_at=ends_at,
+                            header_text={h.language: h.text for h in hdr},
+                            description_text={d.language: d.text for d in dsc},
+                        )
                         for sub in (
-                            self.subscribers[ie.stop_id] | self.subscribers[ie.route_id]
+                            sub
+                            for sub in self.subscribers[ie.stop_id]
+                            | self.subscribers[ie.route_id]
+                            if hasattr(sub, "alerts")
                         ):
-                            hdr = al.header_text.translation
-                            dsc = al.description_text.translation
                             # validate that one of the active periods is current,
                             # then add it
-                            sub.alerts.append(
-                                Alert(
-                                    ends_at=ends_at,
-                                    header_text={h.language: h.text for h in hdr},
-                                    description_text={d.language: d.text for d in dsc},
-                                )
-                            )
+                            sub.alerts.append(alert)
 
     def _reset_subscribers(self) -> None:
         timestamp = time.time()
