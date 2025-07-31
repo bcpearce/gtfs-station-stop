@@ -856,7 +856,7 @@ sdist = { url = "https://files.pythonhosted.org/packages/3d/55/ed46db9267d261585
 
 [[package]]
 name = "gtfs-station-stop"
-version = "0.10.0"
+version = "0.10.1"
 source = { editable = "." }
 dependencies = [
     { name = "aiofiles" },

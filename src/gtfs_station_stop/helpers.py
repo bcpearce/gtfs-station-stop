@@ -55,11 +55,14 @@ def is_none_or_ends_at(
 def get_as_number(
     d: dict[Any, Any], key: Any, to_type: Number, default: Number = 0
 ) -> Number:
-    """Get a key from a dictionary, or return a Number type as 0."""
-    tmp = d.get(key)
-    if not bool(tmp):
-        tmp = default
-    return to_type(tmp)
+    """Get a key from a dictionary, or return a Number type default."""
+    try:
+        tmp = d.get(key)
+        if not bool(tmp):
+            tmp = default
+        return to_type(tmp)
+    except ValueError:
+        return default
 
 
 def is_url(url: str):
