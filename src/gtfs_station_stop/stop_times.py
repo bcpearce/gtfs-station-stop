@@ -71,13 +71,17 @@ class StopTime:
         self.trip_id = stop_times_data_dict["trip_id"]
 
         self.arrival_time: GtfsArrivalDepartureTime | None = None
-        if (arrival_time_str := stop_times_data_dict.get("arrival_time")) is not None:
+        if (arrival_time_str := stop_times_data_dict.get("arrival_time")) not in {
+            None,
+            "",
+        }:
             self.arrival_time = GtfsArrivalDepartureTime.strptime(arrival_time_str)
 
         self.departure_time: GtfsArrivalDepartureTime | None = None
-        if (
-            departure_time_str := stop_times_data_dict.get("departure_time")
-        ) is not None:
+        if (departure_time_str := stop_times_data_dict.get("departure_time")) not in {
+            None,
+            "",
+        }:
             self.departure_time = GtfsArrivalDepartureTime.strptime(departure_time_str)
 
         self.stop_id = stop_times_data_dict.get("stop_id")
