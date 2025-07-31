@@ -1,18 +1,26 @@
+"""Test Schedule."""
+
 from dataclasses import asdict
 
 from gtfs_station_stop.route_info import RouteInfoDataset
-from gtfs_station_stop.schedule import GtfsSchedule, async_build_schedule
+from gtfs_station_stop.schedule import (
+    GtfsSchedule,
+    async_build_schedule,
+    create_cached_session,
+)
 from gtfs_station_stop.stop_times import StopTimesDataset
 
 
 async def test_async_build_schedule(mock_feed_server, snapshot):
-    schedule: GtfsSchedule = await async_build_schedule(
-        *[
-            url
-            for url in mock_feed_server.static_urls
-            if url.endswith("gtfs_static.zip")
-        ]
-    )
+    async with create_cached_session() as session:
+        schedule: GtfsSchedule = await async_build_schedule(
+            *[
+                url
+                for url in mock_feed_server.static_urls
+                if url.endswith("gtfs_static.zip")
+            ],
+            session=session,
+        )
     assert snapshot == asdict(schedule)
     assert isinstance(schedule.stop_times_ds, StopTimesDataset)
 

@@ -8,8 +8,8 @@ from collections.abc import Collection
 from typing import Any
 from weakref import WeakSet
 
-import aiohttp
 import requests
+from aiohttp import ClientSession, ClientTimeout
 from google.transit import gtfs_realtime_pb2
 
 from gtfs_station_stop import helpers
@@ -121,19 +121,18 @@ class FeedSubject:
 
         return feed
 
-    async def _async_request_gtfs_feed(self, uri: str) -> bytes:
-        async with (
-            aiohttp.ClientSession(
-                headers=self.headers, timeout=aiohttp.ClientTimeout(self.http_timeout)
-            ) as session,
-            session.get(uri) as req,
-        ):
+    async def _async_request_gtfs_feed(self, session: ClientSession, uri: str) -> bytes:
+        async with session.get(
+            uri, headers=self.headers, timeout=ClientTimeout(self.http_timeout)
+        ) as req:
             if req.status <= 200 and req.status < 300:
                 return await req.read()
             else:
                 req.raise_for_status()
 
-    async def _async_get_gtfs_feed(self) -> gtfs_realtime_pb2.FeedMessage:
+    async def _async_get_gtfs_feed(
+        self, session: ClientSession
+    ) -> gtfs_realtime_pb2.FeedMessage:
         async def async_merge_feed(
             merge_into_feed: gtfs_realtime_pb2.FeedMessage,
             merge_from_feed: gtfs_realtime_pb2.FeedMessage,
@@ -147,7 +146,9 @@ class FeedSubject:
             task_group: asyncio.TaskGroup,
         ):
             uri_feed = gtfs_realtime_pb2.FeedMessage()
-            uri_feed.ParseFromString(await _subject._async_request_gtfs_feed(_uri))
+            uri_feed.ParseFromString(
+                await _subject._async_request_gtfs_feed(session, _uri)
+            )
             task_group.create_task(async_merge_feed(main_feed, uri_feed))
 
         feed = gtfs_realtime_pb2.FeedMessage()
@@ -228,9 +229,14 @@ class FeedSubject:
         """Synchronous update of all feeds and subscribers."""
         self._reset_and_notify(self._get_gtfs_feed())
 
-    async def async_update(self) -> None:
+    async def async_update(self, session: ClientSession | None = None) -> None:
         """Asyncrhonous update of all feeds and subscribers."""
-        self._reset_and_notify(await self._async_get_gtfs_feed())
+        if session is None:
+            # create the session context manager if not injected
+            async with ClientSession() as _session:
+                self._reset_and_notify(await self._async_get_gtfs_feed(_session))
+        else:
+            self._reset_and_notify(await self._async_get_gtfs_feed(session))
 
     def subscribe(self, updatable: Updatable) -> None:
         """Add an informed entity as a subscriber."""
