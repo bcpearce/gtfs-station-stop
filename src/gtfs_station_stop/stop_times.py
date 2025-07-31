@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Self
 
+from .helpers import get_as_number
 from .static_dataset import GtfsStaticDataset
 
 
@@ -91,22 +92,27 @@ class StopTime:
         self.end_pickup_drop_off_window = stop_times_data_dict.get(
             "end_pickup_drop_off_window"
         )
-        self.pickup_type = PickupType(int(stop_times_data_dict.get("pickup_type", 0)))
+        self.pickup_type = PickupType(
+            get_as_number(stop_times_data_dict, "pickup_type", int)
+        )
         self.drop_off_type = DropOffType(
-            int(stop_times_data_dict.get("drop_off_type"), 0)
+            get_as_number(stop_times_data_dict, "drop_off_type", int)
         )
 
         self.continuous_pickup = PickupType(
-            int(stop_times_data_dict.get("continuous_pickup", 0))
+            get_as_number(stop_times_data_dict, "continuous_pickup", int)
         )
+
         self.continuous_drop_off = DropOffType(
-            int(stop_times_data_dict.get("continuous_drop_off", 0))
+            get_as_number(stop_times_data_dict, "continuous_drop_off", int)
         )
 
         self.shape_dist_traveled = float(
-            stop_times_data_dict.get("shape_dist_traveled", 0.0)
+            get_as_number(stop_times_data_dict, "shape_dist_traveled", float)
         )
-        self.timepoint = TimePoint(int(stop_times_data_dict.get("timepoint", 1)))
+        self.timepoint = TimePoint(
+            get_as_number(stop_times_data_dict, "timepoint", int, 1)
+        )
 
 
 @dataclass

@@ -48,7 +48,7 @@ class GtfsSchedule:
                 async_factory(self.route_info_ds, *gtfs_resources, **kwargs)
             )
             st_ds_task = tg.create_task(
-                async_factory(self.route_info_ds, *gtfs_resources, **kwargs)
+                async_factory(self.stop_times_ds, *gtfs_resources, **kwargs)
             )
         self.calendar = cal_ds_task.result()
         self.station_stop_info_ds = ssi_ds_task.result()

@@ -354,51 +354,15 @@
       }),
     }),
     'stop_times_ds': dict({
-      'route_infos': dict({
-        'A': RouteInfo(
-          agency_id='TEST AGENCY',
-          color='111111',
-          desc='Runs a test route A, all times',
-          id='A',
-          long_name='A Stop Time Test Route',
-          short_name='A',
-          text_color='',
-          type=<RouteType.SUBWAY: 1>,
-          url='https://gtfs.example.com/a',
-        ),
-        'X': RouteInfo(
-          agency_id='TEST AGENCY',
-          color='EE352E',
-          desc='Runs a test route X, all times',
-          id='X',
-          long_name='X Test Route',
-          short_name='X',
-          text_color='FFFFFF',
-          type=<RouteType.SUBWAY: 1>,
-          url='https://gtfs.example.com/x',
-        ),
-        'Y': RouteInfo(
-          agency_id='TEST AGENCY',
-          color='00933C',
-          desc='Runs a test route Y, all times',
-          id='Y',
-          long_name='Y Test Route',
-          short_name='Y',
-          text_color='FFFFFF',
-          type=<RouteType.SUBWAY: 1>,
-          url='https://gtfs.example.com/y',
-        ),
-        'Z': RouteInfo(
-          agency_id='TEST AGENCY',
-          color='B933AD',
-          desc='Runs a test route Z, sometimes',
-          id='Z',
-          long_name='Z Test Route',
-          short_name='Z',
-          text_color='',
-          type=<RouteType.SUBWAY: 1>,
-          url='https://gtfs.example.com/z',
-        ),
+      'stop_times': dict({
+        'STOP_TIME_TRIP': dict({
+          1: dict({
+          }),
+          2: dict({
+          }),
+          3: dict({
+          }),
+        }),
       }),
     }),
     'trip_info_ds': dict({

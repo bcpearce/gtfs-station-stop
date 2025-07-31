@@ -6,6 +6,7 @@ import time
 from collections.abc import Generator
 from datetime import datetime as dt
 from io import BytesIO, StringIO
+from numbers import Number
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -51,7 +52,18 @@ def is_none_or_ends_at(
     return None
 
 
-def is_url(url):
+def get_as_number(
+    d: dict[Any, Any], key: Any, to_type: Number, default: Number = 0
+) -> Number:
+    """Get a key from a dictionary, or return a Number type as 0."""
+    tmp = d.get(key)
+    if not bool(tmp):
+        tmp = default
+    return to_type(tmp)
+
+
+def is_url(url: str):
+    """Check if a str is a URL."""
     try:
         result = urlparse(url)
         return all([result.scheme, result.netloc])
