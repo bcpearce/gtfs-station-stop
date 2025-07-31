@@ -5,10 +5,28 @@ import os
 from io import BytesIO
 
 import aiofiles
+import asyncio_atexit
 from aiohttp_client_cache import CachedSession, SQLiteBackend
 
 from gtfs_station_stop.const import GTFS_STATIC_CACHE, GTFS_STATIC_CACHE_EXPIRY
 from gtfs_station_stop.helpers import gtfs_record_iter, is_url
+
+_SESSION = None
+
+
+async def _close_session() -> None:
+    if not _SESSION.closed:
+        await _SESSION.close()
+
+
+def _get_session() -> CachedSession:
+    global _SESSION
+    if _SESSION is None:
+        _SESSION = CachedSession(
+            cache=SQLiteBackend(GTFS_STATIC_CACHE, GTFS_STATIC_CACHE_EXPIRY)
+        )
+        asyncio_atexit.register(_close_session)
+    return _SESSION
 
 
 class GtfsStaticDataset:
@@ -42,28 +60,28 @@ async def async_factory(
         and issubclass(gtfs_ds_or_class, GtfsStaticDataset)
         else gtfs_ds_or_class
     )
-    async with CachedSession(
-        cache=SQLiteBackend(
-            kwargs.get("gtfs_static_cache", GTFS_STATIC_CACHE),
-            expire_after=kwargs.get("expire_after", GTFS_STATIC_CACHE_EXPIRY),
-        ),
-        headers=kwargs.get("headers"),
-    ) as session:
-        for resource in gtfs_resource:
-            zip_data = None
-            if is_url(resource):
-                async with session.get(resource) as response:
-                    if 200 <= response.status < 400:
-                        zip_data = BytesIO(await response.read())
-                    else:
-                        raise RuntimeError(
-                            f"HTTP error {response.status}, {await response.text()}"
-                        )
-            elif isinstance(resource, os.PathLike):  # assume file
-                async with aiofiles.open(resource, "rb") as f:
-                    zip_data = BytesIO(await f.read())
-            else:
-                zip_data = resource
 
-            gtfsds.add_gtfs_data(zip_data)
+    _session = _get_session()
+    _session.cache.name = kwargs.get("gtfs_static_cache", GTFS_STATIC_CACHE)
+    _session.cache.expire_after = kwargs.get("expire_after", GTFS_STATIC_CACHE_EXPIRY)
+
+    for resource in gtfs_resource:
+        zip_data = None
+        if is_url(resource) and isinstance(_session, CachedSession):
+            async with _session.get(
+                resource, headers=kwargs.get("headers")
+            ) as response:
+                if 200 <= response.status < 400:
+                    zip_data = BytesIO(await response.read())
+                else:
+                    raise RuntimeError(
+                        f"HTTP error {response.status}, {await response.text()}"
+                    )
+        elif isinstance(resource, os.PathLike):  # assume file
+            async with aiofiles.open(resource, "rb") as f:
+                zip_data = BytesIO(await f.read())
+        else:
+            zip_data = resource
+
+        gtfsds.add_gtfs_data(zip_data)
     return gtfsds
