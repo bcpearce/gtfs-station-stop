@@ -8,6 +8,7 @@ import pytest
 from freezegun import freeze_time
 
 from gtfs_station_stop.feed_subject import FeedSubject
+from gtfs_station_stop.route_status import RouteStatus
 from gtfs_station_stop.station_stop import StationStop
 
 
@@ -28,7 +29,7 @@ def test_update_feed(feed_subject: FeedSubject):
     ss = StationStop("101N", feed_subject)
     assert ss.last_updated is None
     feed_subject.update()
-    assert len(ss.arrivals) == 2
+    assert len(ss.arrivals) == 3
     assert ss.last_updated == time.time()
     arrival_routes = [a.route for a in ss.arrivals]
     assert "X" in arrival_routes
@@ -39,13 +40,16 @@ def test_update_feed(feed_subject: FeedSubject):
 async def test_async_update_feed(feed_subject: FeedSubject):
     """Asynchronous version of update."""
     ss = StationStop("101N", feed_subject)
+    rs = RouteStatus("101N", feed_subject)
     assert ss.last_updated is None
     await feed_subject.async_update()
-    assert len(ss.arrivals) == 2
+    assert len(ss.arrivals) == 3
     assert ss.last_updated == time.time()
+    assert rs.last_updated == time.time()
     arrival_routes = [a.route for a in ss.arrivals]
     assert "X" in arrival_routes
     assert "Y" in arrival_routes
+    assert "A" in arrival_routes
 
 
 def test_multiple_subscribers(feed_subject: FeedSubject):
@@ -57,7 +61,7 @@ def test_multiple_subscribers(feed_subject: FeedSubject):
     feed_subject.update()
     assert ss1.last_updated is not None
     assert ss2.last_updated is None
-    assert len(ss1.arrivals) == 3
+    assert len(ss1.arrivals) == 4
     assert len(ss2.arrivals) == 0
 
 

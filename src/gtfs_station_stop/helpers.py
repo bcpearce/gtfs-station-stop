@@ -1,9 +1,14 @@
+"""Helpers"""
+
 import csv
 import os
 import time
+from collections.abc import Generator
 from datetime import datetime as dt
 from io import BytesIO, StringIO
+from numbers import Number
 from pathlib import Path
+from typing import Any
 from urllib.parse import urlparse
 from zipfile import ZipFile
 
@@ -47,7 +52,18 @@ def is_none_or_ends_at(
     return None
 
 
-def is_url(url):
+def get_as_number(
+    d: dict[Any, Any], key: Any, to_type: Number, default: Number = 0
+) -> Number:
+    """Get a key from a dictionary, or return a Number type as 0."""
+    tmp = d.get(key)
+    if not bool(tmp):
+        tmp = default
+    return to_type(tmp)
+
+
+def is_url(url: str):
+    """Check if a str is a URL."""
     try:
         result = urlparse(url)
         return all([result.scheme, result.netloc])
@@ -55,7 +71,9 @@ def is_url(url):
         return False
 
 
-def gtfs_record_iter(zip_filelike, target_txt: os.PathLike, **kwargs):
+def gtfs_record_iter(
+    zip_filelike, target_txt: os.PathLike, **kwargs
+) -> Generator[dict[Any, Any] | None]:
     """Generates a line from a given GTFS table. Can handle local files or URLs."""
 
     zip_data = zip_filelike

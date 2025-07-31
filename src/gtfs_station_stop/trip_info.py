@@ -1,3 +1,5 @@
+"""Trip Info."""
+
 import os
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -9,6 +11,8 @@ from gtfs_station_stop.static_dataset import GtfsStaticDataset
 
 
 class TripInfo:
+    """Trip Info."""
+
     def __init__(self, trip_data_dict: dict):
         self.route_id = trip_data_dict["route_id"]
         self.trip_id = trip_data_dict["trip_id"]
@@ -24,6 +28,8 @@ class TripInfo:
 
 @dataclass
 class TripInfoDataset(GtfsStaticDataset):
+    """Dataset for Trip Infos."""
+
     trip_infos: dict[str, TripInfo]
 
     def __init__(self, *gtfs_files: os.PathLike, **kwargs):
@@ -31,10 +37,10 @@ class TripInfoDataset(GtfsStaticDataset):
         self.__cached_route_ids = None
         super().__init__(*gtfs_files, **kwargs)
 
-    def add_gtfs_data(self, zip_filepath: os.PathLike):
-        for line in self._get_gtfs_record_iter(zip_filepath, "trips.txt"):
-            id = line["trip_id"]
-            self.trip_infos[id] = TripInfo(line)
+    def add_gtfs_data(self, zip_filelike: os.PathLike) -> None:
+        for line in self._get_gtfs_record_iter(zip_filelike, "trips.txt"):
+            trip_id = line["trip_id"]
+            self.trip_infos[trip_id] = TripInfo(line)
         # invalidate the cache
         self.__cached_route_ids = None
 
@@ -53,7 +59,7 @@ class TripInfoDataset(GtfsStaticDataset):
             the_date = date.today()
         active_services: set[str] = set()
         if isinstance(service_finder, str):
-            active_services = [service_finder]
+            active_services = {service_finder}
         elif isinstance(service_finder, Calendar):
             active_services = set(
                 s.service_id for s in service_finder.get_active_services(the_date)
@@ -75,6 +81,7 @@ class TripInfoDataset(GtfsStaticDataset):
         )
 
     def get_route_ids(self) -> list[str]:
+        """Get Route IDs."""
         # cache this as it may be expensive to rerun the querey
         if self.__cached_route_ids is None:
             self.__cached_route_ids = list(
@@ -86,4 +93,5 @@ class TripInfoDataset(GtfsStaticDataset):
         return self.trip_infos[key]
 
     def get(self, key: Any, default: Any | None = None):
+        """Get Trip Info."""
         return self.trip_infos.get(key, default)

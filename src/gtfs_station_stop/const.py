@@ -1,3 +1,5 @@
+"""Constants."""
+
 from datetime import timedelta
 
 GTFS_STATIC_CACHE = "gtfs_static_cache"

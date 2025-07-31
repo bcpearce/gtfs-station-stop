@@ -1,13 +1,27 @@
 import glob
 import os
 import pathlib
+from collections.abc import Container
 
 import pytest_httpserver
+import yarl
 
 
-def create_mock_feed_server(data_directory: os.PathLike):
+class TestServer(pytest_httpserver.HTTPServer):
+    """Test Server with the list of URLS"""
+
+    static_urls: Container[yarl.URL]
+    realtime_urls: Container[yarl.URL]
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.static_urls = []
+        self.realtime_urls = []
+
+
+def create_mock_feed_server(data_directory: os.PathLike) -> TestServer:
     """Creates a Mock Feed using local files."""
-    server = pytest_httpserver.HTTPServer()
+    server = TestServer()
     server.start()
 
     # Install the requests that point to realtime files

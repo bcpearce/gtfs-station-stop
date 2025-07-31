@@ -1,6 +1,8 @@
 from dataclasses import asdict
 
+from gtfs_station_stop.route_info import RouteInfoDataset
 from gtfs_station_stop.schedule import GtfsSchedule, async_build_schedule
+from gtfs_station_stop.stop_times import StopTimesDataset
 
 
 async def test_async_build_schedule(mock_feed_server, snapshot):
@@ -12,6 +14,7 @@ async def test_async_build_schedule(mock_feed_server, snapshot):
         ]
     )
     assert snapshot == asdict(schedule)
+    assert isinstance(schedule.stop_times_ds, StopTimesDataset)
 
 
 async def test_async_build_schedule_add_data_later(mock_feed_server, snapshot):
@@ -33,3 +36,5 @@ async def test_async_build_schedule_add_data_later(mock_feed_server, snapshot):
     )
     assert orig_data != asdict(schedule)
     assert snapshot == asdict(schedule)
+    assert isinstance(schedule.stop_times_ds, StopTimesDataset)
+    assert isinstance(schedule.route_info_ds, RouteInfoDataset)
