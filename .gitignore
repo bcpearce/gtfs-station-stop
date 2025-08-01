@@ -177,3 +177,6 @@ tests/data/realtime.pb
 tests/data/*.zip
 *.zip
 *.sqlite
+
+# Cache files
+gtfs_static_cache/
