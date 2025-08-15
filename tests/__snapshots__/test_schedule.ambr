@@ -98,6 +98,8 @@
         ),
       }),
     }),
+    'resources': set({
+    }),
     'route_info_ds': dict({
       'route_infos': dict({
         'A': RouteInfo(
@@ -161,16 +163,12 @@
     }),
     'stop_times_ds': dict({
       'stop_times': dict({
-        'STOP_TIME_TRIP': dict({
-          1: dict({
-          }),
-          2: dict({
-          }),
-          3: dict({
-          }),
-        }),
+      }),
+      'stops_filter': set({
       }),
     }),
+    'tmp_dir': None,
+    'tmp_dir_path': None,
     'trip_info_ds': dict({
       'trip_infos': dict({
         '123_X..N01R': 123_X..N01R: X to Northbound X,
@@ -290,6 +288,8 @@
         ),
       }),
     }),
+    'resources': set({
+    }),
     'route_info_ds': dict({
       'route_infos': dict({
         'A': RouteInfo(
@@ -355,16 +355,12 @@
     }),
     'stop_times_ds': dict({
       'stop_times': dict({
-        'STOP_TIME_TRIP': dict({
-          1: dict({
-          }),
-          2: dict({
-          }),
-          3: dict({
-          }),
-        }),
+      }),
+      'stops_filter': set({
       }),
     }),
+    'tmp_dir': None,
+    'tmp_dir_path': None,
     'trip_info_ds': dict({
       'trip_infos': dict({
         '123_X..N01R': 123_X..N01R: X to Northbound X,
