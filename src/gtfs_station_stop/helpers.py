@@ -1,11 +1,12 @@
 """Helpers"""
 
 import csv
+import io
 import os
 import time
 from collections.abc import Generator
 from datetime import datetime as dt
-from io import BytesIO, StringIO
+from io import BytesIO
 from numbers import Number
 from pathlib import Path
 from typing import Any
@@ -103,10 +104,11 @@ def gtfs_record_iter(
         if first_or_none is None:
             return
         # Create the dictionary of IDs, parents should precede the children
-        with StringIO(
-            str(z.read(first_or_none), encoding="utf-8-sig")
-        ) as dataset_dot_txt:
-            reader = csv.DictReader(dataset_dot_txt, delimiter=",", dialect=GtfsDialect)
+        with (
+            z.open(first_or_none, "r") as f,
+            io.TextIOWrapper(f, encoding="utf-8-sig") as buf,
+        ):
+            reader = csv.DictReader(buf, delimiter=",", dialect=GtfsDialect)
             yield from reader
 
 
