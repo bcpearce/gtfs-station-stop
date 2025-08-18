@@ -17,13 +17,10 @@ from aiohttp import ClientSession
 from yarl import URL
 
 from gtfs_station_stop.calendar import Calendar
-from gtfs_station_stop.const import GTFS_STATIC_CACHE, GTFS_STATIC_CACHE_EXPIRY
-from gtfs_station_stop.helpers import unpack_nested_zips
 from gtfs_station_stop.route_info import RouteInfo, RouteInfoDataset
 from gtfs_station_stop.static_dataset import (
     GtfsStaticDataset,
     async_factory,
-    create_cached_session,
 )
 from gtfs_station_stop.station_stop_info import StationStopInfo, StationStopInfoDataset
 from gtfs_station_stop.stop_times import StopTimesDataset
@@ -130,9 +127,9 @@ class GtfsSchedule:
 
         try:
             if self.tmp_dir is None:
-                self.tmp_dir = TemporaryDirectory(
-                    dir=f"{tempfile.gettempdir()}/gtfs_station_stop"
-                )
+                gtfs_tmp_dir = f"{tempfile.gettempdir()}/gtfs_station_stop"
+                os.makedirs(gtfs_tmp_dir, exist_ok=True)
+                self.tmp_dir = TemporaryDirectory(dir=gtfs_tmp_dir)
                 self.tmp_dir_path = Path(self.tmp_dir.name)
             async with TaskGroup() as tg:
                 for url in gtfs_urls:
@@ -150,42 +147,6 @@ class GtfsSchedule:
     def __del__(self) -> None:
         if self.tmp_dir_path is not None and self.tmp_dir_path.is_dir():
             shutil.rmtree(self.tmp_dir_path, ignore_errors=True)
-
-    async def async_update_schedule(
-        self,
-        *gtfs_resources: os.PathLike,
-        session: ClientSession | None = None,
-        **kwargs,
-    ) -> None:
-        """Build a schedule dataclass."""
-
-        # Check for nested file resources
-
-        close_session = False
-        if session is None:
-            session = create_cached_session(
-                kwargs.get("gtfs_static_cache", GTFS_STATIC_CACHE),
-                kwargs.get("cache_expiry", GTFS_STATIC_CACHE_EXPIRY),
-            )
-            close_session = True
-
-        nested_resources = await unpack_nested_zips(*gtfs_resources)
-        gtfs_resources = list(gtfs_resources) + nested_resources
-
-        try:
-            async with asyncio.TaskGroup() as tg:
-                for gtfs_resource in gtfs_resources:
-                    for static_dataset in [
-                        self.calendar,
-                        self.station_stop_info_ds,
-                        self.trip_info_ds,
-                        self.route_info_ds,
-                        self.stop_times_ds,
-                    ]:
-                        tg.create_task(async_factory(static_dataset, gtfs_resource))
-        finally:
-            if close_session:
-                await session.close()
 
     def get_stop_info(self, stop_id: str) -> StationStopInfo | None:
         """Get stop info by ID."""
@@ -230,7 +191,7 @@ async def async_build_schedule(
 
     close_session: bool = False
     if session is None:
-        session = create_cached_session()
+        session = ClientSession()
         close_session = True
 
     try:
