@@ -10,7 +10,7 @@ tracemalloc.start(25)
 
 async def main(*target: str):
     s = GtfsSchedule()
-    await s.async_build_schedule(*target, stops_filter={"L11N"})
+    await s.async_build_schedule(*target)
 
 
 if __name__ == "__main__":

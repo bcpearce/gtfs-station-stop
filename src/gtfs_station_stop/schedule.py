@@ -1,6 +1,5 @@
 """Schedule"""
 
-import asyncio
 import os
 import shutil
 import tempfile
@@ -84,13 +83,13 @@ class GtfsSchedule:
         task_group: TaskGroup,
         url: URL,
         target: Path,
-        stops_filter: set[str],
         *,
         session: ClientSession | None = None,
         chunk_size: int = DEFAULT_CHUNK_SIZE,
+        **kwargs,
     ) -> None:
         async with (
-            session.get(url) as resp,
+            session.get(url, **kwargs) as resp,
             aiofiles.open(target, "wb") as tmp_f,
         ):
             async for chunk in resp.content.iter_chunked(chunk_size):
@@ -108,16 +107,12 @@ class GtfsSchedule:
                 in_mem = BytesIO(await f.read())
             for ds in [self.calendar, self.route_info_ds, self.trip_info_ds]:
                 task_group.create_task(async_factory(ds, in_mem))
-            await async_factory(self.station_stop_info_ds, in_mem)
-            if set(self.station_stop_info_ds.get_stop_ids()) & stops_filter:
-                self.stop_times_ds.stops_filter = stops_filter
-                self.stop_times_ds.add_gtfs_data(in_mem)
 
     async def async_build_schedule(
         self,
         *gtfs_urls: URL,
         session: ClientSession | None = None,
-        stops_filter: set[str] | None = None,
+        **kwargs,
     ) -> None:
         """Update the schedule given a set of URLs"""
         close_session = False
@@ -137,12 +132,29 @@ class GtfsSchedule:
                     path = self.tmp_dir_path / f"{hash_str}.zip"
                     tg.create_task(
                         self._async_download_to_file_and_add_data(
-                            tg, url, path, stops_filter or set(), session=session
+                            tg,
+                            url,
+                            path,
+                            session=session,
+                            **kwargs,
                         )
                     )
         finally:
             if close_session:
                 await session.close()
+
+    async def async_load_stop_times(self, stops_filter: set[str] | None = None) -> None:
+        """
+        Async load stop times in stop_times.txt
+        This operation should be deayed from schedule building as it can
+        be time consuming and is not needed for many datasets.
+        """
+        self.stop_times_ds.stops_filter = stops_filter or set()
+        for resource in self.resources:
+            in_mem: BytesIO | None = None
+            async with aiofiles.open(resource, "rb") as f:
+                in_mem = BytesIO(await f.read())
+                self.stop_times_ds.add_gtfs_data(in_mem)
 
     def __del__(self) -> None:
         if self.tmp_dir_path is not None and self.tmp_dir_path.is_dir():
@@ -184,7 +196,6 @@ class GtfsSchedule:
 async def async_build_schedule(
     *gtfs_urls: os.PathLike,
     session: ClientSession | None = None,
-    stops_filter: set[str] | None = None,
     **kwargs,
 ) -> GtfsSchedule:
     """Build a schedule dataclass."""
@@ -195,33 +206,9 @@ async def async_build_schedule(
         close_session = True
 
     try:
-        async with asyncio.TaskGroup() as tg:
-            cal_ds_task = tg.create_task(
-                async_factory(Calendar, *gtfs_urls, session=session, **kwargs)
-            )
-            ssi_ds_task = tg.create_task(
-                async_factory(
-                    StationStopInfoDataset, *gtfs_urls, session=session, **kwargs
-                )
-            )
-            ti_ds_task = tg.create_task(
-                async_factory(TripInfoDataset, *gtfs_urls, session=session, **kwargs)
-            )
-            rti_ds_task = tg.create_task(
-                async_factory(RouteInfoDataset, *gtfs_urls, session=session, **kwargs)
-            )
-            st_ds = StopTimesDataset()
-            st_ds.stops_filter = stops_filter
-            st_ds_task = tg.create_task(
-                async_factory(st_ds, *gtfs_urls, session=session, **kwargs)
-            )
+        schedule = GtfsSchedule()
+        await schedule.async_build_schedule(*gtfs_urls, session=session, **kwargs)
     finally:
         if close_session:
             await session.close()
-    return GtfsSchedule(
-        calendar=cal_ds_task.result(),
-        station_stop_info_ds=ssi_ds_task.result(),
-        trip_info_ds=ti_ds_task.result(),
-        route_info_ds=rti_ds_task.result(),
-        stop_times_ds=st_ds_task.result(),
-    )
+    return schedule
