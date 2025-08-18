@@ -148,6 +148,15 @@
     }),
     'station_stop_info_ds': dict({
       'station_stop_infos': dict({
+        '101': 101: Test Station Main St, lat: 40.60, long: -74.5,
+        '101N': 101N: Test Station Main St, lat: 40.60, long: -74.5, parent: 101,
+        '101S': 101S: Test Station Main St, lat: 40.60, long: -74.5, parent: 101,
+        '102': 102: Test Station 10 St, lat: 40.70, long: -74.6,
+        '102N': 102N: Test Station 10 St, lat: 40.70, long: -74.6, parent: 102,
+        '102S': 102S: Test Station 10 St, lat: 40.70, long: -74.6, parent: 102,
+        '103': 103: Test Station 20 St, lat: 40.70, long: -74.6,
+        '103N': 103N: Test Station 20 St, lat: 40.70, long: -74.6, parent: 103,
+        '103S': 103S: Test Station 20 St, lat: 40.70, long: -74.6, parent: 103,
       }),
     }),
     'stop_times_ds': dict({
@@ -325,6 +334,17 @@
     }),
     'station_stop_info_ds': dict({
       'station_stop_infos': dict({
+        '101': 101: Test Station Main St, lat: 40.60, long: -74.5,
+        '101N': 101N: Test Station Main St, lat: 40.60, long: -74.5, parent: 101,
+        '101S': 101S: Test Station Main St, lat: 40.60, long: -74.5, parent: 101,
+        '102': 102: Test Station 10 St, lat: 40.70, long: -74.6,
+        '102N': 102N: Test Station 10 St, lat: 40.70, long: -74.6, parent: 102,
+        '102S': 102S: Test Station 10 St, lat: 40.70, long: -74.6, parent: 102,
+        '103': 103: Test Station 20 St, lat: 40.70, long: -74.6,
+        '103N': 103N: Test Station 20 St, lat: 40.70, long: -74.6, parent: 103,
+        '103S': 103S: Test Station 20 St, lat: 40.70, long: -74.6, parent: 103,
+        '201': 201: Test Station Last St, lat: 40.60, long: -74.5, parent: 201,
+        '201N': 201N: Test Station Last St, lat: 40.60, long: -74.5, parent: 201,
       }),
     }),
     'stop_times_ds': dict({
@@ -506,6 +526,15 @@
     }),
     'station_stop_info_ds': dict({
       'station_stop_infos': dict({
+        '101': 101: Test Station Main St, lat: 40.60, long: -74.5,
+        '101N': 101N: Test Station Main St, lat: 40.60, long: -74.5, parent: 101,
+        '101S': 101S: Test Station Main St, lat: 40.60, long: -74.5, parent: 101,
+        '102': 102: Test Station 10 St, lat: 40.70, long: -74.6,
+        '102N': 102N: Test Station 10 St, lat: 40.70, long: -74.6, parent: 102,
+        '102S': 102S: Test Station 10 St, lat: 40.70, long: -74.6, parent: 102,
+        '103': 103: Test Station 20 St, lat: 40.70, long: -74.6,
+        '103N': 103N: Test Station 20 St, lat: 40.70, long: -74.6, parent: 103,
+        '103S': 103S: Test Station 20 St, lat: 40.70, long: -74.6, parent: 103,
       }),
     }),
     'stop_times_ds': dict({

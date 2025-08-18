@@ -46,12 +46,12 @@ async def _get_nested_zip(
             os.makedirs(dest_fullpath.parent, exist_ok=True)
             with z.open(file, "r") as z_nested:
                 async with (
-                    aiofiles.open(dest / file.filename, "wb") as f,
+                    aiofiles.open(dest_fullpath, "wb") as f,
                 ):
                     buf = bytearray(chunk_size)
                     while (n_bytes := z_nested.readinto(buf)) > 0:
                         await f.write(buf[:n_bytes])
-            res.append(z.extract(file, dest))
+            res.append(dest_fullpath)
     return res
 
 
@@ -69,44 +69,6 @@ class GtfsSchedule:
     tmp_dir: TemporaryDirectory | None = None
     tmp_dir_path: Path | None = None
     resources: set[Path] = field(default_factory=set)
-
-    def _get_datasets(self) -> list[GtfsStaticDataset]:
-        return [
-            self.calendar,
-            self.station_stop_info_ds,
-            self.trip_info_ds,
-            self.route_info_ds,
-        ]
-
-    async def _async_download_to_file_and_add_data(
-        self,
-        task_group: TaskGroup,
-        url: URL,
-        target: Path,
-        *,
-        session: ClientSession | None = None,
-        chunk_size: int = DEFAULT_CHUNK_SIZE,
-        **kwargs,
-    ) -> None:
-        async with (
-            session.get(url, **kwargs) as resp,
-            aiofiles.open(target, "wb") as tmp_f,
-        ):
-            async for chunk in resp.content.iter_chunked(chunk_size):
-                await tmp_f.write(chunk)
-
-        self.resources.add(target)
-        nested_dest = target.parent
-        os.makedirs(nested_dest, exist_ok=True)
-        self.resources.update(
-            Path(s) for s in await _get_nested_zip(target, nested_dest)
-        )
-        for resource in self.resources:
-            in_mem: BytesIO | None = None
-            async with aiofiles.open(resource, "rb") as f:
-                in_mem = BytesIO(await f.read())
-            for ds in [self.calendar, self.route_info_ds, self.trip_info_ds]:
-                task_group.create_task(async_factory(ds, in_mem))
 
     async def async_build_schedule(
         self,
@@ -156,10 +118,6 @@ class GtfsSchedule:
                 in_mem = BytesIO(await f.read())
                 self.stop_times_ds.add_gtfs_data(in_mem)
 
-    def __del__(self) -> None:
-        if self.tmp_dir_path is not None and self.tmp_dir_path.is_dir():
-            shutil.rmtree(self.tmp_dir_path, ignore_errors=True)
-
     def get_stop_info(self, stop_id: str) -> StationStopInfo | None:
         """Get stop info by ID."""
         return self.station_stop_info_ds.station_stop_infos.get(stop_id)
@@ -191,6 +149,47 @@ class GtfsSchedule:
         if route_info is not None:
             return route_info.type.pretty_name()
         return ""
+
+    def __del__(self) -> None:
+        if self.tmp_dir_path is not None and self.tmp_dir_path.is_dir():
+            shutil.rmtree(self.tmp_dir_path, ignore_errors=True)
+
+    def _get_required_datasets(self) -> list[GtfsStaticDataset]:
+        return [
+            self.calendar,
+            self.station_stop_info_ds,
+            self.trip_info_ds,
+            self.route_info_ds,
+        ]
+
+    async def _async_download_to_file_and_add_data(
+        self,
+        task_group: TaskGroup,
+        url: URL,
+        target: Path,
+        *,
+        session: ClientSession | None = None,
+        chunk_size: int = DEFAULT_CHUNK_SIZE,
+        **kwargs,
+    ) -> None:
+        async with (
+            session.get(url, **kwargs) as resp,
+            aiofiles.open(target, "wb") as tmp_f,
+        ):
+            async for chunk in resp.content.iter_chunked(chunk_size):
+                await tmp_f.write(chunk)
+
+        self.resources.add(target)
+        nested_dest = target.parent
+        os.makedirs(nested_dest, exist_ok=True)
+        nested_resources = [Path(s) for s in await _get_nested_zip(target, nested_dest)]
+        self.resources.update(nested_resources)
+        for resource in [target] + nested_resources:
+            in_mem: BytesIO | None = None
+            async with aiofiles.open(resource, "rb") as f:
+                in_mem = BytesIO(await f.read())
+            for ds in self._get_required_datasets():
+                task_group.create_task(async_factory(ds, in_mem))
 
 
 async def async_build_schedule(
