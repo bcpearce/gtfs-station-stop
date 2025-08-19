@@ -1,7 +1,7 @@
 """Stop Times Dataset."""
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Self
 
@@ -124,17 +124,20 @@ class StopTimesDataset(GtfsStaticDataset):
     """Dataset for Stop Times."""
 
     stop_times: dict[str, dict[int, StopTime]]
+    stops_filter: set[str] = field(default_factory=set)  # only add stop_ids from here
 
     def __init__(self, *gtfs_files: os.PathLike, **kwargs):
         self.stop_times = {}
+        self.stops_filter = set()
         super().__init__(*gtfs_files, **kwargs)
 
     def add_gtfs_data(self, zip_filelike) -> None:
         for line in self._get_gtfs_record_iter(zip_filelike, "stop_times.txt"):
-            stop_time = StopTime(line)
-            self.stop_times.setdefault(stop_time.trip_id, {})[
-                stop_time.stop_sequence
-            ] = stop_time
+            if line.get("stop_id") in (self.stops_filter or set()):
+                stop_time = StopTime(line)
+                self.stop_times.setdefault(stop_time.trip_id, {})[
+                    stop_time.stop_sequence
+                ] = stop_time
 
     def get(self, trip_id, stop_sequence, *, default: StopTime | None = None):
         """Get Stop Time from Dataset."""

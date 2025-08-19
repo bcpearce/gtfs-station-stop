@@ -1,3 +1,5 @@
+"""Test Fixtures"""
+
 import os
 import pathlib
 
@@ -83,4 +85,7 @@ def gtfs_calendar(test_directory):
 
 @pytest.fixture
 def stop_times_dataset(test_directory):
-    return StopTimesDataset(test_directory / "data" / "gtfs_static.zip")
+    st_ds = StopTimesDataset()
+    st_ds.stops_filter = {"101N", "102N", "103N"}
+    st_ds.add_gtfs_data(test_directory / "data" / "gtfs_static.zip")
+    return st_ds

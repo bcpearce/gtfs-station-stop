@@ -1,27 +1,14 @@
 """GTFS Static Dataset Base Class."""
 
+import asyncio
 import inspect
 import os
 from io import BytesIO
 
 import aiofiles
 from aiohttp import ClientSession
-from aiohttp_client_cache import CachedSession, FileBackend
 
-from gtfs_station_stop.const import GTFS_STATIC_CACHE, GTFS_STATIC_CACHE_EXPIRY
 from gtfs_station_stop.helpers import gtfs_record_iter, is_url
-
-
-def create_cached_session(
-    gtfs_static_cache=GTFS_STATIC_CACHE, cache_expiry=GTFS_STATIC_CACHE_EXPIRY
-) -> CachedSession:
-    """
-    Create a cached session to use with this resource.
-    This handle must be closed by the caller.
-    """
-    return CachedSession(
-        cache=FileBackend(gtfs_static_cache, expire_after=cache_expiry)
-    )
 
 
 class GtfsStaticDataset:
@@ -65,10 +52,7 @@ async def async_factory(
                 if session is None:
                     # automatically create a session to use for this call, then close it
                     # this is less efficient than dependency injection
-                    session = create_cached_session(
-                        kwargs.get("gtfs_static_cache", GTFS_STATIC_CACHE),
-                        kwargs.get("cache_expiry", GTFS_STATIC_CACHE_EXPIRY),
-                    )
+                    session = ClientSession()
                     close_session = True
                 async with session.get(
                     resource, headers=kwargs.get("headers")
@@ -88,5 +72,5 @@ async def async_factory(
         else:
             zip_data = resource
 
-        gtfsds.add_gtfs_data(zip_data)
+        await asyncio.to_thread(gtfsds.add_gtfs_data, zip_data)
     return gtfsds
