@@ -1,5 +1,6 @@
 """GTFS Static Dataset Base Class."""
 
+import asyncio
 import inspect
 import os
 from io import BytesIO
@@ -71,5 +72,8 @@ async def async_factory(
         else:
             zip_data = resource
 
-        gtfsds.add_gtfs_data(zip_data)
+        def add_gtfs_data(zip_data=zip_data) -> None:
+            gtfsds.add_gtfs_data(zip_data)
+
+        await asyncio.to_thread(add_gtfs_data)
     return gtfsds

@@ -159,7 +159,7 @@ class FeedSubject:
                 tg.create_task(async_load_feed_data(self, uri, feed, tg))
         return feed
 
-    def _notify_stop_updates(self, feed):
+    def _notify_updates(self, feed):
         for e in feed.entity:
             if e.HasField("trip_update"):
                 tu = e.trip_update
@@ -190,8 +190,6 @@ class FeedSubject:
                     ):
                         sub.arrivals.append(arrival)
 
-    def _notify_alerts(self, feed) -> None:
-        for e in feed.entity:
             if e.HasField("alert"):
                 al = e.alert
                 ends_at = helpers.is_none_or_ends_at(al)
@@ -222,8 +220,7 @@ class FeedSubject:
 
     def _reset_and_notify(self, feed: gtfs_realtime_pb2.FeedMessage) -> None:
         self._reset_subscribers()
-        self._notify_stop_updates(feed)
-        self._notify_alerts(feed)
+        self._notify_updates(feed)
 
     def update(self) -> None:
         """Synchronous update of all feeds and subscribers."""
@@ -231,12 +228,19 @@ class FeedSubject:
 
     async def async_update(self, session: ClientSession | None = None) -> None:
         """Asyncrhonous update of all feeds and subscribers."""
+
+        feed: gtfs_realtime_pb2.FeedMessage | None = None
         if session is None:
             # create the session context manager if not injected
             async with ClientSession() as _session:
-                self._reset_and_notify(await self._async_get_gtfs_feed(_session))
+                feed = await self._async_get_gtfs_feed(_session)
         else:
-            self._reset_and_notify(await self._async_get_gtfs_feed(session))
+            feed = await self._async_get_gtfs_feed(session)
+
+        def reset_and_notify() -> None:
+            self._reset_and_notify(feed)
+
+        await asyncio.to_thread(reset_and_notify)
 
     def subscribe(self, updatable: Updatable) -> None:
         """Add an informed entity as a subscriber."""
