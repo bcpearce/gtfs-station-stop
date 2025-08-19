@@ -72,8 +72,5 @@ async def async_factory(
         else:
             zip_data = resource
 
-        def add_gtfs_data(zip_data=zip_data) -> None:
-            gtfsds.add_gtfs_data(zip_data)
-
-        await asyncio.to_thread(add_gtfs_data)
+        await asyncio.to_thread(gtfsds.add_gtfs_data, zip_data)
     return gtfsds
