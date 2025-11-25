@@ -1,3 +1,5 @@
+"""Test GTFS Calendar"""
+
 from datetime import date, datetime
 
 from gtfs_station_stop.calendar import Calendar
@@ -15,15 +17,37 @@ def test_get_station_stop_info_from_zip_calendar_txt(gtfs_calendar):
     assert service.is_active_on(datetime(year=2024, month=3, day=4)) is True, (
         "Regular Service active on a weekday."
     )
+    assert service in gtfs_calendar.get_active_services(
+        datetime(year=2024, month=3, day=4)
+    )
+    assert service not in gtfs_calendar.get_inactive_services(
+        datetime(year=2024, month=3, day=4)
+    )
     assert service.is_active_on(datetime(year=2024, month=3, day=9)) is False, (
         "Regular Service not active on a weekend."
+    )
+    assert service not in gtfs_calendar.get_active_services(
+        datetime(year=2024, month=3, day=9)
+    )
+    assert service in gtfs_calendar.get_inactive_services(
+        datetime(year=2024, month=3, day=9)
     )
     # Test with date too
     assert service.is_active_on(date(year=2024, month=3, day=4)) is True, (
         "Regular Service active on a weekday."
     )
+    assert service in gtfs_calendar.get_active_services(date(year=2024, month=3, day=4))
+    assert service not in gtfs_calendar.get_inactive_services(
+        date(year=2024, month=3, day=4)
+    )
     assert service.is_active_on(date(year=2024, month=3, day=9)) is False, (
         "Regular Service not active on a weekend."
+    )
+    assert service not in gtfs_calendar.get_active_services(
+        date(year=2024, month=3, day=9)
+    )
+    assert service in gtfs_calendar.get_inactive_services(
+        date(year=2024, month=3, day=9)
     )
 
 
