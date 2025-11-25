@@ -28,6 +28,13 @@ async def test_async_build_schedule(mock_feed_server, snapshot):
     assert snapshot(exclude=schedule_filter) == asdict(schedule)
     assert isinstance(schedule.stop_times_ds, StopTimesDataset)
 
+    assert schedule.get_route_color("X") == "EE352E"
+    assert schedule.get_route_text_color("Y") == "FFFFFF"
+    assert schedule.get_trip_headsign("123_X..N01R") == "Northbound X"
+    assert schedule.get_route_type("X") == "Subway"
+    assert schedule.get_stop_info("101S").parent.id == "101"
+    assert schedule.get_stop_info("101S").name == "Test Station Main St"
+
 
 async def test_async_build_schedule_add_data_later(mock_feed_server, snapshot):
     schedule: GtfsSchedule = await async_build_schedule(
