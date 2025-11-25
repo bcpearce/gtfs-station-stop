@@ -2,7 +2,7 @@
 
 A project for organizing GTFS Real-Time data for use as a homeassistant sensor.
 
-![test coverage](./coverage.svg)'
+[![Coverage Status](https://coveralls.io/repos/github/bcpearce/gtfs-station-stop/badge.svg?branch=code-coverage)](https://coveralls.io/github/bcpearce/gtfs-station-stop?branch=code-coverage)
 
 ## Usage
 
