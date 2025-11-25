@@ -14,7 +14,7 @@ jobs:
       - name: "Install uv"
         uses: astral-sh/setup-uv@v5
         with:
-          version: "0.8.3"
+          version: "0.9.11"
       - name: "Set up Python"
         uses: actions/setup-python@v5
         with:
@@ -37,5 +37,12 @@ jobs:
           format: markdown
           output: both
           if: always()
+      - name: "Coveralls"
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          format: cobertura
+          file: coverage.xml
+        continue-on-error: true
       - name: "Build Dist"
         run: uv build
