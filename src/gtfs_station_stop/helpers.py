@@ -98,5 +98,8 @@ def gtfs_record_iter(
             z.open(first_or_none, "r") as f,
             io.TextIOWrapper(f, encoding="utf-8-sig") as buf,
         ):
-            reader = csv.DictReader(buf, delimiter=",", dialect=GtfsDialect)
+            reader = (
+                {k.strip(): v.strip() for k, v in row.items()}
+                for row in csv.DictReader(buf, delimiter=",", dialect=GtfsDialect)
+            )
             yield from reader
