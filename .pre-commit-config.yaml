@@ -29,3 +29,4 @@ repos:
 
 ci:
   skip: [ pytest, uv-lock ]
+  autoupdate_schedule: monthly
