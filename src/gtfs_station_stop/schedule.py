@@ -5,6 +5,7 @@ import shutil
 import tempfile
 from asyncio import TaskGroup
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 from io import BytesIO
 from os import PathLike
 from pathlib import Path
@@ -15,6 +16,7 @@ import aiofiles
 from aiohttp import ClientSession
 from yarl import URL
 
+from gtfs_station_stop.arrival import Arrival
 from gtfs_station_stop.calendar import Calendar
 from gtfs_station_stop.route_info import RouteInfo, RouteInfoDataset
 from gtfs_station_stop.static_dataset import (
@@ -108,7 +110,7 @@ class GtfsSchedule:
     async def async_load_stop_times(self, stops_filter: set[str] | None = None) -> None:
         """
         Async load stop times in stop_times.txt
-        This operation should be deayed from schedule building as it can
+        This operation should be delayed from schedule building as it can
         be time consuming and is not needed for many datasets.
         """
         self.stop_times_ds.stops_filter = stops_filter or set()
@@ -149,6 +151,46 @@ class GtfsSchedule:
         if route_info is not None:
             return route_info.type.pretty_name()
         return ""
+
+    def get_upcoming_arrivals(self, stop_id: str, delta: timedelta) -> list[Arrival]:
+        """Get a list of scheduled arrivals from now until a time in the future."""
+        return self.get_arrivals_between_times(
+            stop_id, datetime.now(), datetime.now() + delta
+        )
+
+    def get_arrivals_between_times(
+        self, stop_id: str, start: datetime, end: datetime
+    ) -> list[Arrival]:
+        """Get a list of scheduled arrivals."""
+        arrivals: list[Arrival] = []
+        active_services = set(
+            self.calendar.get_active_services(start.date())
+            + self.calendar.get_active_services(end.date())
+        )
+        for trip_id, stop_seq in self.stop_times_ds.stop_times.items():
+            for stop_time in stop_seq.values():
+                if (
+                    stop_time.stop_id == stop_id
+                    and (trip_info := self.trip_info_ds.get(trip_id)) is not None
+                    and trip_info.service_id in [s.service_id for s in active_services]
+                ):
+                    at = datetime(
+                        year=start.year,
+                        month=start.month,
+                        day=start.day,
+                        hour=stop_time.arrival_time.hour,
+                        minute=stop_time.arrival_time.minute,
+                        second=stop_time.arrival_time.second,
+                    )
+                    if start <= at <= end:
+                        arrivals.append(
+                            Arrival(
+                                route=trip_info.route_id,
+                                trip=trip_id,
+                                time=at.timestamp(),
+                            )
+                        )
+        return arrivals
 
     def __del__(self) -> None:
         if self.tmp_dir_path is not None and self.tmp_dir_path.is_dir():

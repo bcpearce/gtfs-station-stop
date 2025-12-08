@@ -159,7 +159,7 @@ class FeedSubject:
                 tg.create_task(async_load_feed_data(self, uri, feed, tg))
         return feed
 
-    def _notify_updates(self, feed):
+    def _notify_updates(self, feed: gtfs_realtime_pb2.FeedMessage):
         for e in feed.entity:
             if e.HasField("trip_update"):
                 tu = e.trip_update

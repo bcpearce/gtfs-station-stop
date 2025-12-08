@@ -2,3 +2,6 @@ trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_t
 STOP_TIME_TRIP,05:28:00,05:28:00,101N,1,0,0,,1,
 STOP_TIME_TRIP,05:30:00,05:30:00,102N,2,0,0,1.000,1,
 STOP_TIME_TRIP,05:35:00,,103N,3,0,0,2.000,1,
+X1,00:10:00,,102S,1,0,0,,1,
+X2,00:20:00,,102S,1,0,0,,1,
+X3,00:30:00,,102S,1,0,0,,1,
