@@ -187,7 +187,7 @@ class GtfsSchedule:
                             Arrival(
                                 route=trip_info.route_id,
                                 trip=trip_id,
-                                time=at.timestamp(),
+                                time=at,
                             )
                         )
         return arrivals

@@ -1,6 +1,7 @@
 """Dataclass for Arrivals"""
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Self
 
 
@@ -10,11 +11,17 @@ class Arrival:
 
     route: str
     trip: str
-    time: float | None = None
+    time: float | datetime | None = None
     delay: float | None = None
-    departure_time: float | None = None
+    departure_time: float | datetime | None = None
     departure_delay: float | None = None
     stop_sequence: int | None = None
+
+    def __post_init__(self):
+        if isinstance(self.time, datetime):
+            self.time = self.time.time()
+        if isinstance(self.departure_time, datetime):
+            self.departure_time = self.departure_time.time()
 
     def __lt__(self, other: Self) -> bool:
         if self.time is not None and other.time is not None:
