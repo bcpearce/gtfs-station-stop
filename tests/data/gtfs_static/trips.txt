@@ -13,3 +13,6 @@ Z,456_Z..N06R,Weekday,Northbound Z,0,Z..N06R
 Z,654_Z..S06R,Weekday,Southbound Z,1,Z..S06R
 A,STOP_TIME_TRIP,Weekday,Southbound A,1,A
 ,bad,unknown,Eastbound ?,2,u..EXXR
+X,X1,Weekday,Southbound X,1,X1
+X,X2,Weekday,Southbound X,1,X1
+X,X3,Weekday,Southbound X,1,X1

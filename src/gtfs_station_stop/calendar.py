@@ -54,6 +54,9 @@ class Service:
             not normally_active and the_date in self.added_exceptions
         )
 
+    def __repr__(self) -> str:
+        return f"{__class__} id:{self.service_id}"
+
     @staticmethod
     def no_regular_service(service_id: str) -> Self:
         """Provides a service with no regular service days."""

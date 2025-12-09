@@ -1,6 +1,7 @@
 """Test Schedule."""
 
 from dataclasses import asdict
+from datetime import datetime
 
 import syrupy.filters
 from aiohttp import ClientSession
@@ -76,3 +77,30 @@ async def test_stop_time_filtering(mock_feed_server, snapshot):
     ) == asdict(schedule)
 
     assert schedule.stop_times_ds.get("STOP_TIME_TRIP", 1) is not None
+
+
+async def test_scheduled_arrival(mock_feed_server):
+    schedule: GtfsSchedule = await async_build_schedule(
+        *[
+            url
+            for url in mock_feed_server.static_urls
+            if url.endswith("gtfs_static.zip")
+        ]
+    )
+    await schedule.async_load_stop_times(
+        set(schedule.station_stop_info_ds.station_stop_infos.keys())
+    )
+
+    arrivals = schedule.get_arrivals_between_times(
+        "102S",
+        datetime(year=2024, month=1, day=1, hour=0),
+        datetime(year=2024, month=1, day=1, hour=1),
+    )
+    assert len(arrivals) == 3
+
+    arrivals = schedule.get_arrivals_between_times(
+        "102S",
+        datetime(year=2024, month=1, day=1, hour=0, minute=0),
+        datetime(year=2024, month=1, day=1, hour=0, minute=25),
+    )
+    assert len(arrivals) == 2

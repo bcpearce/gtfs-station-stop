@@ -92,6 +92,6 @@ class TripInfoDataset(GtfsStaticDataset):
     def __getitem__(self, key) -> TripInfo:
         return self.trip_infos[key]
 
-    def get(self, key: Any, default: Any | None = None):
+    def get(self, key: Any, default: TripInfo | None = None) -> TripInfo | None:
         """Get Trip Info."""
         return self.trip_infos.get(key, default)

@@ -3,99 +3,11 @@
   dict({
     'calendar': dict({
       'services': dict({
-        'NoFridayService': Service(
-          added_exceptions=set({
-          }),
-          end=datetime.date(1, 1, 1),
-          removed_exceptions=set({
-            datetime.date(2024, 3, 1),
-          }),
-          service_days=ServiceDays(
-            friday=False,
-            monday=False,
-            saturday=False,
-            sunday=False,
-            thursday=False,
-            tuesday=False,
-            wednesday=False,
-          ),
-          service_id='NoFridayService',
-          start=datetime.date(1, 1, 1),
-        ),
-        'PiDaySpecial': Service(
-          added_exceptions=set({
-            datetime.date(2024, 3, 14),
-          }),
-          end=datetime.date(1, 1, 1),
-          removed_exceptions=set({
-          }),
-          service_days=ServiceDays(
-            friday=False,
-            monday=False,
-            saturday=False,
-            sunday=False,
-            thursday=False,
-            tuesday=False,
-            wednesday=False,
-          ),
-          service_id='PiDaySpecial',
-          start=datetime.date(1, 1, 1),
-        ),
-        'Regular': Service(
-          added_exceptions=set({
-          }),
-          end=datetime.date(2024, 12, 31),
-          removed_exceptions=set({
-            datetime.date(2024, 12, 25),
-          }),
-          service_days=ServiceDays(
-            friday=True,
-            monday=True,
-            saturday=False,
-            sunday=False,
-            thursday=True,
-            tuesday=True,
-            wednesday=True,
-          ),
-          service_id='Regular',
-          start=datetime.date(2024, 1, 1),
-        ),
-        'Weekday': Service(
-          added_exceptions=set({
-          }),
-          end=datetime.date(2024, 12, 31),
-          removed_exceptions=set({
-          }),
-          service_days=ServiceDays(
-            friday=True,
-            monday=True,
-            saturday=False,
-            sunday=False,
-            thursday=True,
-            tuesday=True,
-            wednesday=True,
-          ),
-          service_id='Weekday',
-          start=datetime.date(2024, 1, 1),
-        ),
-        'Weekend': Service(
-          added_exceptions=set({
-          }),
-          end=datetime.date(2024, 12, 31),
-          removed_exceptions=set({
-          }),
-          service_days=ServiceDays(
-            friday=False,
-            monday=False,
-            saturday=True,
-            sunday=True,
-            thursday=False,
-            tuesday=False,
-            wednesday=False,
-          ),
-          service_id='Weekend',
-          start=datetime.date(2024, 1, 1),
-        ),
+        'NoFridayService': <class 'gtfs_station_stop.calendar.Service'> id:NoFridayService,
+        'PiDaySpecial': <class 'gtfs_station_stop.calendar.Service'> id:PiDaySpecial,
+        'Regular': <class 'gtfs_station_stop.calendar.Service'> id:Regular,
+        'Weekday': <class 'gtfs_station_stop.calendar.Service'> id:Weekday,
+        'Weekend': <class 'gtfs_station_stop.calendar.Service'> id:Weekend,
       }),
     }),
     'route_info_ds': dict({
@@ -180,6 +92,9 @@
         '654_Y..S05R': 654_Y..S05R: Y to Southbound Y,
         '654_Z..S06R': 654_Z..S06R: Z to Southbound Z,
         'STOP_TIME_TRIP': STOP_TIME_TRIP: A to Southbound A,
+        'X1': X1: X to Southbound X,
+        'X2': X2: X to Southbound X,
+        'X3': X3: X to Southbound X,
         'bad': bad:  to Eastbound ?,
       }),
     }),
@@ -189,99 +104,11 @@
   dict({
     'calendar': dict({
       'services': dict({
-        'NoFridayService': Service(
-          added_exceptions=set({
-          }),
-          end=datetime.date(1, 1, 1),
-          removed_exceptions=set({
-            datetime.date(2024, 3, 1),
-          }),
-          service_days=ServiceDays(
-            friday=False,
-            monday=False,
-            saturday=False,
-            sunday=False,
-            thursday=False,
-            tuesday=False,
-            wednesday=False,
-          ),
-          service_id='NoFridayService',
-          start=datetime.date(1, 1, 1),
-        ),
-        'PiDaySpecial': Service(
-          added_exceptions=set({
-            datetime.date(2024, 3, 14),
-          }),
-          end=datetime.date(1, 1, 1),
-          removed_exceptions=set({
-          }),
-          service_days=ServiceDays(
-            friday=False,
-            monday=False,
-            saturday=False,
-            sunday=False,
-            thursday=False,
-            tuesday=False,
-            wednesday=False,
-          ),
-          service_id='PiDaySpecial',
-          start=datetime.date(1, 1, 1),
-        ),
-        'Regular': Service(
-          added_exceptions=set({
-          }),
-          end=datetime.date(2024, 12, 31),
-          removed_exceptions=set({
-            datetime.date(2024, 12, 25),
-          }),
-          service_days=ServiceDays(
-            friday=True,
-            monday=True,
-            saturday=False,
-            sunday=False,
-            thursday=True,
-            tuesday=True,
-            wednesday=True,
-          ),
-          service_id='Regular',
-          start=datetime.date(2024, 1, 1),
-        ),
-        'Weekday': Service(
-          added_exceptions=set({
-          }),
-          end=datetime.date(2024, 12, 31),
-          removed_exceptions=set({
-          }),
-          service_days=ServiceDays(
-            friday=True,
-            monday=True,
-            saturday=False,
-            sunday=False,
-            thursday=True,
-            tuesday=True,
-            wednesday=True,
-          ),
-          service_id='Weekday',
-          start=datetime.date(2024, 1, 1),
-        ),
-        'Weekend': Service(
-          added_exceptions=set({
-          }),
-          end=datetime.date(2024, 12, 31),
-          removed_exceptions=set({
-          }),
-          service_days=ServiceDays(
-            friday=False,
-            monday=False,
-            saturday=True,
-            sunday=True,
-            thursday=False,
-            tuesday=False,
-            wednesday=False,
-          ),
-          service_id='Weekend',
-          start=datetime.date(2024, 1, 1),
-        ),
+        'NoFridayService': <class 'gtfs_station_stop.calendar.Service'> id:NoFridayService,
+        'PiDaySpecial': <class 'gtfs_station_stop.calendar.Service'> id:PiDaySpecial,
+        'Regular': <class 'gtfs_station_stop.calendar.Service'> id:Regular,
+        'Weekday': <class 'gtfs_station_stop.calendar.Service'> id:Weekday,
+        'Weekend': <class 'gtfs_station_stop.calendar.Service'> id:Weekend,
       }),
     }),
     'route_info_ds': dict({
@@ -372,6 +199,9 @@
         '987_X..N21R': 987_X..N21R: X to Northbound Special X,
         '987_X..S21R': 987_X..S21R: X to Southbound Special X,
         'STOP_TIME_TRIP': STOP_TIME_TRIP: A to Southbound A,
+        'X1': X1: X to Southbound X,
+        'X2': X2: X to Southbound X,
+        'X3': X3: X to Southbound X,
         'bad': bad:  to Eastbound ?,
       }),
     }),
@@ -381,99 +211,11 @@
   dict({
     'calendar': dict({
       'services': dict({
-        'NoFridayService': Service(
-          added_exceptions=set({
-          }),
-          end=datetime.date(1, 1, 1),
-          removed_exceptions=set({
-            datetime.date(2024, 3, 1),
-          }),
-          service_days=ServiceDays(
-            friday=False,
-            monday=False,
-            saturday=False,
-            sunday=False,
-            thursday=False,
-            tuesday=False,
-            wednesday=False,
-          ),
-          service_id='NoFridayService',
-          start=datetime.date(1, 1, 1),
-        ),
-        'PiDaySpecial': Service(
-          added_exceptions=set({
-            datetime.date(2024, 3, 14),
-          }),
-          end=datetime.date(1, 1, 1),
-          removed_exceptions=set({
-          }),
-          service_days=ServiceDays(
-            friday=False,
-            monday=False,
-            saturday=False,
-            sunday=False,
-            thursday=False,
-            tuesday=False,
-            wednesday=False,
-          ),
-          service_id='PiDaySpecial',
-          start=datetime.date(1, 1, 1),
-        ),
-        'Regular': Service(
-          added_exceptions=set({
-          }),
-          end=datetime.date(2024, 12, 31),
-          removed_exceptions=set({
-            datetime.date(2024, 12, 25),
-          }),
-          service_days=ServiceDays(
-            friday=True,
-            monday=True,
-            saturday=False,
-            sunday=False,
-            thursday=True,
-            tuesday=True,
-            wednesday=True,
-          ),
-          service_id='Regular',
-          start=datetime.date(2024, 1, 1),
-        ),
-        'Weekday': Service(
-          added_exceptions=set({
-          }),
-          end=datetime.date(2024, 12, 31),
-          removed_exceptions=set({
-          }),
-          service_days=ServiceDays(
-            friday=True,
-            monday=True,
-            saturday=False,
-            sunday=False,
-            thursday=True,
-            tuesday=True,
-            wednesday=True,
-          ),
-          service_id='Weekday',
-          start=datetime.date(2024, 1, 1),
-        ),
-        'Weekend': Service(
-          added_exceptions=set({
-          }),
-          end=datetime.date(2024, 12, 31),
-          removed_exceptions=set({
-          }),
-          service_days=ServiceDays(
-            friday=False,
-            monday=False,
-            saturday=True,
-            sunday=True,
-            thursday=False,
-            tuesday=False,
-            wednesday=False,
-          ),
-          service_id='Weekend',
-          start=datetime.date(2024, 1, 1),
-        ),
+        'NoFridayService': <class 'gtfs_station_stop.calendar.Service'> id:NoFridayService,
+        'PiDaySpecial': <class 'gtfs_station_stop.calendar.Service'> id:PiDaySpecial,
+        'Regular': <class 'gtfs_station_stop.calendar.Service'> id:Regular,
+        'Weekday': <class 'gtfs_station_stop.calendar.Service'> id:Weekday,
+        'Weekend': <class 'gtfs_station_stop.calendar.Service'> id:Weekend,
       }),
     }),
     'route_info_ds': dict({
@@ -563,6 +305,9 @@
         '654_Y..S05R': 654_Y..S05R: Y to Southbound Y,
         '654_Z..S06R': 654_Z..S06R: Z to Southbound Z,
         'STOP_TIME_TRIP': STOP_TIME_TRIP: A to Southbound A,
+        'X1': X1: X to Southbound X,
+        'X2': X2: X to Southbound X,
+        'X3': X3: X to Southbound X,
         'bad': bad:  to Eastbound ?,
       }),
     }),
