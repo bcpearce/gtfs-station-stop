@@ -13,7 +13,7 @@ from gtfs_station_stop.schedule import (
 )
 from gtfs_station_stop.stop_times import StopTimesDataset
 
-schedule_filter = syrupy.filters.props("tmp_dir", "tmp_dir_path", "resources")
+schedule_filter = syrupy.filters.props("download_dir_path", "resources")
 
 
 async def test_async_build_schedule(mock_feed_server, snapshot):
@@ -73,7 +73,7 @@ async def test_stop_time_filtering(mock_feed_server, snapshot):
     await schedule.async_load_stop_times({"101N"})
 
     assert snapshot(
-        exclude=syrupy.filters.props("tmp_dir", "tmp_dir_path", "resources")
+        exclude=syrupy.filters.props("download_dir_path", "resources")
     ) == asdict(schedule)
 
     assert schedule.stop_times_ds.get("STOP_TIME_TRIP", 1) is not None

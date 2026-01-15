@@ -77,6 +77,7 @@
       'stops_filter': set({
       }),
     }),
+    'tmp_dir_path': PosixPath('/tmp/gtfs_station_stop'),
     'trip_info_ds': dict({
       'trip_infos': dict({
         '123_X..N01R': 123_X..N01R: X to Northbound X,
@@ -180,6 +181,7 @@
       'stops_filter': set({
       }),
     }),
+    'tmp_dir_path': PosixPath('/tmp/gtfs_station_stop'),
     'trip_info_ds': dict({
       'trip_infos': dict({
         '123_X..N01R': 123_X..N01R: X to Northbound X,
@@ -290,6 +292,7 @@
         '101N',
       }),
     }),
+    'tmp_dir_path': PosixPath('/tmp/gtfs_station_stop'),
     'trip_info_ds': dict({
       'trip_infos': dict({
         '123_X..N01R': 123_X..N01R: X to Northbound X,
