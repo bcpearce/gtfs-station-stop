@@ -74,6 +74,17 @@ async def test_async_build_schedule_add_data_later(mock_feed_server, snapshot):
     assert isinstance(schedule.route_info_ds, RouteInfoDataset)
 
 
+async def test_async_build_schedule_nested(mock_feed_server, snapshot):
+    schedule: GtfsSchedule = await async_build_schedule(
+        *[
+            url
+            for url in mock_feed_server.static_urls
+            if url.endswith("gtfs_nested.zip")
+        ]
+    )
+    assert snapshot(exclude=schedule_filter) == asdict(schedule)
+
+
 async def test_stop_time_filtering(gtfs_mock_schedule, snapshot):
     await gtfs_mock_schedule.async_load_stop_times({"101N"})
 
