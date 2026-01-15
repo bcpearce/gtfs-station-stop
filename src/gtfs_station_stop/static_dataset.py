@@ -3,6 +3,7 @@
 import asyncio
 import inspect
 import os
+from abc import abstractmethod
 from io import BytesIO
 
 import aiofiles
@@ -25,6 +26,7 @@ class GtfsStaticDataset:
     def _get_gtfs_record_iter(self, zip_filelike, target_txt: os.PathLike):
         return gtfs_record_iter(zip_filelike, target_txt, **self.kwargs)
 
+    @abstractmethod
     def add_gtfs_data(self, zip_filelike: os.PathLike) -> None:
         """Add GTFS Data."""
         raise NotImplementedError
