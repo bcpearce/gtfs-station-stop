@@ -15,17 +15,17 @@ from gtfs_station_stop.trip_info import TripInfoDataset
 
 
 @pytest.fixture(scope="session")
-def test_directory():
+def test_directory() -> pathlib.Path:
     return pathlib.Path(__file__).parent.resolve()
 
 
 @pytest.fixture(scope="session")
-def good_trip_info_dataset(test_directory):
+def good_trip_info_dataset(test_directory) -> TripInfoDataset:
     return TripInfoDataset(test_directory / "data" / "gtfs_static.zip")
 
 
 @pytest.fixture
-def good_station_stop_info_dataset(test_directory):
+def good_station_stop_info_dataset(test_directory) -> StationStopInfoDataset:
     return StationStopInfoDataset(test_directory / "data" / "gtfs_static.zip")
 
 
