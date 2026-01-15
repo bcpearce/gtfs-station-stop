@@ -1,56 +1,56 @@
 [project]
-name = "gtfs_station_stop"
-version = "0.11.2"
 authors = [
-  {name="Benjamin Pearce", email="gtfs@bcpearce.com"}
+  {name = "Benjamin Pearce", email = "gtfs@bcpearce.com"},
 ]
-description = "Package for reading and organizing GTFS data for a given station stop."
-readme = "README.md"
-requires-python = ">=3.13.2"
 classifiers = [
   "Programming Language :: Python :: 3",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
 ]
 dependencies = [
-    "aiofiles>=24.1.0",
-    "aiohttp>=3.11.11",
-    "asyncio-atexit>=1.0.1",
-    "coverage-badge>=1.1.2",
-    "gtfs-realtime-bindings>=1.0.0",
-    "protobuf!=6.31.0",
-    "requests>=2.32.3"
+  "aiofiles>=24.1.0",
+  "aiohttp>=3.11.11",
+  "asyncio-atexit>=1.0.1",
+  "coverage-badge>=1.1.2",
+  "gtfs-realtime-bindings>=1.0.0",
+  "protobuf!=6.31.0",
+  "requests>=2.32.3",
 ]
-load-plugins="pylint_protobuf"
+description = "Package for reading and organizing GTFS data for a given station stop."
+load-plugins = "pylint_protobuf"
+name = "gtfs_station_stop"
+readme = "README.md"
+requires-python = ">=3.13.2"
+version = "0.11.3"
 
 [project.urls]
 Homepage = "https://github.com/bcpearce/gtfs-station-stop"
 Issues = "https://github.com/bcpearce/gtfs-station-stop/issues"
 
 [dependency-groups]
-dev = [
-    "freezegun>=1.5.1",
-    "pre-commit>=4.2.0",
-    "pytest>=8.3.5",
-    "pytest-asyncio>=0.26.0",
-    "pytest-cov>=6.1.1",
-    "pytest-httpserver>=1.1.3",
-    "ruff>=0.11.10",
-    "syrupy>=4.9.1",
-    "python-dotenv>=1.1.0",
-    "pylint-protobuf>=0.22.0",
-]
 cli = [
-    "python-dotenv>=1.1.0",
+  "python-dotenv>=1.1.0",
+]
+dev = [
+  "freezegun>=1.5.1",
+  "pre-commit>=4.2.0",
+  "pytest>=8.3.5",
+  "pytest-asyncio>=0.26.0",
+  "pytest-cov>=6.1.1",
+  "pytest-httpserver>=1.1.3",
+  "ruff>=0.11.10",
+  "syrupy>=4.9.1",
+  "python-dotenv>=1.1.0",
+  "pylint-protobuf>=0.22.0",
 ]
 # used to check for compatibility with homeassistant
 homeassistant = [
-    "homeassistant>=2025.7.0",
+  "homeassistant>=2025.7.0",
 ]
 
 [build-system]
-requires = ["hatchling"]
 build-backend = "hatchling.build"
+requires = ["hatchling"]
 
 [tool.ruff]
 line-length = 88
@@ -71,9 +71,9 @@ docstring-code-format = true
 quote-style = "double"
 
 [tool.pytest.ini_options]
-asyncio_mode = "auto"
 addopts = "--cov=gtfs_station_stop --cov-report=xml --junitxml test_results.xml"
 asyncio_default_fixture_loop_scope = "session"
+asyncio_mode = "auto"
 
 [tool.coverage.run]
 omit = ["src/gtfs_station_stop/__main__.py"]
