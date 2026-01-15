@@ -3,6 +3,7 @@
 from dataclasses import asdict
 from datetime import datetime
 
+import pytest
 import syrupy.filters
 from aiohttp import ClientSession
 
@@ -13,28 +14,39 @@ from gtfs_station_stop.schedule import (
 )
 from gtfs_station_stop.stop_times import StopTimesDataset
 
-schedule_filter = syrupy.filters.props("tmp_dir", "tmp_dir_path", "resources")
+schedule_filter = syrupy.filters.props("download_dir_path", "resources")
 
 
-async def test_async_build_schedule(mock_feed_server, snapshot):
-    async with ClientSession() as session:
-        schedule: GtfsSchedule = await async_build_schedule(
-            *[
-                url
-                for url in mock_feed_server.static_urls
-                if url.endswith("gtfs_static.zip")
-            ],
-            session=session,
+@pytest.fixture(params=["from_url", "from_local_file"])
+async def gtfs_mock_schedule(request, mock_feed_server, test_directory) -> GtfsSchedule:
+    schedule: GtfsSchedule | None = None
+    if request.param == "from_url":
+        async with ClientSession() as session:
+            schedule = await async_build_schedule(
+                *[
+                    url
+                    for url in mock_feed_server.static_urls
+                    if url.endswith("gtfs_static.zip")
+                ],
+                session=session,
+            )
+    elif request.param == "from_local_file":
+        schedule = await async_build_schedule(
+            *[test_directory / "data" / "gtfs_static.zip"]
         )
-    assert snapshot(exclude=schedule_filter) == asdict(schedule)
-    assert isinstance(schedule.stop_times_ds, StopTimesDataset)
+    return schedule
 
-    assert schedule.get_route_color("X") == "EE352E"
-    assert schedule.get_route_text_color("Y") == "FFFFFF"
-    assert schedule.get_trip_headsign("123_X..N01R") == "Northbound X"
-    assert schedule.get_route_type("X") == "Subway"
-    assert schedule.get_stop_info("101S").parent.id == "101"
-    assert schedule.get_stop_info("101S").name == "Test Station Main St"
+
+async def test_async_build_schedule(gtfs_mock_schedule, snapshot):
+    assert snapshot(exclude=schedule_filter) == asdict(gtfs_mock_schedule)
+    assert isinstance(gtfs_mock_schedule.stop_times_ds, StopTimesDataset)
+
+    assert gtfs_mock_schedule.get_route_color("X") == "EE352E"
+    assert gtfs_mock_schedule.get_route_text_color("Y") == "FFFFFF"
+    assert gtfs_mock_schedule.get_trip_headsign("123_X..N01R") == "Northbound X"
+    assert gtfs_mock_schedule.get_route_type("X") == "Subway"
+    assert gtfs_mock_schedule.get_stop_info("101S").parent.id == "101"
+    assert gtfs_mock_schedule.get_stop_info("101S").name == "Test Station Main St"
 
 
 async def test_async_build_schedule_add_data_later(mock_feed_server, snapshot):
@@ -62,43 +74,40 @@ async def test_async_build_schedule_add_data_later(mock_feed_server, snapshot):
     assert isinstance(schedule.route_info_ds, RouteInfoDataset)
 
 
-async def test_stop_time_filtering(mock_feed_server, snapshot):
+async def test_async_build_schedule_nested(mock_feed_server, snapshot):
     schedule: GtfsSchedule = await async_build_schedule(
         *[
             url
             for url in mock_feed_server.static_urls
-            if url.endswith("gtfs_static.zip")
+            if url.endswith("gtfs_nested.zip")
         ]
     )
-    await schedule.async_load_stop_times({"101N"})
+    assert snapshot(exclude=schedule_filter) == asdict(schedule)
+
+
+async def test_stop_time_filtering(gtfs_mock_schedule, snapshot):
+    await gtfs_mock_schedule.async_load_stop_times({"101N"})
 
     assert snapshot(
-        exclude=syrupy.filters.props("tmp_dir", "tmp_dir_path", "resources")
-    ) == asdict(schedule)
+        exclude=syrupy.filters.props("download_dir_path", "resources")
+    ) == asdict(gtfs_mock_schedule)
 
-    assert schedule.stop_times_ds.get("STOP_TIME_TRIP", 1) is not None
+    assert gtfs_mock_schedule.stop_times_ds.get("STOP_TIME_TRIP", 1) is not None
 
 
-async def test_scheduled_arrival(mock_feed_server):
-    schedule: GtfsSchedule = await async_build_schedule(
-        *[
-            url
-            for url in mock_feed_server.static_urls
-            if url.endswith("gtfs_static.zip")
-        ]
-    )
-    await schedule.async_load_stop_times(
-        set(schedule.station_stop_info_ds.station_stop_infos.keys())
+async def test_scheduled_arrival(gtfs_mock_schedule):
+    await gtfs_mock_schedule.async_load_stop_times(
+        set(gtfs_mock_schedule.station_stop_info_ds.station_stop_infos.keys())
     )
 
-    arrivals = schedule.get_arrivals_between_times(
+    arrivals = gtfs_mock_schedule.get_arrivals_between_times(
         "102S",
         datetime(year=2024, month=1, day=1, hour=0),
         datetime(year=2024, month=1, day=1, hour=1),
     )
     assert len(arrivals) == 3
 
-    arrivals = schedule.get_arrivals_between_times(
+    arrivals = gtfs_mock_schedule.get_arrivals_between_times(
         "102S",
         datetime(year=2024, month=1, day=1, hour=0, minute=0),
         datetime(year=2024, month=1, day=1, hour=0, minute=25),

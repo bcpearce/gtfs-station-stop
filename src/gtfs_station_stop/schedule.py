@@ -1,7 +1,6 @@
 """Schedule"""
 
 import os
-import shutil
 import tempfile
 from asyncio import TaskGroup
 from dataclasses import dataclass, field
@@ -9,7 +8,6 @@ from datetime import datetime, timedelta
 from io import BytesIO
 from os import PathLike
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
 import aiofiles
@@ -18,6 +16,7 @@ from yarl import URL
 
 from gtfs_station_stop.arrival import Arrival
 from gtfs_station_stop.calendar import Calendar
+from gtfs_station_stop.helpers import is_url
 from gtfs_station_stop.route_info import RouteInfo, RouteInfoDataset
 from gtfs_station_stop.static_dataset import (
     GtfsStaticDataset,
@@ -68,13 +67,12 @@ class GtfsSchedule:
     trip_info_ds: TripInfoDataset = field(default_factory=TripInfoDataset)
     route_info_ds: RouteInfoDataset = field(default_factory=RouteInfoDataset)
     stop_times_ds: StopTimesDataset = field(default_factory=StopTimesDataset)
-    tmp_dir: TemporaryDirectory | None = None
-    tmp_dir_path: Path | None = None
+    download_dir_path: PathLike = Path(f"{tempfile.gettempdir()}/gtfs_station_stop")
     resources: set[Path] = field(default_factory=set)
 
     async def async_build_schedule(
         self,
-        *gtfs_urls: URL,
+        *gtfs_urls_or_paths: URL | PathLike,
         session: ClientSession | None = None,
         **kwargs,
     ) -> None:
@@ -85,24 +83,32 @@ class GtfsSchedule:
             close_session = True
 
         try:
-            if self.tmp_dir is None:
-                gtfs_tmp_dir = f"{tempfile.gettempdir()}/gtfs_station_stop"
-                os.makedirs(gtfs_tmp_dir, exist_ok=True)
-                self.tmp_dir = TemporaryDirectory(dir=gtfs_tmp_dir)
-                self.tmp_dir_path = Path(self.tmp_dir.name)
+            os.makedirs(self.download_dir_path, exist_ok=True)
             async with TaskGroup() as tg:
-                for url in gtfs_urls:
-                    hash_str = hex(hash(str(url)) & 0xFFFFFFFF)[2:]
-                    path = self.tmp_dir_path / f"{hash_str}.zip"
-                    tg.create_task(
-                        self._async_download_to_file_and_add_data(
-                            tg,
-                            url,
-                            path,
-                            session=session,
-                            **kwargs,
+                for url_or_path in gtfs_urls_or_paths:
+                    # hash and stringify the URL
+                    if is_url(url_or_path):
+                        hash_str = hex(hash(str(url_or_path)) & 0xFFFFFFFF)[2:]
+                        path = Path(self.download_dir_path) / f"{hash_str}.zip"
+                        tg.create_task(
+                            self._async_download_to_file_and_add_data(
+                                tg,
+                                url_or_path,
+                                path,
+                                session=session,
+                                **kwargs,
+                            )
                         )
-                    )
+                    else:
+                        tg.create_task(
+                            self._async_download_to_file_and_add_data(
+                                tg,
+                                None,
+                                url_or_path,
+                                session=session,
+                                **kwargs,
+                            )
+                        )
         finally:
             if close_session:
                 await session.close()
@@ -192,10 +198,6 @@ class GtfsSchedule:
                         )
         return arrivals
 
-    def __del__(self) -> None:
-        if self.tmp_dir_path is not None and self.tmp_dir_path.is_dir():
-            shutil.rmtree(self.tmp_dir_path, ignore_errors=True)
-
     def _get_required_datasets(self) -> list[GtfsStaticDataset]:
         return [
             self.calendar,
@@ -207,19 +209,20 @@ class GtfsSchedule:
     async def _async_download_to_file_and_add_data(
         self,
         task_group: TaskGroup,
-        url: URL,
+        url: URL | None,
         target: Path,
         *,
         session: ClientSession | None = None,
         chunk_size: int = DEFAULT_CHUNK_SIZE,
         **kwargs,
     ) -> None:
-        async with (
-            session.get(url, **kwargs) as resp,
-            aiofiles.open(target, "wb") as tmp_f,
-        ):
-            async for chunk in resp.content.iter_chunked(chunk_size):
-                await tmp_f.write(chunk)
+        if url is not None:
+            async with (
+                session.get(url, **kwargs) as resp,
+                aiofiles.open(target, "wb") as tmp_f,
+            ):
+                async for chunk in resp.content.iter_chunked(chunk_size):
+                    await tmp_f.write(chunk)
 
         self.resources.add(target)
         nested_dest = target.parent

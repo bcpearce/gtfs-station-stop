@@ -1,5 +1,7 @@
 """Updatable"""
 
+from abc import abstractmethod
+
 
 class Updatable:
     """Updatable Base class."""
@@ -11,6 +13,7 @@ class Updatable:
         """Time Last Updated."""
         return self._last_updated
 
+    @abstractmethod
     def begin_update(self, timestamp: float | None = None) -> None:
         """Prepare for update by Feed Subject"""
         raise NotImplementedError
