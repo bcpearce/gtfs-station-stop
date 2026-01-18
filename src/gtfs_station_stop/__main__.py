@@ -10,7 +10,7 @@ import dotenv
 from gtfs_station_stop.calendar import Calendar
 from gtfs_station_stop.feed_subject import FeedSubject
 from gtfs_station_stop.route_status import RouteStatus
-from gtfs_station_stop.schedule import GtfsSchedule
+from gtfs_station_stop.schedule import async_build_schedule
 from gtfs_station_stop.station_stop import StationStop
 from gtfs_station_stop.station_stop_info import (  # noqa: F401
     StationStopInfoDataset,
@@ -86,8 +86,7 @@ if __name__ == "__main__":
     stop_times_dataset = None
 
     if args.do_async and args.info_zip:
-        schedule = GtfsSchedule()
-        asyncio.run(schedule.async_update_schedule(*args.info_zip))
+        schedule = asyncio.run(async_build_schedule(*args.info_zip))
         ssids, tids, calendar = (
             schedule.station_stop_info_ds,
             schedule.trip_info_ds,
@@ -132,12 +131,7 @@ if __name__ == "__main__":
             print(ssids[stop.id])
             pprint(
                 [
-                    [
-                        arrival.route,
-                        arrival.time,
-                        arrival.trip,
-                        tids.get_close_match(arrival.trip, calendar),
-                    ]
+                    arrival
                     for arrival in sorted(
                         stop.get_time_to_arrivals(stop_times_dataset=stop_times_dataset)
                     )

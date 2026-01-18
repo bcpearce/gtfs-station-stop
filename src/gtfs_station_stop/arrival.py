@@ -16,6 +16,7 @@ class Arrival:
     departure_time: float | datetime | None = None
     departure_delay: float | None = None
     stop_sequence: int | None = None
+    current_station: str | None = None
 
     def __post_init__(self):
         if isinstance(self.time, datetime):

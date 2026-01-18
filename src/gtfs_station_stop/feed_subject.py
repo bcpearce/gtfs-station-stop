@@ -1,7 +1,9 @@
 """Feed Subject"""
 
 import asyncio
+import builtins
 import concurrent.futures
+import contextlib
 import time
 from collections import defaultdict
 from collections.abc import Collection
@@ -159,35 +161,58 @@ class FeedSubject:
                 tg.create_task(async_load_feed_data(self, uri, feed, tg))
         return feed
 
+    @staticmethod
+    def _get_current_trip_position(
+        trip_update,
+        *,
+        current_time: float | None = None,
+        max_allowed_seconds: float = 180,
+    ) -> str:
+        with contextlib.suppress(builtins.BaseException):
+            current_pos = None
+            if current_time is None:
+                current_time = time.time()
+            for stu in trip_update.stop_time_update:
+                delta = abs(current_time - stu.arrival.time)
+                if delta < max_allowed_seconds and (
+                    current_pos is None
+                    or delta < abs(current_time - current_pos.arrival.time)
+                ):
+                    current_pos = stu
+            return current_pos.stop_id
+        return None
+
     def _notify_updates(self, feed: gtfs_realtime_pb2.FeedMessage):
         for e in feed.entity:
             if e.HasField("trip_update"):
                 tu = e.trip_update
+                cur_pos = self._get_current_trip_position(tu)
                 for stu in (
                     stu
                     for stu in tu.stop_time_update
                     if stu.stop_id in self.subscribers
                 ):
-                    arrival = Arrival(
-                        route=tu.trip.route_id,
-                        trip=tu.trip.trip_id,
-                        time=stu.arrival.time if "time" in stu.arrival else None,
-                        delay=stu.arrival.delay if "delay" in stu.arrival else None,
-                        departure_time=stu.departure.time
-                        if "time" in stu.departure
-                        else None,
-                        departure_delay=stu.departure.delay
-                        if "delay" in stu.departure
-                        else None,
-                        stop_sequence=stu.stop_sequence
-                        if "stop_sequence" in stu
-                        else None,
-                    )
                     for sub in (
                         sub
                         for sub in self.subscribers[stu.stop_id]
                         if hasattr(sub, "arrivals")
                     ):
+                        arrival = Arrival(
+                            route=tu.trip.route_id,
+                            trip=tu.trip.trip_id,
+                            time=stu.arrival.time if "time" in stu.arrival else None,
+                            delay=stu.arrival.delay if "delay" in stu.arrival else None,
+                            departure_time=stu.departure.time
+                            if "time" in stu.departure
+                            else None,
+                            departure_delay=stu.departure.delay
+                            if "delay" in stu.departure
+                            else None,
+                            stop_sequence=stu.stop_sequence
+                            if "stop_sequence" in stu
+                            else None,
+                            current_station=cur_pos,
+                        )
                         sub.arrivals.append(arrival)
 
             if e.HasField("alert"):
