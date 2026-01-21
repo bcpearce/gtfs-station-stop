@@ -187,7 +187,9 @@ class FeedSubject:
             if e.HasField("trip_update"):
                 tu = e.trip_update
                 current_station = self._get_current_trip_position(tu)
-                destination = getattr(tu.stop_time_update[-1], "stop_id", None)
+                destination = None
+                with contextlib.suppress(IndexError, AttributeError):
+                    destination = tu.stop_time_update[-1].stop_id
                 for stu in (
                     stu
                     for stu in tu.stop_time_update
