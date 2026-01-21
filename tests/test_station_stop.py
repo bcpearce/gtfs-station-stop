@@ -34,6 +34,8 @@ def test_update_feed(feed_subject: FeedSubject):
     arrival_routes = [a.route for a in ss.arrivals]
     assert "X" in arrival_routes
     assert "Y" in arrival_routes
+    for arrival in ss.arrivals:
+        assert arrival.destination == "103N"
 
 
 @freeze_time(datetime.datetime.now())
