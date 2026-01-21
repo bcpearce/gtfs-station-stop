@@ -12,7 +12,7 @@ dependencies = [
   "aiohttp>=3.11.11",
   "asyncio-atexit>=1.0.1",
   "coverage-badge>=1.1.2",
-  "gtfs-realtime-bindings>=1.0.0",
+  "gtfs-realtime-bindings>=2.0.0",
   "protobuf!=6.31.0",
   "requests>=2.32.3",
 ]

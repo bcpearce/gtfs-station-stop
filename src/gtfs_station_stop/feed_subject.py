@@ -186,7 +186,8 @@ class FeedSubject:
         for e in feed.entity:
             if e.HasField("trip_update"):
                 tu = e.trip_update
-                cur_pos = self._get_current_trip_position(tu)
+                current_station = self._get_current_trip_position(tu)
+                destination = getattr(tu.stop_time_update[-1], "stop_id", None)
                 for stu in (
                     stu
                     for stu in tu.stop_time_update
@@ -211,7 +212,8 @@ class FeedSubject:
                             stop_sequence=stu.stop_sequence
                             if "stop_sequence" in stu
                             else None,
-                            current_station=cur_pos,
+                            current_station=current_station,
+                            destination=destination,
                         )
                         sub.arrivals.append(arrival)
 
