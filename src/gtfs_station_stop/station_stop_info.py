@@ -1,6 +1,7 @@
 """Station Stop Info"""
 
 import os
+from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Self
@@ -67,7 +68,7 @@ class StationStopInfoDataset(GtfsStaticDataset):
                 parent = self.station_stop_infos.get(line["parent_station"])
             self.station_stop_infos[stop_id] = StationStopInfo(line, parent)
 
-    def get_stop_ids(self) -> list[str]:
+    def get_stop_ids(self) -> Iterable[str]:
         """Get all stop IDs."""
         return self.station_stop_infos.keys()
 

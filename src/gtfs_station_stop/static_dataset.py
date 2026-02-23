@@ -23,7 +23,7 @@ class GtfsStaticDataset:
         for file in gtfs_files:
             self.add_gtfs_data(file)
 
-    def _get_gtfs_record_iter(self, zip_filelike, target_txt: os.PathLike):
+    def _get_gtfs_record_iter(self, zip_filelike, target_txt: str):
         return gtfs_record_iter(zip_filelike, target_txt, **self.kwargs)
 
     @abstractmethod

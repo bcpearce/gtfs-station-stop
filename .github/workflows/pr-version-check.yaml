@@ -1,0 +1,16 @@
+name: Check PR Version
+
+on:
+    pull_request:
+
+jobs:
+    pr-version-check:
+        runs-on: "ubuntu-latest"
+        steps:
+            - uses: actions/checkout@v6
+            - name: Check pyproject.toml version
+              run: |
+                  VERSION=$(tomlq '.project.version' pyproject.toml -r)
+                  gh release view $VERSION ||
+                  EXIT_CODE=$?
+                  echo "::set-output name=exit_code::$EXIT_CODE"
