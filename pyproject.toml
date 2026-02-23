@@ -13,7 +13,7 @@ dependencies = [
   "asyncio-atexit>=1.0.1",
   "coverage-badge>=1.1.2",
   "gtfs-realtime-bindings>=2.0.0",
-  "protobuf!=6.31.0",
+  "protobuf>=6.33.5",
   "requests>=2.32.3",
 ]
 description = "Package for reading and organizing GTFS data for a given station stop."
