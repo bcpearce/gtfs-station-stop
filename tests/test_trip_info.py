@@ -2,6 +2,8 @@
 
 import pathlib
 
+import pytest
+
 from gtfs_station_stop.static_dataset import async_factory
 from gtfs_station_stop.trip_info import TripInfoDataset
 
@@ -33,14 +35,20 @@ def test_get_close_match_trip_with_service_id_from_zip(good_trip_info_dataset):
     assert good_trip_info_dataset.get_close_match("456_X..N", "Weekday") is not None
 
 
-def test_concatenated_trip_info_from_zips():
+@pytest.mark.parametrize(
+    "close_trip_id, expected",
+    [("456_X..N", "Northbound X"), ("987_X..S21R", "Southbound Special X")],
+)
+def test_concatenated_trip_info_from_zips(close_trip_id, expected):
     gtfs_static_zips = [
         TEST_DIRECTORY / "data" / "gtfs_static.zip",
         TEST_DIRECTORY / "data" / "gtfs_static_supl.zip",
     ]
     ti = TripInfoDataset(*gtfs_static_zips)
-    assert ti.get_close_match("456_X..N").trip_headsign == "Northbound X"
-    assert ti.get_close_match("987_X..S21R").trip_headsign == "Southbound Special X"
+
+    close_match = ti.get_close_match(close_trip_id)
+    assert close_match is not None
+    assert close_match.trip_headsign == expected
 
 
 def test_get_trip_info_from_url(mock_feed_server):
@@ -62,7 +70,7 @@ def test_get_route_ids(good_trip_info_dataset):
 
 
 async def test_async_trip_info_merge_existing(mock_feed_server):
-    ti: TripInfoDataset = await async_factory(
+    ti = await async_factory(
         TripInfoDataset,
         *[
             url
@@ -71,6 +79,7 @@ async def test_async_trip_info_merge_existing(mock_feed_server):
         ],
         headers={"api-key": "TEST_KEY"},
     )
+    assert isinstance(ti, TripInfoDataset)
     assert ti.get_close_match("456_X..N") is not None
     assert ti.get_close_match("987_X..N21R") is None
 
@@ -84,5 +93,6 @@ async def test_async_trip_info_merge_existing(mock_feed_server):
         headers={"api-key": "TEST_KEY"},
     )
 
+    assert isinstance(ti, TripInfoDataset)
     assert ti.get_close_match("456_X..N") is not None
     assert ti.get_close_match("987_X..N21R") is not None

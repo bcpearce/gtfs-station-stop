@@ -183,8 +183,15 @@ class FeedSubject:
         return None
 
     def _notify_updates(self, feed: gtfs_realtime_pb2.FeedMessage):
-        vehicles: dict[str, Vehicle] = {}
-        arrivals: dict[str, Arrival] = {}
+        vehicles: dict[str, Vehicle] = {
+            vehicle.trip_id: vehicle
+            for vehicle in [
+                from_vehicle_position_message(e.vehicle)
+                for e in feed.entity
+                if e.HasField("vehicle")
+            ]
+        }
+
         for e in feed.entity:
             if e.HasField("trip_update"):
                 tu = e.trip_update
@@ -220,18 +227,7 @@ class FeedSubject:
                             destination=destination,
                             vehicle=vehicles.get(tu.trip.trip_id),
                         )
-                        arrivals[arrival.trip] = arrival
                         sub.arrivals.append(arrival)
-
-            if e.HasField("vehicle"):
-                # The message expects a corresponding trip, and it may not be processed
-                # strictly first.
-                # If the trip already exists to notify, update it, otherwise, store in a
-                # dict for quick lookup to be handled when the trip update is processed.
-                vehicle = from_vehicle_position_message(e.vehicle)
-                if arrival := arrivals.get(vehicle.trip_id):
-                    arrival.vehicle = vehicle
-                vehicles[vehicle.trip_id] = vehicle
 
             if e.HasField("alert"):
                 al = e.alert

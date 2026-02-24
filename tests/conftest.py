@@ -57,42 +57,61 @@ def create_realtime_data():
 
     feed.header.gtfs_realtime_version = "2.0"
 
-    entities = [feed.entity.add() for _ in range(6)]
-
-    elem = entities[0]
-    elem.id = "1"
+    elem = feed.entity.add()
+    elem.id = "trip_update:1"
+    elem.trip_update.trip.trip_id = "1"
     elem.trip_update.trip.route_id = "X"
     for t, s in zip([30, 45], ["102N", "103N"], strict=False):
         stu = elem.trip_update.stop_time_update.add()
         stu.arrival.time = t
         stu.stop_id = s
 
-    elem = entities[1]
-    elem.id = "2"
+    # vehicle position updates can occur before or after the target
+    elem = feed.entity.add()
+    elem.id = "vehicle_position:1"
+    elem.vehicle.trip.trip_id = "1"
+    elem.vehicle.trip.route_id = "X"
+    elem.vehicle.position.latitude = 40.8
+    elem.vehicle.position.longitude = -73.9
+    elem.vehicle.position.bearing = 10.0
+
+    elem = feed.entity.add()
+    elem.id = "vehicle_position:2"
+    elem.vehicle.trip.trip_id = "2"
+    elem.vehicle.trip.route_id = "Y"
+    elem.vehicle.position.latitude = 42.0
+    elem.vehicle.position.longitude = -71.0
+    elem.vehicle.position.bearing = 20.0
+
+    elem = feed.entity.add()
+    elem.id = "trip_update:2"
+    elem.trip_update.trip.trip_id = "2"
     elem.trip_update.trip.route_id = "Y"
     for t, s in zip([35, 51, 68], ["101N", "102N", "103N"], strict=False):
         stu = elem.trip_update.stop_time_update.add()
         stu.arrival.time = t
         stu.stop_id = s
 
-    elem = entities[2]
-    elem.id = "3"
+    elem = feed.entity.add()
+    elem.id = "trip_update:3"
+    elem.trip_update.trip.trip_id = "3"
     elem.trip_update.trip.route_id = "Z"
     for t, s in zip([10, 0, 8], ["103S", "102S", "101S"], strict=False):
         stu = elem.trip_update.stop_time_update.add()
         stu.arrival.time = t
         stu.stop_id = s
 
-    elem = entities[3]
-    elem.id = "4"
+    elem = feed.entity.add()
+    elem.id = "trip_update:4"
+    elem.trip_update.trip.trip_id = "4"
     elem.trip_update.trip.route_id = "X"
     for t, s in zip([31, 50, 60], ["101N", "102N", "103N"], strict=False):
         stu = elem.trip_update.stop_time_update.add()
         stu.arrival.time = t
         stu.stop_id = s
 
-    elem = entities[4]
-    elem.id = "Z Alert"
+    elem = feed.entity.add()
+    elem.id = "alert:Z"
     ie = elem.alert.informed_entity.add()
     ie.route_id = "Z"
     ap = elem.alert.active_period.add()
@@ -101,8 +120,9 @@ def create_realtime_data():
     hd0.text = "Southbound Z is not ok."
     hd0.language = "en"
 
-    elem = entities[5]
-    elem.id = "5"
+    elem = feed.entity.add()
+    elem.id = "trip_update:5"
+    elem.trip_update.trip.trip_id = "5"
     elem.trip_update.trip.route_id = "A"
     for i, d, s in zip([1, 2, 3], [8, -8, 10], ["101N", "102N", "103N"], strict=False):
         stu = elem.trip_update.stop_time_update.add()

@@ -60,17 +60,17 @@ def get_as_number(
         return default
 
 
-def is_url(url: str):
+def is_url(url: str | os.PathLike):
     """Check if a str is a URL."""
     try:
-        result = urlparse(url)
+        result = urlparse(str(url))
         return all([result.scheme, result.netloc])
     except (ValueError, AttributeError):
         return False
 
 
 def gtfs_record_iter(
-    zip_filelike, target_txt: os.PathLike, **kwargs
+    zip_filelike, target_txt: str, **kwargs
 ) -> Generator[dict[Any, Any] | None]:
     """Generates a line from a given GTFS table. Can handle local files or URLs."""
 
@@ -80,7 +80,7 @@ def gtfs_record_iter(
         # Make the request, check for good return code, and convert to IO object.
         # As GTFS Static Data updates rarely, (most providers recommend pulling this
         # once per day), we will use a cache to minimize unnecessary checks.
-        res = requests.get(zip_filelike, headers=kwargs.get("headers"))
+        res = requests.get(zip_filelike, headers=kwargs.get("headers"), timeout=30)
         if 200 <= res.status_code < 400:
             zip_data = BytesIO(res.content)
         else:
@@ -88,7 +88,7 @@ def gtfs_record_iter(
 
     with ZipFile(zip_data, "r") as z:
         # Find the *.txt file
-        first_or_none: str = next(
+        first_or_none: str | None = next(
             (name for name in z.namelist() if name == target_txt), None
         )
         if first_or_none is None:
