@@ -20,9 +20,11 @@ def test_FeedSubject_update_does_not_throw_with_zero_uris():
 def test_rate_limiting():
     fs = FeedSubject([])
     fs.delay_between_api_calls = 0.5
+    assert fs.max_api_calls_per_second is not None
     assert math.isclose(fs.max_api_calls_per_second, 2, abs_tol=0.0001)
 
     fs.max_api_calls_per_second = 3
+    assert fs.max_api_calls_per_second is not None
     assert math.isclose(fs.delay_between_api_calls, 0.33333, abs_tol=0.0001)
 
     fs.max_api_calls_per_second = None

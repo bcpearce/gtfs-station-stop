@@ -13,12 +13,12 @@ jobs:
       name: release
       url: https://pypi.org/p/gtfs_station_stop
     steps:
-    - uses: actions/checkout@v4
-    - name: Install uv
-      uses: astral-sh/setup-uv@v5
-      with:
-        version: "0.8.3"
-    - name: Build the project
-      run: uv build
-    - name: Publish through Trusted Publisher
-      uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: actions/checkout@v6
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.10.4"
+      - name: Build the project
+        run: uv build
+      - name: Publish through Trusted Publisher
+        uses: pypa/gh-action-pypi-publish@release/v1

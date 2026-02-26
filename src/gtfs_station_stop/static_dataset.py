@@ -5,6 +5,7 @@ import inspect
 import os
 from abc import abstractmethod
 from io import BytesIO
+from typing import Any
 
 import aiofiles
 from aiohttp import ClientSession
@@ -23,12 +24,17 @@ class GtfsStaticDataset:
         for file in gtfs_files:
             self.add_gtfs_data(file)
 
-    def _get_gtfs_record_iter(self, zip_filelike, target_txt: os.PathLike):
+    def _get_gtfs_record_iter(self, zip_filelike, target_txt: str):
         return gtfs_record_iter(zip_filelike, target_txt, **self.kwargs)
 
     @abstractmethod
     def add_gtfs_data(self, zip_filelike: os.PathLike) -> None:
         """Add GTFS Data."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def __getitem__(self, key) -> Any:
+        """Get Dataset Item."""
         raise NotImplementedError
 
 

@@ -2,6 +2,7 @@
 
 import asyncio
 import datetime
+import math
 import time
 
 import pytest
@@ -10,6 +11,7 @@ from freezegun import freeze_time
 from gtfs_station_stop.feed_subject import FeedSubject
 from gtfs_station_stop.route_status import RouteStatus
 from gtfs_station_stop.station_stop import StationStop
+from gtfs_station_stop.vehicle import Vehicle
 
 
 def test_create_station_stop():
@@ -67,7 +69,8 @@ def test_multiple_subscribers(feed_subject: FeedSubject):
     assert len(ss2.arrivals) == 0
 
 
-async def async_test_rate_limit(feed_subject: FeedSubject):
+@pytest.mark.skip
+async def test_rate_limit(feed_subject: FeedSubject):
     StationStop("101N", feed_subject)
     feed_subject.max_api_calls_per_second = 1
 
@@ -82,3 +85,30 @@ async def async_test_rate_limit(feed_subject: FeedSubject):
         async with asyncio.timeout(2.0):
             freezer.tick()
             await feed_subject.async_update()
+
+
+@freeze_time(datetime.datetime.now())
+@pytest.mark.parametrize(
+    "trip_id,latitude,longitude,bearing",
+    [("1", 40.8, -73.9, 10.0), ("2", 42.0, -71.0, 20.0)],
+)
+async def test_map_vehicle_positions(
+    feed_subject: FeedSubject, trip_id, latitude, longitude, bearing
+) -> None:
+    """Test mapping vehicle positions to an arrival."""
+    ss1 = StationStop("101N", feed_subject)
+    ss2 = StationStop("102N", feed_subject)
+    ss3 = StationStop("103N", feed_subject)
+    await feed_subject.async_update()
+    arrivals = ss1.arrivals + ss2.arrivals + ss3.arrivals
+    for arrival in arrivals:
+        if arrival.trip == trip_id:
+            assert isinstance(arrival.vehicle, Vehicle)
+            assert arrival.vehicle.trip_id == trip_id
+            assert arrival.vehicle.latitude is not None
+            assert arrival.vehicle.longitude is not None
+            assert arrival.vehicle.bearing is not None
+
+            assert math.isclose(arrival.vehicle.latitude, latitude, abs_tol=0.01)
+            assert math.isclose(arrival.vehicle.longitude, longitude, abs_tol=0.01)
+            assert math.isclose(arrival.vehicle.bearing, bearing, abs_tol=0.01)

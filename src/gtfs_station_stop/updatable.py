@@ -1,15 +1,17 @@
 """Updatable"""
 
 from abc import abstractmethod
+from typing import Any
 
 
 class Updatable:
     """Updatable Base class."""
 
     _last_updated: float | None = None
+    id: Any
 
     @property
-    def last_updated(self) -> None:
+    def last_updated(self) -> float | None:
         """Time Last Updated."""
         return self._last_updated
 

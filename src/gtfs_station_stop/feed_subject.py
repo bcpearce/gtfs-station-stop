@@ -1,7 +1,6 @@
 """Feed Subject"""
 
 import asyncio
-import builtins
 import concurrent.futures
 import contextlib
 import time
@@ -18,6 +17,7 @@ from gtfs_station_stop import helpers
 from gtfs_station_stop.alert import Alert
 from gtfs_station_stop.arrival import Arrival
 from gtfs_station_stop.updatable import Updatable
+from gtfs_station_stop.vehicle import Vehicle, from_vehicle_position_message
 
 
 class FeedSubject:
@@ -50,7 +50,7 @@ class FeedSubject:
         self._headers = new_headers
 
     @property
-    def max_api_calls_per_second(self) -> float:
+    def max_api_calls_per_second(self) -> float | None:
         """Maximum API calls allowed per second, useful for rate-limited APIs."""
         return self._max_api_calls_per_second
 
@@ -74,7 +74,7 @@ class FeedSubject:
         return 1.0 / self._max_api_calls_per_second
 
     @delay_between_api_calls.setter
-    def delay_between_api_calls(self, new_max_delay_between_api_calls) -> float | None:
+    def delay_between_api_calls(self, new_max_delay_between_api_calls) -> None:
         """
         Set delay between API calls in seconds, inverse of maximum calls per second.
         """
@@ -91,11 +91,11 @@ class FeedSubject:
         return self._http_timeout
 
     @http_timeout.setter
-    def http_timeout(self, new_timeout: float | None) -> float | None:
+    def http_timeout(self, new_timeout: float | None) -> None:
         """Timeout for a given HTTP request"""
         self._http_timeout = new_timeout
 
-    def _request_gtfs_feed(self, uri: str) -> bytes:
+    def _request_gtfs_feed(self, uri: str) -> bytes | None:
         req: requests.Response = requests.get(
             url=uri, headers=self.headers, timeout=self.http_timeout
         )
@@ -167,22 +167,31 @@ class FeedSubject:
         *,
         current_time: float | None = None,
         max_allowed_seconds: float = 180,
-    ) -> str:
-        with contextlib.suppress(builtins.BaseException):
-            current_pos = None
-            if current_time is None:
-                current_time = time.time()
-            for stu in trip_update.stop_time_update:
-                delta = abs(current_time - stu.arrival.time)
-                if delta < max_allowed_seconds and (
-                    current_pos is None
-                    or delta < abs(current_time - current_pos.arrival.time)
-                ):
-                    current_pos = stu
+    ) -> str | None:
+        current_pos = None
+        if current_time is None:
+            current_time = time.time()
+        for stu in trip_update.stop_time_update:
+            delta = abs(current_time - stu.arrival.time)
+            if delta < max_allowed_seconds and (
+                current_pos is None
+                or delta < abs(current_time - current_pos.arrival.time)
+            ):
+                current_pos = stu
+        if current_pos is not None:
             return current_pos.stop_id
         return None
 
     def _notify_updates(self, feed: gtfs_realtime_pb2.FeedMessage):
+        vehicles: dict[str, Vehicle] = {
+            vehicle.trip_id: vehicle
+            for vehicle in [
+                from_vehicle_position_message(e.vehicle)
+                for e in feed.entity
+                if e.HasField("vehicle") and e.vehicle.HasField("position")
+            ]
+        }
+
         for e in feed.entity:
             if e.HasField("trip_update"):
                 tu = e.trip_update
@@ -216,6 +225,7 @@ class FeedSubject:
                             else None,
                             current_station=current_station,
                             destination=destination,
+                            vehicle=vehicles.get(tu.trip.trip_id),
                         )
                         sub.arrivals.append(arrival)
 

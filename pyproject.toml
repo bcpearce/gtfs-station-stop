@@ -13,7 +13,7 @@ dependencies = [
   "asyncio-atexit>=1.0.1",
   "coverage-badge>=1.1.2",
   "gtfs-realtime-bindings>=2.0.0",
-  "protobuf!=6.31.0",
+  "protobuf>=6.33.5",
   "requests>=2.32.3",
 ]
 description = "Package for reading and organizing GTFS data for a given station stop."
@@ -21,7 +21,7 @@ load-plugins = "pylint_protobuf"
 name = "gtfs_station_stop"
 readme = "README.md"
 requires-python = ">=3.13.2"
-version = "0.11.5"
+version = "0.11.6"
 
 [project.urls]
 Homepage = "https://github.com/bcpearce/gtfs-station-stop"
