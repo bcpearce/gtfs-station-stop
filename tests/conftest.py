@@ -84,6 +84,11 @@ def create_realtime_data():
     elem.vehicle.position.bearing = 20.0
 
     elem = feed.entity.add()
+    elem.id = "vehicle_position:3"
+    elem.vehicle.trip.trip_id = "3"
+    elem.vehicle.trip.route_id = "Y"
+
+    elem = feed.entity.add()
     elem.id = "trip_update:2"
     elem.trip_update.trip.trip_id = "2"
     elem.trip_update.trip.route_id = "Y"

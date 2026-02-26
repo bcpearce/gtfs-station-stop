@@ -188,7 +188,7 @@ class FeedSubject:
             for vehicle in [
                 from_vehicle_position_message(e.vehicle)
                 for e in feed.entity
-                if e.HasField("vehicle")
+                if e.HasField("vehicle") and e.vehicle.HasField("position")
             ]
         }
 
