@@ -1128,7 +1128,7 @@ wheels = [
 
 [[package]]
 name = "gtfs-station-stop"
-version = "0.11.6"
+version = "0.11.7"
 source = { editable = "." }
 dependencies = [
     { name = "aiofiles" },
@@ -1167,7 +1167,7 @@ requires-dist = [
     { name = "asyncio-atexit", specifier = ">=1.0.1" },
     { name = "coverage-badge", specifier = ">=1.1.2" },
     { name = "gtfs-realtime-bindings", specifier = ">=2.0.0" },
-    { name = "protobuf", specifier = ">=6.33.5" },
+    { name = "protobuf", specifier = "!=6.31.0" },
     { name = "requests", specifier = ">=2.32.3" },
 ]
 
