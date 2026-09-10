@@ -4,6 +4,8 @@ from zipfile import ZipFile
 from fixtures import *  # noqa F403
 from google.transit import gtfs_realtime_pb2
 
+from gtfs_station_stop.schedule import ScheduleRelationship
+
 
 def create_static_data():
     """
@@ -135,6 +137,19 @@ def create_realtime_data():
         stu.departure.delay = d
         stu.stop_id = s
         stu.stop_sequence = i
+
+    elem = feed.entity.add()
+    elem.id = "trip_update:6"
+    elem.trip_update.trip.trip_id = "6"
+    elem.trip_update.trip.route_id = "B"
+    for t, s in zip([35, 55, 65], ["101N", "102N", "104N"], strict=False):
+        stu = elem.trip_update.stop_time_update.add()
+        stu.arrival.time = t
+        stu.stop_id = s
+    # Insert a skipped stop for this trip
+    stu = elem.trip_update.stop_time_update.add()
+    stu.stop_id = "103N"
+    stu.schedule_relationship = ScheduleRelationship.SKIPPED.value
 
     print("Using Realtime Feed Stop Time Updates:")
     print(feed)

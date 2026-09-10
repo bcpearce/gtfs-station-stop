@@ -28,25 +28,42 @@ class Arrival:
         if isinstance(self.departure_time, datetime):
             self.departure_time = self.departure_time.timestamp()
 
+    def _comparison_value(self) -> float | None:
+        if self.time is not None:
+            return self.time
+        if self.departure_time is not None:
+            return self.departure_time
+        if self.delay is not None:
+            return float(self.delay)
+        if self.departure_delay is not None:
+            return float(self.departure_delay)
+        return None
+
     def __lt__(self, other: Self) -> bool:
-        if self.time is not None and other.time is not None:
-            return self.time < other.time
-        elif self.departure_time is not None and other.departure_time is not None:
-            return self.departure_time < other.departure_time
-        raise ValueError("Cannot compare items without arrival or departure times")
+        self_value = self._comparison_value()
+        other_value = other._comparison_value()
+        if self_value is not None and other_value is not None:
+            return self_value < other_value
+        raise ValueError(
+            "Cannot compare items without arrival, departure, or delay values"
+        )
 
     def __gt__(self, other: Self) -> bool:
-        if self.time is not None and other.time is not None:
-            return self.time > other.time
-        elif self.departure_time is not None and other.departure_time is not None:
-            return self.departure_time > other.departure_time
-        raise ValueError("Cannot compare items without arrival or departure times")
+        self_value = self._comparison_value()
+        other_value = other._comparison_value()
+        if self_value is not None and other_value is not None:
+            return self_value > other_value
+        raise ValueError(
+            "Cannot compare items without arrival, departure, or delay values"
+        )
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Arrival):
             return NotImplemented
-        if self.time is not None and other.time is not None:
-            return self.time == other.time
-        elif self.departure_time is not None and other.departure_time is not None:
-            return self.departure_time == other.departure_time
-        raise ValueError("Cannot compare items without arrival or departure times")
+        self_value = self._comparison_value()
+        other_value = other._comparison_value()
+        if self_value is not None and other_value is not None:
+            return self_value == other_value
+        raise ValueError(
+            "Cannot compare items without arrival, departure, or delay values"
+        )

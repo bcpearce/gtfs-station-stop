@@ -40,8 +40,3 @@ def test_invalid_comparisons():
         assert a1 == a2
     with pytest.raises(ValueError):
         assert a1 < a2
-
-    a1.departure_time = 300
-    a2.time = 100
-    with pytest.raises(ValueError):
-        assert a1 < a2

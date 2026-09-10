@@ -61,5 +61,18 @@ async def test_async_get_station_stop_info_from_url(mock_feed_server):
 def test_get_stop_ids(good_station_stop_info_dataset):
     ssi = good_station_stop_info_dataset
     assert set(ssi.get_stop_ids()) == set(
-        ["101", "101N", "101S", "102", "102S", "102N", "103", "103N", "103S"]
+        [
+            "101",
+            "101N",
+            "101S",
+            "102",
+            "102S",
+            "102N",
+            "103",
+            "103N",
+            "103S",
+            "104",
+            "104N",
+            "104S",
+        ]
     )

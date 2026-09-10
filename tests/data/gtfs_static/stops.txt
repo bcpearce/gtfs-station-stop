@@ -8,3 +8,6 @@ stop_id,stop_name,stop_lat,stop_lon,location_type,parent_station
 103,Test Station 20 St,40.70,-74.6,1,
 103N,Test Station 20 St,40.70,-74.6,,103
 103S,Test Station 20 St,40.70,-74.6,,103
+104,Test Station 30 St,40.90,-74.7,1,
+104N,Test Station 30 St,40.90,-74.7,,104
+104S,Test Station 30 St,40.90,-74.7,,104

@@ -16,6 +16,7 @@ from google.transit import gtfs_realtime_pb2
 from gtfs_station_stop import helpers
 from gtfs_station_stop.alert import Alert
 from gtfs_station_stop.arrival import Arrival
+from gtfs_station_stop.schedule import ScheduleRelationship
 from gtfs_station_stop.updatable import Updatable
 from gtfs_station_stop.vehicle import Vehicle, from_vehicle_position_message
 
@@ -199,11 +200,14 @@ class FeedSubject:
                 destination = None
                 with contextlib.suppress(IndexError, AttributeError):
                     destination = tu.stop_time_update[-1].stop_id
-                for stu in (
-                    stu
-                    for stu in tu.stop_time_update
-                    if stu.stop_id in self.subscribers
-                ):
+
+                def _stop_time_update_filter(_stu) -> bool:
+                    if _stu.stop_id not in self.subscribers:
+                        return False
+                    relationship = ScheduleRelationship(_stu.schedule_relationship)
+                    return relationship in {ScheduleRelationship.SCHEDULED}
+
+                for stu in filter(_stop_time_update_filter, tu.stop_time_update):
                     for sub in (
                         sub
                         for sub in self.subscribers[stu.stop_id]

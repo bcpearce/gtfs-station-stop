@@ -5,9 +5,11 @@ import tempfile
 from asyncio import TaskGroup
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from enum import Enum
 from io import BytesIO
 from os import PathLike
 from pathlib import Path
+from typing import Self
 from zipfile import ZipFile
 
 import aiofiles
@@ -27,6 +29,24 @@ from gtfs_station_stop.stop_times import StopTimesDataset
 from gtfs_station_stop.trip_info import TripInfo, TripInfoDataset
 
 DEFAULT_CHUNK_SIZE = 65536
+
+
+class ScheduleRelationship(Enum):
+    """
+    Schedule Relationship.
+    see https://gtfs.org/documentation/realtime/reference/#enum-schedulerelationship
+    """
+
+    SCHEDULED = 0
+    SKIPPED = 1
+    NO_DATA = 2
+    UNSCHEDULED = 3
+
+    @classmethod
+    def _missing_(cls, value) -> Self | None:
+        if value is None:
+            return cls.SCHEDULED  # ty: ignore[invalid-return-type]
+        return super()._missing_(value)
 
 
 async def _get_nested_zip(
