@@ -83,7 +83,9 @@ await feed_subject.async_update()
 Static data can also be obtained similarly with `gtfs_station_stop.static_Dataset.async_factory`.
 
 ```python
-station_stop_info_Dataset = await async_get_gtfs_Dataset(StationStopInfoDataset, "https://gtfsprovider.example.com/static.zip")
+station_stop_info_Dataset = await async_get_gtfs_Dataset(
+    StationStopInfoDataset, "https://gtfsprovider.example.com/static.zip"
+)
 ```
 
 ### Command Line Interface
