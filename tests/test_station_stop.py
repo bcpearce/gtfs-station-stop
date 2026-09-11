@@ -31,7 +31,7 @@ def test_update_feed(feed_subject: FeedSubject):
     ss = StationStop("101N", feed_subject)
     assert ss.last_updated is None
     feed_subject.update()
-    assert len(ss.arrivals) == 3
+    assert len(ss.arrivals) == 4
     assert ss.last_updated == time.time()
     arrival_routes = [a.route for a in ss.arrivals]
     assert "X" in arrival_routes
@@ -47,7 +47,7 @@ async def test_async_update_feed(feed_subject: FeedSubject):
     rs = RouteStatus("101N", feed_subject)
     assert ss.last_updated is None
     await feed_subject.async_update()
-    assert len(ss.arrivals) == 3
+    assert len(ss.arrivals) == 4
     assert ss.last_updated == time.time()
     assert rs.last_updated == time.time()
     arrival_routes = [a.route for a in ss.arrivals]
@@ -67,6 +67,16 @@ def test_multiple_subscribers(feed_subject: FeedSubject):
     assert ss2.last_updated is None
     assert len(ss1.arrivals) == 4
     assert len(ss2.arrivals) == 0
+
+
+@pytest.mark.parametrize(
+    "stop_id", ["101N", "102N", "103N", "104N", "103S", "102S", "101S"]
+)
+def test_sorting_arrivals(feed_subject: FeedSubject, stop_id: str):
+    ss = StationStop(stop_id, feed_subject)
+    feed_subject.update()
+    assert ss.last_updated is not None
+    ss.arrivals.sort()  # arrivals can sort, stop_id 103N includes skipped stop
 
 
 @pytest.mark.skip
